@@ -22,9 +22,7 @@ namespace BWAPI
       UnitType(int id);
       UnitType(const UnitType& other);
       UnitType& operator=(const UnitType& other);
-      bool operator==(const UnitType& other) const;
-      bool operator!=(const UnitType& other) const;
-      bool operator<(const UnitType& other) const;
+      operator int() const;
 
       /** Returns a unique ID for this unit type. */
       int getID() const;
@@ -280,6 +278,9 @@ namespace BWAPI
       /** Returns true if the unit produces larva. */
       bool producesLarva() const;
 
+      /** Returns true if the unit is one of the three mineral field types. */
+      bool isMineralField() const;
+
     private:
       int id;
   };
@@ -386,6 +387,8 @@ namespace BWAPI
     extern const UnitType Protoss_Scarab;
     extern const UnitType Critter_Rhynadon;
     extern const UnitType Critter_Bengalaas;
+    extern const UnitType Special_Cargo_Ship;
+    extern const UnitType Special_Mercenary_Gunship;
     extern const UnitType Critter_Scantid;
     extern const UnitType Critter_Kakaru;
     extern const UnitType Critter_Ragnasaur;
@@ -456,6 +459,9 @@ namespace BWAPI
     extern const UnitType Special_Protoss_Temple;
     extern const UnitType Special_XelNaga_Temple;
     extern const UnitType Resource_Mineral_Field;
+    extern const UnitType Resource_Mineral_Field_Type_2;
+    extern const UnitType Resource_Mineral_Field_Type_3;
+    extern const UnitType Special_Independant_Starport;
     extern const UnitType Resource_Vespene_Geyser;
     extern const UnitType Special_Warp_Gate;
     extern const UnitType Special_Psi_Disrupter;
@@ -475,6 +481,28 @@ namespace BWAPI
     extern const UnitType Powerup_Psi_Emitter;
     extern const UnitType Powerup_Data_Disk;
     extern const UnitType Powerup_Khaydarin_Crystal;
+    extern const UnitType Powerup_Mineral_Cluster_Type_1;
+    extern const UnitType Powerup_Mineral_Cluster_Type_2;
+    extern const UnitType Powerup_Protoss_Gas_Orb_Type_1;
+    extern const UnitType Powerup_Protoss_Gas_Orb_Type_2;
+    extern const UnitType Powerup_Zerg_Gas_Sac_Type_1;
+    extern const UnitType Powerup_Zerg_Gas_Sac_Type_2;
+    extern const UnitType Powerup_Terran_Gas_Tank_Type_1;
+    extern const UnitType Powerup_Terran_Gas_Tank_Type_2;
+    extern const UnitType Special_Map_Revealer;
+    extern const UnitType Special_Floor_Missile_Trap;
+    extern const UnitType Special_Floor_Hatch;
+    extern const UnitType Special_Upper_Level_Door;
+    extern const UnitType Special_Right_Upper_Level_Door;
+    extern const UnitType Special_Pit_Door;
+    extern const UnitType Special_Right_Pit_Door;
+    extern const UnitType Special_Floor_Gun_Trap;
+    extern const UnitType Special_Wall_Missile_Trap;
+    extern const UnitType Special_Wall_Flame_Trap;
+    extern const UnitType Special_Right_Wall_Missile_Trap;
+    extern const UnitType Special_Right_Wall_Flame_Trap;
+    extern const UnitType Special_Start_Location;
+
     extern const UnitType None;
     extern const UnitType AllUnits;
     extern const UnitType Men;

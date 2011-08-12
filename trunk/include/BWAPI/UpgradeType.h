@@ -12,9 +12,7 @@ namespace BWAPI
       UpgradeType(int id);
       UpgradeType(const UpgradeType& other);
       UpgradeType& operator=(const UpgradeType& other);
-      bool operator==(const UpgradeType& other) const;
-      bool operator!=(const UpgradeType& other) const;
-      bool operator<(const UpgradeType& other) const;
+      operator int() const;
 
       /** Returns the unique ID for this upgrade type. */
       int getID() const;
@@ -27,19 +25,19 @@ namespace BWAPI
       Race getRace() const;
 
       /** Returns the mineral price for the first upgrade. */
-      int mineralPriceBase() const;
+      int mineralPrice(int level = 1) const;
 
       /** Returns the amount that the mineral price increases for each additional upgrade. */
       int mineralPriceFactor() const;
 
       /** Returns the vespene gas price for the first upgrade. */
-      int gasPriceBase() const;
+      int gasPrice(int level = 1) const;
 
       /** Returns the amount that the vespene gas price increases for each additional upgrade. */
       int gasPriceFactor() const;
 
       /** Returns the number of frames needed to research the first upgrade. */
-      int upgradeTimeBase() const;
+      int upgradeTime(int level = 1) const;
 
       /** Returns the number of frames that the upgrade time increases for each additional upgrade. */
       int upgradeTimeFactor() const;
@@ -49,6 +47,9 @@ namespace BWAPI
 
       /** Returns the type of unit that researches the upgrade. */
       UnitType whatUpgrades() const;
+
+      /** Returns the type of unit that is additionally required for the upgrade. */
+      UnitType whatsRequired(int level = 1) const;
 
       /** Returns the set of units that are affected by this upgrade. */
       const std::set<UnitType>& whatUses() const;
