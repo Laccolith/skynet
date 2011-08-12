@@ -58,6 +58,7 @@ namespace BWAPI
       Player* theNeutral;
       std::set<Player*> _allies;
       std::set<Player*> _enemies;
+      std::set<Player*> _observers;
       Error lastError;
 
     public :
@@ -108,7 +109,10 @@ namespace BWAPI
 
       virtual bool  isFlagEnabled(int flag);
       virtual void  enableFlag(int flag);
-      virtual std::set<Unit*>& unitsOnTile(int x, int y);
+      virtual std::set<Unit*>& getUnitsOnTile(int x, int y);
+      virtual std::set<Unit*>& getUnitsInRectangle(int left, int top, int right, int bottom) const;
+      virtual std::set<Unit*>& getUnitsInRectangle(BWAPI::Position topLeft, BWAPI::Position bottomRight) const;
+      virtual std::set<Unit*>& getUnitsInRadius(BWAPI::Position center, int radius) const;
       virtual Error getLastError() const;
       virtual bool  setLastError(BWAPI::Error e);
 
@@ -122,16 +126,20 @@ namespace BWAPI
       virtual bool isWalkable(int x, int y);
       virtual int  getGroundHeight(int x, int y);
       virtual int  getGroundHeight(TilePosition position);
-      virtual bool isBuildable(int x, int y);
-      virtual bool isBuildable(TilePosition position);
+      virtual bool isBuildable(int x, int y, bool includeBuildings = false);
+      virtual bool isBuildable(TilePosition position, bool includeBuildings = false);
       virtual bool isVisible(int x, int y);
       virtual bool isVisible(TilePosition position);
       virtual bool isExplored(int x, int y);
       virtual bool isExplored(TilePosition position);
       virtual bool hasCreep(int x, int y);
       virtual bool hasCreep(TilePosition position);
-      virtual bool hasPower(int x, int y, int tileWidth, int tileHeight);
-      virtual bool hasPower(TilePosition position, int tileWidth, int tileHeight);
+      virtual bool hasPower(int tileX, int tileY, UnitType unitType = UnitTypes::None) const;
+      virtual bool hasPower(TilePosition position, UnitType unitType = UnitTypes::None) const;
+      virtual bool hasPower(int tileX, int tileY, int tileWidth, int tileHeight, UnitType unitType = UnitTypes::None) const;
+      virtual bool hasPower(TilePosition position, int tileWidth, int tileHeight, UnitType unitType = UnitTypes::None) const;
+      virtual bool hasPowerPrecise(int x, int y, UnitType unitType = UnitTypes::None ) const;
+      virtual bool hasPowerPrecise(Position position, UnitType unitType = UnitTypes::None) const;
 
       virtual bool canBuildHere(const Unit* builder, TilePosition position, UnitType type, bool checkExplored = false);
       virtual bool canMake(const Unit* builder, UnitType type);
@@ -150,12 +158,12 @@ namespace BWAPI
       virtual bool isPaused();
       virtual bool isReplay();
 
-      virtual void  startGame();
-      virtual void  pauseGame();
-      virtual void  resumeGame();
-      virtual void  leaveGame();
-      virtual void  restartGame();
-      virtual void  setLocalSpeed(int speed = -1);
+      virtual void startGame();
+      virtual void pauseGame();
+      virtual void resumeGame();
+      virtual void leaveGame();
+      virtual void restartGame();
+      virtual void setLocalSpeed(int speed = -1);
       virtual bool issueCommand(const std::set<BWAPI::Unit*>& units, UnitCommand command);
       virtual std::set<BWAPI::Unit*>& getSelectedUnits();
       virtual Player* self();
@@ -163,6 +171,7 @@ namespace BWAPI
       virtual Player* neutral();
       virtual std::set<BWAPI::Player*>& allies();
       virtual std::set<BWAPI::Player*>& enemies();
+      virtual std::set<BWAPI::Player*>& observers();
 
       virtual void setTextSize(int size = 1);
       virtual void drawText(int ctype, int x, int y, const char *format, ...);
@@ -212,5 +221,13 @@ namespace BWAPI
       virtual int  getReplayFrameCount();
       virtual void setGUI(bool enabled = true);
       virtual int  getInstanceNumber();
+      virtual int  getAPM(bool includeSelects = false);
+      virtual bool setMap(const char *mapFileName);
+      virtual void setFrameSkip(int frameSkip = 1);
+      virtual bool hasPath(Position source, Position destination) const;
+      virtual bool setAlliance(BWAPI::Player *player, bool allied = true, bool alliedVictory = true);
+      virtual bool setVision(BWAPI::Player *player, bool enabled = true);
+      virtual int  elapsedTime() const;
+      virtual void setCommandOptimizationLevel(int level = 2);
   };
 }

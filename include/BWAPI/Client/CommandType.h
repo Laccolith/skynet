@@ -24,7 +24,12 @@ namespace BWAPIC
       SetLocalSpeed,
       SetTextSize,
       SetLatCom,
-      SetGui
+      SetGui,
+      SetFrameSkip,
+      SetMap,
+      SetAllies,
+      SetVision,
+      SetCommandOptimizerLevel
     };
   }
 }

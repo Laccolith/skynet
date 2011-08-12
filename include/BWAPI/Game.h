@@ -148,9 +148,15 @@ namespace BWAPI
        * the AIModule::onStart callback. */
       virtual void enableFlag(int flag) = 0;
 
-      /** Returns the set of units that are on the given build tile. Only returns accessible units on
-       * accessible tiles. */
-      virtual std::set<Unit*>& unitsOnTile(int tileX, int tileY) = 0;
+      /** Returns the set of accessible units that are on the given build tile. */
+      virtual std::set<Unit*>& getUnitsOnTile(int tileX, int tileY) = 0;
+
+      /** Returns the set of accessible units that are in or overlapping the given rectangle. */
+      virtual std::set<Unit*>& getUnitsInRectangle(int left, int top, int right, int bottom) const = 0;
+      virtual std::set<Unit*>& getUnitsInRectangle(BWAPI::Position topLeft, BWAPI::Position bottomRight) const = 0;
+
+      /** Returns the set of accessible units within or overlapping a circle at the given point with the given radius. */
+      virtual std::set<Unit*>& getUnitsInRadius(BWAPI::Position center, int radius) const = 0;
 
       /** Returns the last error that was set. If you try to order enemy units around, or morph bunkers into
        * lurkers, BWAPI will set error codes, which can be retrieved using this function. */
@@ -195,9 +201,9 @@ namespace BWAPI
       /** Returns true if the specified build tile is buildable. Note that this just uses the static map data.
        * You will also need to make sure no ground units on the tile to see if its currently buildable. To do
        * this, see unitsOnTile. */
-      virtual bool isBuildable(int tileX, int tileY) = 0;
+      virtual bool isBuildable(int tileX, int tileY, bool includeBuildings = false) = 0;
       /** \copydoc isBuildable(int, int) */
-      virtual bool isBuildable(TilePosition position) = 0;
+      virtual bool isBuildable(TilePosition position, bool includeBuildings = false) = 0;
 
       /** Returns true if the specified build tile is visible. If the tile is concealed by fog of war, the
        * function will return false. */
@@ -218,9 +224,17 @@ namespace BWAPI
       virtual bool hasCreep(TilePosition position) = 0;
 
       /** Returns true if the given build location is powered by a nearby friendly pylon. */
-      virtual bool hasPower(int tileX, int tileY, int tileWidth, int tileHeight) = 0;
-      /** \copydoc hasPower(int, int, int, int) */
-      virtual bool hasPower(TilePosition position, int tileWidth, int tileHeight) = 0;
+      virtual bool hasPower(int tileX, int tileY, UnitType unitType = UnitTypes::None) const = 0;
+      /** Returns true if the given build location is powered by a nearby friendly pylon. */
+      virtual bool hasPower(TilePosition position, UnitType unitType = UnitTypes::None) const = 0;
+      /** Returns true if the given build location is powered by a nearby friendly pylon. */
+      virtual bool hasPower(int tileX, int tileY, int tileWidth, int tileHeight, UnitType unitType = UnitTypes::None) const = 0;
+      /** Returns true if the given build location is powered by a nearby friendly pylon. */
+      virtual bool hasPower(TilePosition position, int tileWidth, int tileHeight, UnitType unitType = UnitTypes::None) const = 0;
+      /** Returns true if the given pixel location is powered by a nearby friendly pylon. */
+      virtual bool hasPowerPrecise(int x, int y, UnitType unitType = UnitTypes::None ) const = 0;
+      /** Returns true if the given pixel location is powered by a nearby friendly pylon. */
+      virtual bool hasPowerPrecise(Position position, UnitType unitType = UnitTypes::None) const = 0;
 
       /** Returns true if the given unit type can be built at the given build tile position. Note the tile
        * position specifies the top left tile of the building. If builder is not null, the unit will be
@@ -323,6 +337,9 @@ namespace BWAPI
       /** Returns a set of all the enemy players that have not left or been defeated. */
       virtual std::set<BWAPI::Player*>& enemies() = 0;
 
+      /** Returns a set of all the observer players that have not left. */
+      virtual std::set<BWAPI::Player*>& observers() = 0;
+
       virtual void setTextSize(int size = 1) = 0;
       /** Draws text on the screen at the given position. Text can be drawn in different colors by using the
        * following control characters: TODO: add image from wiki.*/
@@ -400,6 +417,34 @@ namespace BWAPI
 
       /** Retrieves the instance number recorded by BWAPI to identify which instance an AI module belongs to */
       virtual int  getInstanceNumber() = 0;
+
+      /** Retrieves the bot's APM. Can include or exclude select commands. */
+      virtual int getAPM(bool includeSelects = false) = 0;
+
+      /** Changes the map to the one specified. Changes do not take effect unless the game is restarted. */
+      virtual bool setMap(const char *mapFileName) = 0;
+
+      /** Sets the frame skip value. 1 = normal */
+      virtual void setFrameSkip(int frameSkip = 1) = 0;
+
+      /** Returns true if Starcraft can find a path from the source to the destination. */
+      virtual bool hasPath(Position source, Position destination) const = 0;
+
+      /** Sets the BWAPI player's alliance with another player. */
+      virtual bool setAlliance(BWAPI::Player *player, bool allied = true, bool alliedVictory = true) = 0;
+
+      /** Sets the BWAPI player's vision with another player. */
+      virtual bool setVision(BWAPI::Player *player, bool enabled = true) = 0;
+
+      /** Returns the elapsed game time in seconds. */
+      virtual int  elapsedTime() const = 0;
+
+      /** Sets the level of command optimizations.
+          0 = No optimization.
+          1 = Some optimization    (Stop, Hold Position, Siege, Burrow, etc.).
+          2 = More optimization    (Train, Set Rally, Lift, [multi-select buildings]).
+          3 = Maximum optimization (Attack/Move to position, use ability at position, etc.).*/
+      virtual void setCommandOptimizationLevel(int level = 2) = 0;
   };
   extern Game* Broodwar;
 }

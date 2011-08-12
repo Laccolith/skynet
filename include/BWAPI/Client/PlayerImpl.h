@@ -60,6 +60,7 @@ namespace BWAPI
       virtual double topSpeed(UnitType unit) const;
       virtual int groundWeaponMaxRange(UnitType unit) const;
       virtual int airWeaponMaxRange(UnitType unit) const;
+      virtual int weaponMaxRange(WeaponType weapon) const;
       virtual int sightRange(UnitType unit) const;
       virtual int groundWeaponDamageCooldown(UnitType unit) const;
       virtual int armor(UnitType unit) const;
@@ -69,5 +70,7 @@ namespace BWAPI
       virtual int getBuildingScore() const;
       virtual int getRazingScore() const;
       virtual int getCustomScore() const;
+
+      virtual bool isObserver() const;
   };
 };

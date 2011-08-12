@@ -14,6 +14,7 @@ namespace BWAPI
       bool operator == (const Position& position) const;
       bool operator != (const Position& position) const;
       bool operator  < (const Position& position) const;
+      operator bool() const;
       bool isValid() const;
       Position operator+(const Position& position) const;
       Position operator-(const Position& position) const;
@@ -21,8 +22,9 @@ namespace BWAPI
       Position& operator+=(const Position& position);
       Position& operator-=(const Position& position);
       double getDistance(const Position& position) const;
-      int getApproxDistance(const Position& position) const;
+      int    getApproxDistance(const Position& position) const;
       double getLength() const;
+      bool   hasPath(const Position& destination) const;
       int& x();
       int& y();
       int x() const;

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <BWAPI/Position.h>
+#include <BWAPI/Color.h>
 namespace BWAPI
 {
   class Unit;
@@ -85,5 +86,21 @@ namespace BWAPI
 
       // TODO: Add Doxygen documentation
       virtual void onSaveGame(std::string gameName);
+  };
+  class TournamentModule
+  {
+    public:
+      TournamentModule();
+      virtual ~TournamentModule();
+
+      /** BWAPI calls this any time some Game-related functions are called.
+          Return true to allow them, or false to disallow them.
+          This includes functions like Game::pauseGame and Game::enableFlag. */
+      virtual bool onAction(int actionType, void *parameter = NULL);
+
+      /** BWAPI calls this when this module was the first to send out its 
+          tournament advertisement. It can prevent both modules from performing
+          the same task if it's necessary. */
+      virtual void onFirstAdvertisement();
   };
 }

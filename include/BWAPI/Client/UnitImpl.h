@@ -40,8 +40,8 @@ namespace BWAPI
       virtual int          getResources() const;
       virtual int          getResourceGroup() const;
 
-      virtual double       getDistance(Unit* target) const;
-      virtual double       getDistance(Position target) const;
+      virtual int          getDistance(Unit* target) const;
+      virtual int          getDistance(Position target) const;
       virtual bool         hasPath(Unit* target) const;
       virtual bool         hasPath(Position target) const;
       virtual int          getLastCommandFrame() const;
@@ -89,6 +89,7 @@ namespace BWAPI
       virtual Position getTargetPosition() const;
       virtual Order    getOrder() const;
       virtual Unit*    getOrderTarget() const;
+	  virtual Position getOrderTargetPosition() const;
       virtual Order    getSecondaryOrder() const;
       virtual Position getRallyPosition() const;
       virtual Unit*    getRallyUnit() const;
@@ -102,6 +103,8 @@ namespace BWAPI
       virtual std::set<Unit*> getInterceptors() const;
       virtual Unit*           getHatchery() const;
       virtual std::set<Unit*> getLarva() const;
+      virtual std::set<Unit*>& getUnitsInRadius(int radius) const;
+      virtual std::set<Unit*>& getUnitsInWeaponRange(WeaponType weapon) const;
 
       virtual bool exists() const;
       virtual bool hasNuke() const;
@@ -151,6 +154,8 @@ namespace BWAPI
       virtual bool isStuck() const;
       virtual bool isTraining() const;
       virtual bool isUnderStorm() const;
+      virtual bool isUnderDarkSwarm() const;
+      virtual bool isUnderDisruptionWeb() const;
       virtual bool isUnpowered() const;
       virtual bool isUpgrading() const;
       virtual bool isVisible() const;
@@ -159,8 +164,8 @@ namespace BWAPI
       virtual bool canIssueCommand(UnitCommand command) const;
       virtual bool issueCommand(UnitCommand command);
 
-      virtual bool attackMove(Position target);
-      virtual bool attackUnit(Unit* target);
+      virtual bool attack(Position target, bool shiftQueueCommand = false);
+      virtual bool attack(Unit* target, bool shiftQueueCommand = false);
       virtual bool build(TilePosition target, UnitType type);
       virtual bool buildAddon(UnitType type);
       virtual bool train(UnitType type);
@@ -169,14 +174,14 @@ namespace BWAPI
       virtual bool upgrade(UpgradeType upgrade);
       virtual bool setRallyPoint(Position target);
       virtual bool setRallyPoint(Unit* target);
-      virtual bool move(Position target);
-      virtual bool patrol(Position target);
-      virtual bool holdPosition();
-      virtual bool stop();
-      virtual bool follow(Unit* target);
-      virtual bool gather(Unit* target);
-      virtual bool returnCargo();
-      virtual bool repair(Unit* target);
+      virtual bool move(Position target, bool shiftQueueCommand = false);
+      virtual bool patrol(Position target, bool shiftQueueCommand = false);
+      virtual bool holdPosition(bool shiftQueueCommand = false);
+      virtual bool stop(bool shiftQueueCommand = false);
+      virtual bool follow(Unit* target, bool shiftQueueCommand = false);
+      virtual bool gather(Unit* target, bool shiftQueueCommand = false);
+      virtual bool returnCargo(bool shiftQueueCommand = false);
+      virtual bool repair(Unit* target, bool shiftQueueCommand = false);
       virtual bool burrow();
       virtual bool unburrow();
       virtual bool cloak();
@@ -185,12 +190,12 @@ namespace BWAPI
       virtual bool unsiege();
       virtual bool lift();
       virtual bool land(TilePosition target);
-      virtual bool load(Unit* target);
+      virtual bool load(Unit* target, bool shiftQueueCommand = false);
       virtual bool unload(Unit* target);
-      virtual bool unloadAll();
-      virtual bool unloadAll(Position target);
-      virtual bool rightClick(Position target);
-      virtual bool rightClick(Unit* target);
+      virtual bool unloadAll(bool shiftQueueCommand = false);
+      virtual bool unloadAll(Position target, bool shiftQueueCommand = false);
+      virtual bool rightClick(Position target, bool shiftQueueCommand = false);
+      virtual bool rightClick(Unit* target, bool shiftQueueCommand = false);
       virtual bool haltConstruction();
       virtual bool cancelConstruction();
       virtual bool cancelAddon();
@@ -206,5 +211,8 @@ namespace BWAPI
       virtual void* getClientInfo() const;
 
       virtual bool placeCOP(TilePosition target);
+
+      virtual bool          isUnderAttack() const;
+      virtual BWAPI::Player *getLastAttackingPlayer() const;
   };
 }
