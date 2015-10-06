@@ -1,0 +1,42 @@
+#include <BWAPI.h>
+#include <BWAPI/Client.h>
+
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <string>
+
+#include "Skynet.h"
+
+void connect()
+{
+	std::cout << "Connecting..." << std::endl;
+	while( !BWAPI::BWAPIClient.connect() )
+		std::this_thread::sleep_for( std::chrono::milliseconds{ 1000 } );
+}
+
+int main()
+{
+	connect();
+
+	while( true )
+	{
+		BWAPI::BWAPIClient.update();
+		while( !BWAPI::BWAPIClient.isConnected() )
+			connect();
+
+		if( !BWAPI::Broodwar->isInGame() )
+			continue;
+
+		Skynet skynet;
+
+		while( BWAPI::BWAPIClient.isConnected() && BWAPI::Broodwar->isInGame() )
+		{
+			skynet.update();
+
+			BWAPI::BWAPIClient.update();
+		}
+	}
+
+	return 0;
+}
