@@ -4,6 +4,15 @@
     <Filter Include="Core">
       <UniqueIdentifier>{bbed6914-2dd2-4bc5-bc30-2d08af82b34c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TerrainAnalyser">
+      <UniqueIdentifier>{d7757c2a-6d25-4d71-b1a9-a541b235f2f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UnitTracker">
+      <UniqueIdentifier>{290413a0-ee39-4049-9cda-cf72623da365}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{a332c82a-f309-4b6a-81ea-63b488bdb4cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -12,10 +21,43 @@
     <ClCompile Include="Skynet.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetTerrainAnalyser.cpp">
+      <Filter>TerrainAnalyser</Filter>
+    </ClCompile>
+    <ClCompile Include="Access.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetUnitTracker.cpp">
+      <Filter>UnitTracker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Skynet.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainAnalyserInterface.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetInterface.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTerrainAnalyser.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="Access.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitTrackerInterface.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetUnitTracker.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartEnum.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

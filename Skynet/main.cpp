@@ -1,10 +1,10 @@
-#include <BWAPI.h>
-#include <BWAPI/Client.h>
-
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <string>
+
+#include <BWAPI.h>
+#include <BWAPI/Client.h>
 
 #include "Skynet.h"
 
