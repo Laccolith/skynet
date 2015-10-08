@@ -28,7 +28,7 @@ int main()
 		if( !BWAPI::Broodwar->isInGame() )
 			continue;
 
-		Skynet skynet;
+		Skynet skynet( "Skynet" );
 
 		while( BWAPI::BWAPIClient.isConnected() && BWAPI::Broodwar->isInGame() )
 		{

@@ -3,19 +3,16 @@
 #include <memory>
 #include <functional>
 
-#include <BWAPI.h>
-
-using BWAPI::TilePosition;
-using BWAPI::WalkPosition;
-using BWAPI::Position;
+#include "Types.h"
 
 class UnitTrackerInterface;
 class TerrainAnalyserInterface;
 
+class Skynet;
 class Access
 {
 public:
-	Access();
+	Access( Skynet & skynet );
 	~Access();
 
 	UnitTrackerInterface & UnitTracker() { return *m_unit_tracker; }
@@ -24,7 +21,12 @@ public:
 	TerrainAnalyserInterface & TerrainAnalyser() { return *m_terrain_analyser; }
 	const TerrainAnalyserInterface & TerrainAnalyser() const { return *m_terrain_analyser; }
 
+	Skynet & getSkynet() { return m_skynet; }
+	const Skynet & getSkynet() const { return m_skynet; }
+
 private:
+	Skynet & m_skynet;
+
 	std::unique_ptr<UnitTrackerInterface> m_unit_tracker;
 	std::unique_ptr<TerrainAnalyserInterface> m_terrain_analyser;
 };

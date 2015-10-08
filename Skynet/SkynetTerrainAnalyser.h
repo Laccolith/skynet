@@ -7,5 +7,5 @@ class SkynetTerrainAnalyser : public TerrainAnalyserInterface
 public:
 	SkynetTerrainAnalyser( Access & access );
 
-	virtual void update();
+	void update();
 };

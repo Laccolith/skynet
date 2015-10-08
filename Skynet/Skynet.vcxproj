@@ -90,11 +90,14 @@
     <ClCompile Include="Access.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Skynet.cpp" />
+    <ClCompile Include="SkynetInterface.cpp" />
     <ClCompile Include="SkynetTerrainAnalyser.cpp" />
     <ClCompile Include="SkynetUnitTracker.cpp" />
+    <ClCompile Include="UnitGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Access.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Skynet.h" />
     <ClInclude Include="SkynetInterface.h" />
     <ClInclude Include="SkynetTerrainAnalyser.h" />
@@ -102,6 +105,8 @@
     <ClInclude Include="SmartEnum.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="TerrainAnalyserInterface.h" />
+    <ClInclude Include="Unit.h" />
+    <ClInclude Include="UnitGroup.h" />
     <ClInclude Include="UnitTrackerInterface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -30,6 +30,12 @@
     <ClCompile Include="SkynetUnitTracker.cpp">
       <Filter>UnitTracker</Filter>
     </ClCompile>
+    <ClCompile Include="UnitGroup.cpp">
+      <Filter>UnitTracker</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetInterface.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Skynet.h">
@@ -58,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="StringUtils.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitGroup.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
