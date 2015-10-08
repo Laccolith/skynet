@@ -36,6 +36,15 @@
     <ClCompile Include="SkynetInterface.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetUnit.cpp">
+      <Filter>UnitTracker</Filter>
+    </ClCompile>
+    <ClCompile Include="MapUtil.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawingUtil.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Skynet.h">
@@ -73,6 +82,15 @@
     </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetUnit.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="MapUtil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawingUtil.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

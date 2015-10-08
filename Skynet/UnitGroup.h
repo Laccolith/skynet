@@ -1,6 +1,11 @@
 #pragma once
 
-#include "Unit.h"
+#include "Types.h"
+
+#include <vector>
+
+class UnitInterface;
+typedef UnitInterface *Unit;
 
 class UnitGroup
 {

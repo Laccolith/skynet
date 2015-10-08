@@ -1,5 +1,7 @@
 #include "UnitGroup.h"
 
+#include "Unit.h"
+
 UnitGroup::UnitGroup() = default;
 
 UnitGroup::UnitGroup( const UnitGroup & other )
@@ -58,12 +60,12 @@ Position UnitGroup::getCenter() const
 	if( m_units.size() == 1 )
 		return m_units[0]->getPosition();
 
-	Position position;
+	PositionFloat position;
 
 	for( auto group_unit : m_units )
 		position += group_unit->getPosition();
 
-	return position / m_units.size();
+	return position / float(m_units.size());
 }
 
 UnitGroup UnitGroup::getBestFittingToCircle( int circle_size, int in_frames_time ) const

@@ -16,6 +16,8 @@ SMART_ENUM( UnitAccessType, int,
 class UnitInterface;
 typedef UnitInterface *Unit;
 
+#include "UnitGroup.h"
+
 class UnitInterface
 {
 public:
@@ -34,6 +36,7 @@ public:
 
 	virtual Unit getTarget() const = 0;
 
+	virtual BWAPI::Unit getBWAPIUnit() const = 0;
 	virtual bool exists() const = 0;
 	virtual int getExistTime() const = 0;
 
@@ -120,7 +123,7 @@ public:
 	virtual bool isBeingRepaired() const = 0;
 
 	virtual int getEnergy() const = 0;
-	virtual UnitType::set getTrainingQueue() const = 0;
+	virtual UnitType::list getTrainingQueue() const = 0;
 
 	virtual int getDistance( UnitType targ_type, Position position ) const = 0;
 	virtual int getDistance( UnitType targ_type, Position position, int inFramesTime ) const = 0;
@@ -143,7 +146,7 @@ public:
 	virtual void gather( Unit unit ) = 0;
 	virtual void returnCargo() = 0;
 	virtual void returnCargo( Unit unit ) = 0;
-	virtual void build( TilePosition target, UnitType type ) = 0;
+	virtual void build( UnitType type, TilePosition target ) = 0;
 	virtual void build( Unit unit ) = 0;
 	virtual void morph( UnitType type ) = 0;
 	virtual void stop() = 0;

@@ -88,15 +88,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Access.cpp" />
+    <ClCompile Include="DrawingUtil.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="Skynet.cpp" />
     <ClCompile Include="SkynetInterface.cpp" />
     <ClCompile Include="SkynetTerrainAnalyser.cpp" />
+    <ClCompile Include="SkynetUnit.cpp" />
     <ClCompile Include="SkynetUnitTracker.cpp" />
     <ClCompile Include="UnitGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Access.h" />
+    <ClInclude Include="DrawingUtil.h" />
+    <ClInclude Include="MapUtil.h" />
+    <ClInclude Include="SkynetUnit.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Skynet.h" />
     <ClInclude Include="SkynetInterface.h" />
