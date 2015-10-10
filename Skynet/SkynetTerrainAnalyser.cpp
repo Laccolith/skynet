@@ -11,8 +11,7 @@
 
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
 	: TerrainAnalyserInterface( access )
-	, m_map_width( BWAPI::Broodwar->mapWidth() * 4 )
-	, m_map_height( BWAPI::Broodwar->mapHeight() * 4 )
+	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	getSkynet().registerUpdateProcess( 1.0f, [this](){ update(); } );
 }
@@ -28,41 +27,53 @@ void SkynetTerrainAnalyser::update()
 
 	if( isDebugging() )
 	{
-		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key('1') );
+		bool show_connectivity = BWAPI::Broodwar->getKeyState( BWAPI::Key('1') );
 		bool show_clearnace = BWAPI::Broodwar->getKeyState( BWAPI::Key('2') );
+		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key('3') );
+		bool show_chokepoints = BWAPI::Broodwar->getKeyState( BWAPI::Key('4') );
+		bool show_base_locations = BWAPI::Broodwar->getKeyState( BWAPI::Key('5') );
 
 		WalkPosition mouse_tile( BWAPI::Broodwar->getMousePosition() + BWAPI::Broodwar->getScreenPosition() );
 		if( mouse_tile.isValid() )
 		{
-			if( show_regions )
+			if( show_connectivity )
 			{
 				int current_connectivity = m_tile_connectivity[mouse_tile];
 
-				Position screen_pos = BWAPI::Broodwar->getScreenPosition();
-				const int screen_width = 640;
-				const int screen_height = 480;
+				WalkPosition top_left( BWAPI::Broodwar->getScreenPosition() );
+				WalkPosition bottom_right( top_left + std::min( WalkPosition( Position( 640, 480 ) ), m_map_size ) );
 
-				for( int x = screen_pos.x / 8; x < std::min( (screen_pos.x + screen_width) / 8, m_map_width ); ++x )
+				MapUtil::forEachPosition( top_left, bottom_right, [this, current_connectivity]( WalkPosition pos )
 				{
-					for( int y = screen_pos.y / 8; y < std::min( (screen_pos.y + screen_height) / 8, m_map_height ); ++y )
-					{
-						if( m_tile_connectivity[WalkPosition(x, y)] == current_connectivity )
-							BWAPI::Broodwar->drawBoxMap( x * 8, y * 8, x * 8 + 7, y * 8 + 7, Colors::Red );
-					}
-				}
+					if( m_tile_connectivity[pos] == current_connectivity )
+						BWAPI::Broodwar->drawBoxMap( pos.x * 8, pos.y * 8, pos.x * 8 + 7, pos.y * 8 + 7, Colors::Red );
+				} );
 
 				if( m_connectivity_to_small_obstacles[current_connectivity] )
-					BWAPI::Broodwar->drawTextMouse( -16, -8, "Small Obstacle" );
+					BWAPI::Broodwar->drawTextMouse( 8, -8, "Small Obstacle" );
 			}
 
 			if( show_clearnace )
 				BWAPI::Broodwar->drawCircleMap( mouse_tile.x * 8, mouse_tile.y * 8, m_tile_clearance[mouse_tile], Colors::Red );
 		}
 
-		for( auto region : m_regions )
-			region->draw( Colors::Blue );
-		for( auto chokepoint : m_chokepoints )
-			chokepoint->draw( Colors::Red );
+		if( show_regions )
+		{
+			for( auto region : m_regions )
+				region->draw( Colors::Blue );
+		}
+
+		if( show_chokepoints )
+		{
+			for( auto chokepoint : m_chokepoints )
+				chokepoint->draw( Colors::Red );
+		}
+
+		if( show_base_locations )
+		{
+			for( auto base_location : m_base_locations )
+				base_location->draw( Colors::Green );
+		}
 	}
 }
 
@@ -73,22 +84,20 @@ void SkynetTerrainAnalyser::analyse()
 	calculateRegions();
 	createBases();
 
-	postMessage<TerrainAnalysePreFinalise>();
-	finaliseConnectivity();
 	postMessage<TerrainAnalyseComplete>();
 }
 
 void SkynetTerrainAnalyser::calculateConnectivity()
 {
-	m_tile_connectivity.resize( m_map_width, m_map_height, -1 );
+	m_tile_connectivity.resize( m_map_size.x, m_map_size.y, -1 );
 
 	std::atomic<int> connectivity_counter;
 
 	auto calculate_connectivity = [this, &connectivity_counter]( bool walkable_tiles )
 	{
-		for( int x = 0; x < m_map_width; ++x )
+		for( int x = 0; x < m_map_size.x; ++x )
 		{
-			for( int y = 0; y < m_map_height; ++y )
+			for( int y = 0; y < m_map_size.y; ++y )
 			{
 				WalkPosition pos( x, y );
 
@@ -117,14 +126,14 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 					}
 
 					WalkPosition pos_east( tile.x + 1, tile.y );
-					if( tile.x < m_map_width - 1 && BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_tile_connectivity[pos_east] == -1 )
+					if( tile.x < m_map_size.x - 1 && BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_tile_connectivity[pos_east] == -1 )
 					{
 						unvisited_tiles.push( pos_east );
 						m_tile_connectivity[pos_east] = region_connectivity;
 					}
 
 					WalkPosition pos_south( tile.x, tile.y + 1 );
-					if( tile.y < m_map_height - 1 && BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_tile_connectivity[pos_south] == -1 )
+					if( tile.y < m_map_size.y - 1 && BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_tile_connectivity[pos_south] == -1 )
 					{
 						unvisited_tiles.push( pos_south );
 						m_tile_connectivity[pos_south] = region_connectivity;
@@ -158,13 +167,13 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 
 void SkynetTerrainAnalyser::calculateWalkTileClearance()
 {
-	m_tile_clearance.resize( m_map_width, m_map_height, -1 );
-	m_tile_to_closest_obstacle.resize( m_map_width, m_map_height );
+	m_tile_clearance.resize( m_map_size.x, m_map_size.y, -1 );
+	m_tile_to_closest_obstacle.resize( m_map_size.x, m_map_size.y );
 
 	Heap<WalkPosition, int> unvisited_tiles( true );
-	for( int x = 0; x < m_map_width; ++x )
+	for( int x = 0; x < m_map_size.x; ++x )
 	{
-		for( int y = 0; y < m_map_height; ++y )
+		for( int y = 0; y < m_map_size.y; ++y )
 		{
 			WalkPosition pos( x, y );
 
@@ -176,13 +185,13 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 				if( !m_connectivity_to_small_obstacles[m_tile_connectivity[pos]] )
 					unvisited_tiles.set( pos, 0 );
 			}
-			else if( x == 0 || y == 0 || x == m_map_width - 1 || y == m_map_height - 1 )
+			else if( x == 0 || y == 0 || x == m_map_size.x - 1 || y == m_map_size.y - 1 )
 			{
 				m_tile_clearance[pos] = 10;
 
 				m_tile_to_closest_obstacle[pos] = WalkPosition(
-					(x == 0 ? -1 : (x == m_map_width - 1 ? m_map_width : x)),
-					(y == 0 ? -1 : (y == m_map_height - 1 ? m_map_height : y)) );
+					(x == 0 ? -1 : (x == m_map_size.x - 1 ? m_map_size.x : x)),
+					(y == 0 ? -1 : (y == m_map_size.y - 1 ? m_map_size.y : y)) );
 
 				unvisited_tiles.set( pos, 10 );
 			}
@@ -215,8 +224,8 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 
 		const bool can_go_west = west >= 0;
 		const bool can_go_north = north >= 0;
-		const bool can_go_east = east < m_map_width;
-		const bool can_go_south = south < m_map_height;
+		const bool can_go_east = east < m_map_size.x;
+		const bool can_go_south = south < m_map_size.y;
 
 		if( can_go_west )
 			visit_direction( distance, current_obstacle, WalkPosition( west, tile.y ) );
@@ -246,7 +255,7 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 
 void SkynetTerrainAnalyser::calculateRegions()
 {
-	m_tile_to_region.resize( m_map_width, m_map_height, nullptr );
+	m_tile_to_region.resize( m_map_size.x, m_map_size.y, nullptr );
 	std::map<WalkPosition, SkynetChokepoint *> choke_tiles;
 
 	while( true )
@@ -254,9 +263,9 @@ void SkynetTerrainAnalyser::calculateRegions()
 		int current_region_clearance = 0;
 		WalkPosition current_region_tile;
 
-		for( int x = 0; x < m_map_width; ++x )
+		for( int x = 0; x < m_map_size.x; ++x )
 		{
-			for( int y = 0; y < m_map_height; ++y )
+			for( int y = 0; y < m_map_size.y; ++y )
 			{
 				WalkPosition pos( x, y );
 
@@ -349,7 +358,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 				std::set<WalkPosition> choke_children;
 				MapUtil::forEachPositionInLine( choke_sides.second, choke_sides.first, [this, &tile_to_children, &current_region_tile, &choke_tiles, &choke_children, &current_chokepoint]( WalkPosition line_pos )
 				{
-					if( line_pos.x >= 0 && line_pos.y >= 0 && line_pos.x < m_map_width && line_pos.y < m_map_height && m_tile_clearance[line_pos] != 0 && !m_tile_to_region[line_pos] )
+					if( line_pos >= WalkPositions::Origin && line_pos < m_map_size && m_tile_clearance[line_pos] != 0 && !m_tile_to_region[line_pos] )
 					{
 						tile_to_children[current_region_tile].push_back( line_pos );
 						choke_tiles[line_pos] = current_chokepoint;
@@ -385,7 +394,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 						(i == 0 ? current_tile.x - 1 : (i == 1 ? current_tile.x + 1 : current_tile.x)),
 						(i == 2 ? current_tile.y - 1 : (i == 3 ? current_tile.y + 1 : current_tile.y)) );
 
-					if( next_tile.x < 0 || next_tile.y < 0 || next_tile.x >= m_map_width || next_tile.y >= m_map_height )
+					if( next_tile < WalkPositions::Origin || next_tile >= m_map_size )
 						continue;
 
 					if( m_tile_clearance[next_tile] == 0 )
@@ -453,7 +462,7 @@ std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::findChokePoint( Wal
 	while( true )
 	{
 		WalkPosition pos( x0, y0 );
-		if( x0 < 0 || y0 < 0 || x0 >= m_map_width || y0 >= m_map_height || !BWAPI::Broodwar->isWalkable( pos ) )
+		if( pos < WalkPositions::Origin || pos >= m_map_size || !BWAPI::Broodwar->isWalkable( pos ) )
 			return std::make_pair( side1, pos );
 
 		WalkPosition side2 = m_tile_to_closest_obstacle[pos];
@@ -491,9 +500,103 @@ void SkynetTerrainAnalyser::createBases()
 	}
 
 	//Group them into clusters
-	std::vector<UnitGroup> resourceClusters = resources.getClusters( 260, 3 );
-}
+	std::vector<UnitGroup> resource_clusters = resources.getClusters( 260, 3 );
 
-void SkynetTerrainAnalyser::finaliseConnectivity()
-{
+	for( const UnitGroup &resource_cluster : resource_clusters )
+	{
+		TilePosition base_location;
+		int best_rating;
+		MapUtil::spiralSearch( TilePosition( resource_cluster.getCenter() ), [&resource_cluster, &base_location, best_rating] ( TilePosition location ) mutable -> bool
+		{
+			for( int x = location.x; x < location.x + UnitTypes::Protoss_Nexus.tileWidth(); ++x )
+			{
+				for( int y = location.y; y < location.y + UnitTypes::Protoss_Nexus.tileHeight(); ++y )
+				{
+					if( x < 0 && y < 0 && x >= BWAPI::Broodwar->mapWidth() && y >= BWAPI::Broodwar->mapHeight() )
+						return false;
+
+					if( !BWAPI::Broodwar->isBuildable( x, y ) )
+						return false;
+				}
+			}
+
+			int distance_to_resources = 0;
+			for( Unit resource : resource_cluster )
+			{
+				const UnitType &resource_type = resource->getType();
+				const TilePosition &resource_tile_position = resource->getTilePosition();
+
+				if( resource_tile_position.x > location.x - (resource_type == UnitTypes::Resource_Mineral_Field ? 5 : 7) &&
+					resource_tile_position.y > location.y - (resource_type == UnitTypes::Resource_Mineral_Field ? 4 : 5) &&
+					resource_tile_position.x < location.x + 7 &&
+					resource_tile_position.y < location.y + 6 )
+				{
+					return false;
+				}
+
+				const Position &resource_position = resource->getPosition();
+
+				int tx = location.x * 32 + 64;
+				int ty = location.y * 32 + 48;
+
+				int u_left = resource_position.x - resource_type.dimensionLeft();
+				int u_top = resource_position.y - resource_type.dimensionUp();
+				int u_right = resource_position.x + resource_type.dimensionRight() + 1;
+				int u_bottom = resource_position.y + resource_type.dimensionDown() + 1;
+
+				int targ_left = tx - UnitTypes::Protoss_Nexus.dimensionLeft();
+				int targ_top = ty - UnitTypes::Protoss_Nexus.dimensionUp();
+				int targ_right = tx + UnitTypes::Protoss_Nexus.dimensionRight() + 1;
+				int targ_bottom = ty + UnitTypes::Protoss_Nexus.dimensionDown() + 1;
+
+				int x_dist = u_left - targ_right;
+				if( x_dist < 0 )
+				{
+					x_dist = targ_left - u_right;
+					if( x_dist < 0 )
+						x_dist = 0;
+				}
+
+				int y_dist = u_top - targ_bottom;
+				if( y_dist < 0 )
+				{
+					y_dist = targ_top - u_bottom;
+					if( y_dist < 0 )
+						y_dist = 0;
+				}
+
+				distance_to_resources += Position( 0, 0 ).getApproxDistance( Position( x_dist, y_dist ) );
+			}
+
+			if( distance_to_resources < best_rating )
+			{
+				best_rating = distance_to_resources;
+				base_location = location;
+			}
+
+			return false;
+		}, 18 );
+
+		bool added_to_other = false;
+		for( auto &other_base_location : m_base_location_storage )
+		{
+			int dx = abs( base_location.x - other_base_location->getBuildLocation().x );
+			int dy = abs( base_location.y - other_base_location->getBuildLocation().y );
+
+			if( dx <= 4 && dy <= 3 )
+			{
+				other_base_location->addResources( resource_cluster );
+				added_to_other = true;
+				break;
+			}
+		}
+
+		if( !added_to_other )
+		{
+			SkynetRegion *base_region = m_tile_to_region[WalkPosition(base_location)];
+			m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( base_location, base_region, resource_cluster ) );
+			m_base_locations.push_back( m_base_location_storage.back().get() );
+			base_region->addBase( m_base_locations.back() );
+		}
+	}
 }

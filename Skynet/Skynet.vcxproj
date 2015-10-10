@@ -92,7 +92,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="Skynet.cpp" />
-    <ClCompile Include="SkynetBase.cpp" />
+    <ClCompile Include="SkynetBaseLocation.cpp" />
     <ClCompile Include="SkynetChokepoint.cpp" />
     <ClCompile Include="SkynetInterface.cpp" />
     <ClCompile Include="SkynetRegion.cpp" />
@@ -104,7 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Access.h" />
-    <ClInclude Include="Base.h" />
+    <ClInclude Include="BaseLocation.h" />
     <ClInclude Include="Chokepoint.h" />
     <ClInclude Include="DrawingUtil.h" />
     <ClInclude Include="Heap.h" />
@@ -112,7 +112,7 @@
     <ClInclude Include="Messaging.h" />
     <ClInclude Include="RectangleArray.h" />
     <ClInclude Include="Region.h" />
-    <ClInclude Include="SkynetBase.h" />
+    <ClInclude Include="SkynetBaseLocation.h" />
     <ClInclude Include="SkynetChokepoint.h" />
     <ClInclude Include="SkynetRegion.h" />
     <ClInclude Include="SkynetUnit.h" />

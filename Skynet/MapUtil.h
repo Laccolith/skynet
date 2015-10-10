@@ -56,4 +56,16 @@ namespace MapUtil
 			}
 		}
 	}
+
+	template <typename T, int Scale, typename F>
+	void forEachPosition( BWAPI::Point<T, Scale> top_left, BWAPI::Point<T, Scale> bottom_right, F f )
+	{
+		for( int x = top_left.x; x < bottom_right.x; ++x )
+		{
+			for( int y = top_left.y; y < bottom_right.y; ++y )
+			{
+				f( BWAPI::Point<T, Scale>( x, y ) );
+			}
+		}
+	}
 }

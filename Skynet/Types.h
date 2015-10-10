@@ -53,8 +53,8 @@ typedef RegionInterface *Region;
 class ChokepointInterface;
 typedef ChokepointInterface *Chokepoint;
 
-class BaseInterface;
-typedef BaseInterface *Base;
+class BaseLocationInterface;
+typedef BaseLocationInterface *BaseLocation;
 
 template <typename T, int Scale>
 inline float dotProduct( BWAPI::Point<T, Scale> v1, BWAPI::Point<T, Scale> v2 )
@@ -74,4 +74,10 @@ inline float normalise( BWAPI::Point<T, Scale> & v )
 	}
 
 	return length;
+}
+
+template <typename T, int Scale>
+bool operator>=( BWAPI::Point<T, Scale> lhs, BWAPI::Point<T, Scale> rhs )
+{
+	return std::tie( lhs.x, lhs.y ) >= std::tie( rhs.x, rhs.y );
 }

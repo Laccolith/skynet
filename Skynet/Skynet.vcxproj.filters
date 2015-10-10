@@ -57,11 +57,11 @@
     <ClCompile Include="SkynetChokepoint.cpp">
       <Filter>TerrainAnalyser\Skynet</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetBase.cpp">
-      <Filter>TerrainAnalyser\Skynet</Filter>
-    </ClCompile>
     <ClCompile Include="UnitUtil.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBaseLocation.cpp">
+      <Filter>TerrainAnalyser\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,16 +116,10 @@
     <ClInclude Include="Region.h">
       <Filter>TerrainAnalyser</Filter>
     </ClInclude>
-    <ClInclude Include="Base.h">
-      <Filter>TerrainAnalyser</Filter>
-    </ClInclude>
     <ClInclude Include="SkynetRegion.h">
       <Filter>TerrainAnalyser\Skynet</Filter>
     </ClInclude>
     <ClInclude Include="SkynetChokepoint.h">
-      <Filter>TerrainAnalyser\Skynet</Filter>
-    </ClInclude>
-    <ClInclude Include="SkynetBase.h">
       <Filter>TerrainAnalyser\Skynet</Filter>
     </ClInclude>
     <ClInclude Include="VectorUnique.h">
@@ -142,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="Messaging.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLocation.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBaseLocation.h">
+      <Filter>TerrainAnalyser\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

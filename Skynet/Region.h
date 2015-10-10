@@ -7,13 +7,13 @@
 class RegionInterface
 {
 public:
-	virtual const WalkPosition &getCenter() const = 0;
+	virtual WalkPosition getCenter() const = 0;
 	virtual int getClearance() const = 0;
 	virtual int getSize() const = 0;
 
 	virtual const VectorUnique<Chokepoint> &getChokepoints() const = 0;
 	virtual const VectorUnique<TilePosition> &getChokepointTiles() const = 0;
-	virtual const VectorUnique<Base> &getBases() const = 0;
+	virtual const VectorUnique<BaseLocation> &getBaseLocations() const = 0;
 
 	virtual bool isConnected( Region other ) const = 0;
 

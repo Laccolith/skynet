@@ -488,7 +488,7 @@ void SkynetUnit::drawUnitPosition() const
 		BWAPI::Broodwar->drawTextMap( pos.x + type.dimensionRight(), pos.y + 30, "Completed" );
 
 	Position target = getTargetPosition();
-	BWAPI::Broodwar->drawLine( CoordinateType::Map, pos.x, pos.y, target.x, target.y, player->getColor() );
+	BWAPI::Broodwar->drawLineMap( pos, target, player->getColor() );
 }
 
 void SkynetUnit::drawUnitTilePosition() const
@@ -497,7 +497,7 @@ void SkynetUnit::drawUnitTilePosition() const
 	UnitType type = getType();
 	Player player = getPlayer();
 
-	BWAPI::Broodwar->drawBox( CoordinateType::Map, tile.x * 32, tile.y * 32, (tile.x + type.tileWidth()) * 32, (tile.y + type.tileHeight()) * 32, player->getColor() );
+	BWAPI::Broodwar->drawBoxMap( Position( tile ), Position( tile + type.tileSize() ), player->getColor() );
 }
 
 Order SkynetUnit::getOrder() const

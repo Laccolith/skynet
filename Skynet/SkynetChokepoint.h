@@ -8,8 +8,8 @@ class SkynetChokepoint : public ChokepointInterface
 public:
 	SkynetChokepoint( WalkPosition center, WalkPosition side1, WalkPosition side2, int clearance );
 
-	const WalkPosition &getCenter() const override { return m_center; }
-	const std::pair<WalkPosition, WalkPosition> &getSides() const override { return m_sides; }
+	WalkPosition getCenter() const override { return m_center; }
+	std::pair<WalkPosition, WalkPosition> getSides() const override { return m_sides; }
 	int getClearance() const override { return m_clearance; }
 
 	const std::pair<Region, Region> &getRegions() const override { return m_regions; }
