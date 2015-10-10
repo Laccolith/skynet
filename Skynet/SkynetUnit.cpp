@@ -14,7 +14,9 @@ SkynetUnit::SkynetUnit( BWAPI::Unit unit, SkynetUnitTracker & tracker )
 		m_completed = unit->isCompleted();
 		m_morphing = unit->isMorphing();
 	}
+
 	update( tracker );
+
 	if( useable )
 	{
 		if( !isCompleted() )
@@ -168,11 +170,21 @@ UnitType SkynetUnit::getType() const
 	return m_type;
 }
 
+UnitType SkynetUnit::getLastType() const
+{
+	return m_type;
+}
+
 Player SkynetUnit::getPlayer() const
 {
 	if( exists() )
 		return m_unit->getPlayer();
 
+	return m_player;
+}
+
+Player SkynetUnit::getLastPlayer() const
+{
 	return m_player;
 }
 

@@ -4,8 +4,29 @@
 
 #include "Unit.h"
 #include "UnitGroup.h"
+#include "Messager.h"
 
-class UnitTrackerInterface : public SkynetInterface
+struct UnitDiscover
+{
+	Unit unit;
+};
+
+struct UnitMorphRenegade
+{
+	Unit unit;
+	Player last_player;
+	UnitType last_type;
+
+	bool isRenegade() const { return last_player != nullptr; }
+	bool isMorph() const { return last_type != BWAPI::UnitTypes::None; }
+};
+
+struct UnitDestroy
+{
+	Unit unit;
+};
+
+class UnitTrackerInterface : public SkynetInterface, public MessageReporter<UnitDiscover, UnitMorphRenegade, UnitDestroy>
 {
 public:
 	UnitTrackerInterface( Access &access ) : SkynetInterface( access, "UnitTracker" ) {}

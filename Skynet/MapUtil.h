@@ -19,13 +19,13 @@ namespace MapUtil
 	int getDistance( const Position &pos1, const UnitType type1, const Position &pos2 );
 
 	template <typename T, typename P>
-	void forEachTileInLine( T startPos, T endPos, bool continuePastEnd, P p )
+	void forEachPositionInLine( T start_pos, T end_pos, P p, bool continue_past_end = false )
 	{
-		int x0 = startPos.x;
-		int y0 = startPos.y;
+		int x0 = start_pos.x;
+		int y0 = start_pos.y;
 
-		int x1 = endPos.x;
-		int y1 = endPos.y;
+		int x1 = end_pos.x;
+		int y1 = end_pos.y;
 
 		int dx = abs( x1 - x0 );
 		int dy = abs( y1 - y0 );
@@ -35,12 +35,12 @@ namespace MapUtil
 
 		int error = dx - dy;
 
-		for( ;;)
+		while( true )
 		{
-			if( p( x0, y0 ) )
+			if( p( T( x0, y0 ) ) )
 				break;
 
-			if( !continuePastEnd && x0 == x1 && y0 == y1 )
+			if( !continue_past_end && x0 == x1 && y0 == y1 )
 				break;
 
 			int e2 = error * 2;

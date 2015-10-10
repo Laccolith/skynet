@@ -13,9 +13,6 @@ SMART_ENUM( UnitAccessType, int,
 	Full
 	);
 
-class UnitInterface;
-typedef UnitInterface *Unit;
-
 #include "UnitGroup.h"
 
 class UnitInterface

@@ -2,49 +2,12 @@
 
 #include "Unit.h"
 
-UnitGroup::UnitGroup() = default;
-
-UnitGroup::UnitGroup( const UnitGroup & other )
-	: m_units( other.m_units )
-{
-}
-
-UnitGroup::UnitGroup( UnitGroup && other )
-	: m_units( std::move( other.m_units ) )
-{
-}
-
-UnitGroup &UnitGroup::operator=( const UnitGroup &other )
-{
-	m_units = other.m_units;
-	return *this;
-}
-
-UnitGroup &UnitGroup::operator=( UnitGroup &&other )
-{
-	m_units = std::move( other.m_units );
-	return *this;
-}
-
-UnitGroup & UnitGroup::operator+=( const UnitGroup &other )
-{
-	for( auto other_group_unit : other )
-		insert( other_group_unit );
-
-	return *this;
-}
-
-UnitGroup UnitGroup::operator+( const UnitGroup &other ) const
-{
-	return UnitGroup( *this ) += other;
-}
-
 UnitGroup::SizeType UnitGroup::countCompletedBy( int time ) const
 {
 	const int &timeNow = BWAPI::Broodwar->getFrameCount();
 
 	int total = 0;
-	for( auto unit : m_units )
+	for( auto unit : *this )
 	{
 		if( unit->isCompleted() || unit->getCompletedTime() <= time )
 			++total;
@@ -54,18 +17,18 @@ UnitGroup::SizeType UnitGroup::countCompletedBy( int time ) const
 
 Position UnitGroup::getCenter() const
 {
-	if( m_units.empty() )
+	if( empty() )
 		return Positions::None;
 
-	if( m_units.size() == 1 )
-		return m_units[0]->getPosition();
+	if( size() == 1 )
+		return (*begin())->getPosition();
 
 	PositionFloat position;
 
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 		position += group_unit->getPosition();
 
-	return position / float(m_units.size());
+	return position / float(size());
 }
 
 UnitGroup UnitGroup::getBestFittingToCircle( int circle_size, int in_frames_time ) const
@@ -102,7 +65,7 @@ UnitGroup UnitGroup::getBestFittingToCircle( int circle_size, int in_frames_time
 UnitGroup UnitGroup::inRadius( int radius, Position position ) const
 {
 	UnitGroup result;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->getDistance( position ) < radius )
 			result.insert( group_unit );
@@ -115,7 +78,7 @@ Unit UnitGroup::getClosestUnit( Unit unit ) const
 	Unit closest_unit = nullptr;
 	int closest_distance = std::numeric_limits<int>::max();
 
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		int this_distance = group_unit->getDistance( unit );
 		if( this_distance < closest_distance )
@@ -133,7 +96,7 @@ Unit UnitGroup::getClosestUnit( Position position ) const
 	Unit closest_unit = nullptr;
 	int closest_distance = std::numeric_limits<int>::max();
 
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		int this_distance = group_unit->getDistance( position );
 		if( this_distance < closest_distance )
@@ -148,7 +111,7 @@ Unit UnitGroup::getClosestUnit( Position position ) const
 
 bool UnitGroup::isAnyInRange( Unit unit ) const
 {
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->isInRange( unit ) )
 			return true;
@@ -159,7 +122,7 @@ bool UnitGroup::isAnyInRange( Unit unit ) const
 
 bool UnitGroup::isAnyInRange( const UnitGroup &other ) const
 {
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		for( auto other_group_unit : other )
 		{
@@ -175,7 +138,7 @@ int UnitGroup::minDistanceBetween( const UnitGroup &other ) const
 {
 	int min_distance = std::numeric_limits<int>::max();
 
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		for( auto other_group_unit : other )
 		{
@@ -190,7 +153,7 @@ int UnitGroup::minDistanceBetween( const UnitGroup &other ) const
 int UnitGroup::getBuildScore() const
 {
 	int rating = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		rating += group_unit->getType().buildScore();
 	}
@@ -201,7 +164,7 @@ int UnitGroup::getBuildScore() const
 int UnitGroup::getAverageTerrainHeight() const
 {
 	int height = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 		height += BWAPI::Broodwar->getGroundHeight( group_unit->getTilePosition() );
 
 	return height / size();
@@ -210,7 +173,7 @@ int UnitGroup::getAverageTerrainHeight() const
 float UnitGroup::getAverageSpeed() const
 {
 	float averageSpeed = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 		averageSpeed += static_cast<float>(group_unit->getType().topSpeed());
 
 	return averageSpeed / size();
@@ -218,7 +181,7 @@ float UnitGroup::getAverageSpeed() const
 
 bool UnitGroup::canAttackAir() const
 {
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->canAttackAir() )
 			return true;
@@ -229,7 +192,7 @@ bool UnitGroup::canAttackAir() const
 
 bool UnitGroup::canAttackGround() const
 {
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->canAttackGround() )
 			return true;
@@ -244,7 +207,7 @@ float UnitGroup::majorityThatCanAttack( const UnitGroup &other ) const
 		return false;
 
 	float attack_count = 0.0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		for( auto other_group_unit : other )
 		{
@@ -262,7 +225,7 @@ float UnitGroup::majorityThatCanAttack( const UnitGroup &other ) const
 UnitGroup::SizeType UnitGroup::getDetectionCount() const
 {
 	UnitGroup::SizeType count = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->getType().isDetector() )
 			++count;
@@ -274,7 +237,7 @@ UnitGroup::SizeType UnitGroup::getDetectionCount() const
 UnitGroup::SizeType UnitGroup::getCloakedCount() const
 {
 	UnitGroup::SizeType count = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->getType().hasPermanentCloak() || group_unit->isCloaked() )
 			++count;
@@ -286,7 +249,7 @@ UnitGroup::SizeType UnitGroup::getCloakedCount() const
 UnitGroup::SizeType UnitGroup::getFlyingCount() const
 {
 	UnitGroup::SizeType count = 0;
-	for( auto group_unit : m_units )
+	for( auto group_unit : *this )
 	{
 		if( group_unit->getType().isFlyer() || group_unit->isLifted() )
 			++count;
@@ -295,8 +258,48 @@ UnitGroup::SizeType UnitGroup::getFlyingCount() const
 	return count;
 }
 
-void UnitGroup::insert( Unit unit )
+std::vector<UnitGroup> UnitGroup::getClusters( int distance, int min_size )
 {
-	if( std::find( m_units.begin(), m_units.end(), unit ) == m_units.end() )
-		m_units.push_back( unit );
+	std::vector<UnitGroup> clusters;
+
+	for( Unit unit : *this )
+	{
+		std::vector<size_t> clusters_in_range;
+		for( size_t i = 0; i < clusters.size(); ++i )
+		{
+			for( Unit cluster_unit : clusters[i] )
+			{
+				if( unit->getPosition().getApproxDistance( cluster_unit->getPosition() ) <= distance )
+				{
+					clusters_in_range.push_back( i );
+					break;
+				}
+			}
+		}
+
+		if( clusters_in_range.empty() )
+		{
+			clusters.emplace_back();
+			clusters.back().insert( unit );
+		}
+		else
+		{
+			clusters[clusters_in_range[0]].insert( unit );
+
+			for( size_t i = 1; i < clusters_in_range.size(); ++i )
+			{
+				for( Unit cluster_unit : clusters[clusters_in_range[i]] )
+					clusters[clusters_in_range[0]].insert( cluster_unit );
+
+				clusters[clusters_in_range[i]].clear();
+			}
+		}
+	}
+
+	clusters.erase( std::remove_if( clusters.begin(), clusters.end(), [=]( const UnitGroup &units ) -> bool
+	{
+		return units.empty() || units.size() < static_cast<unsigned int>(min_size);
+	} ), clusters.end() );
+
+	return clusters;
 }

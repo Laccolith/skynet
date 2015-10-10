@@ -13,6 +13,12 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{a332c82a-f309-4b6a-81ea-63b488bdb4cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UnitTracker\Skynet">
+      <UniqueIdentifier>{674ff6ed-01d6-41dd-9ce6-22cd0f7c27ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TerrainAnalyser\Skynet">
+      <UniqueIdentifier>{ff828603-1ee3-450f-abf1-aa97640b3d05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,14 +27,8 @@
     <ClCompile Include="Skynet.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetTerrainAnalyser.cpp">
-      <Filter>TerrainAnalyser</Filter>
-    </ClCompile>
     <ClCompile Include="Access.cpp">
       <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SkynetUnitTracker.cpp">
-      <Filter>UnitTracker</Filter>
     </ClCompile>
     <ClCompile Include="UnitGroup.cpp">
       <Filter>UnitTracker</Filter>
@@ -36,13 +36,31 @@
     <ClCompile Include="SkynetInterface.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetUnit.cpp">
-      <Filter>UnitTracker</Filter>
-    </ClCompile>
     <ClCompile Include="MapUtil.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="DrawingUtil.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetUnit.cpp">
+      <Filter>UnitTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetUnitTracker.cpp">
+      <Filter>UnitTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTerrainAnalyser.cpp">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetRegion.cpp">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetChokepoint.cpp">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBase.cpp">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitUtil.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,23 +68,11 @@
     <ClInclude Include="Skynet.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainAnalyserInterface.h">
-      <Filter>TerrainAnalyser</Filter>
-    </ClInclude>
     <ClInclude Include="SkynetInterface.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="SkynetTerrainAnalyser.h">
-      <Filter>TerrainAnalyser</Filter>
-    </ClInclude>
     <ClInclude Include="Access.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="UnitTrackerInterface.h">
-      <Filter>UnitTracker</Filter>
-    </ClInclude>
-    <ClInclude Include="SkynetUnitTracker.h">
-      <Filter>UnitTracker</Filter>
     </ClInclude>
     <ClInclude Include="SmartEnum.h">
       <Filter>Utility</Filter>
@@ -83,13 +89,58 @@
     <ClInclude Include="Types.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="SkynetUnit.h">
-      <Filter>UnitTracker</Filter>
-    </ClInclude>
     <ClInclude Include="MapUtil.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="DrawingUtil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Messager.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainAnalyser.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitTracker.h">
+      <Filter>UnitTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetUnitTracker.h">
+      <Filter>UnitTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetUnit.h">
+      <Filter>UnitTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTerrainAnalyser.h">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="Chokepoint.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="Region.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="Base.h">
+      <Filter>TerrainAnalyser</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetRegion.h">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetChokepoint.h">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBase.h">
+      <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorUnique.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleArray.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Heap.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitUtil.h">
       <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>

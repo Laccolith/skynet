@@ -1,6 +1,8 @@
 #pragma once
 
-#include "UnitTrackerInterface.h"
+#include "UnitTracker.h"
+
+#include "SkynetUnit.h"
 
 class SkynetUnitTracker : public UnitTrackerInterface
 {
@@ -20,13 +22,22 @@ public:
 	void update();
 
 private:
-	std::unordered_map<BWAPI::Unit, Unit> m_units;
-
-	std::unordered_map<Unit, Player> m_unit_to_player;
-	std::unordered_map<Unit, UnitType> m_unit_to_type;
+	// Are bwapi unit ids good to use as a index to a vector, rather than using this map?
+	std::unordered_map<BWAPI::Unit, std::unique_ptr<SkynetUnit>> m_bwapi_units;
 
 	std::unordered_map<Player, std::map<UnitType, UnitGroup>> m_player_to_type_to_units;
 	std::unordered_map<Player, UnitGroup> m_player_to_units;
 
 	UnitGroup m_all_units;
+
+	std::vector<std::unique_ptr<SkynetUnit>> m_dead_units;
+
+	void onUnitDiscover( BWAPI::Unit unit );
+	void onUnitDestroy( BWAPI::Unit unit );
+
+	void onDiscover( Unit unit );
+	void onMorphRenegade( Unit unit, Player last_player, UnitType last_type );
+	void onDestroy( std::unique_ptr<SkynetUnit> & unit );
+
+	void updateUnit( SkynetUnit * unit );
 };

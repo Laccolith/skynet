@@ -31,6 +31,8 @@ using BWAPI::UnitCommandType;
 namespace UnitCommandTypes = BWAPI::UnitCommandTypes;
 using BWAPI::Color;
 namespace Colors = BWAPI::Colors;
+using BWAPI::Event;
+namespace Events = BWAPI::EventType;
 
 namespace CoordinateType = BWAPI::CoordinateType;
 
@@ -38,5 +40,38 @@ using BWAPI::Order;
 namespace Orders = BWAPI::Orders;
 using BWAPI::UnitCommand;
 
-using BWAPI::WALKPOSITION_SCALE;
 using BWAPI::TILEPOSITION_SCALE;
+using BWAPI::WALKPOSITION_SCALE;
+using BWAPI::POSITION_SCALE;
+
+class UnitInterface;
+typedef UnitInterface *Unit;
+
+class RegionInterface;
+typedef RegionInterface *Region;
+
+class ChokepointInterface;
+typedef ChokepointInterface *Chokepoint;
+
+class BaseInterface;
+typedef BaseInterface *Base;
+
+template <typename T, int Scale>
+inline float dotProduct( BWAPI::Point<T, Scale> v1, BWAPI::Point<T, Scale> v2 )
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+template <typename T, int Scale>
+inline float normalise( BWAPI::Point<T, Scale> & v )
+{
+	float length = sqrt( v.x * v.x + v.y * v.y );
+
+	if( length > 0 )
+	{
+		v.x /= length;
+		v.y /= length;
+	}
+
+	return length;
+}

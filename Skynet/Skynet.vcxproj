@@ -92,16 +92,29 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="Skynet.cpp" />
+    <ClCompile Include="SkynetBase.cpp" />
+    <ClCompile Include="SkynetChokepoint.cpp" />
     <ClCompile Include="SkynetInterface.cpp" />
+    <ClCompile Include="SkynetRegion.cpp" />
     <ClCompile Include="SkynetTerrainAnalyser.cpp" />
     <ClCompile Include="SkynetUnit.cpp" />
     <ClCompile Include="SkynetUnitTracker.cpp" />
     <ClCompile Include="UnitGroup.cpp" />
+    <ClCompile Include="UnitUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Access.h" />
+    <ClInclude Include="Base.h" />
+    <ClInclude Include="Chokepoint.h" />
     <ClInclude Include="DrawingUtil.h" />
+    <ClInclude Include="Heap.h" />
     <ClInclude Include="MapUtil.h" />
+    <ClInclude Include="Messager.h" />
+    <ClInclude Include="RectangleArray.h" />
+    <ClInclude Include="Region.h" />
+    <ClInclude Include="SkynetBase.h" />
+    <ClInclude Include="SkynetChokepoint.h" />
+    <ClInclude Include="SkynetRegion.h" />
     <ClInclude Include="SkynetUnit.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Skynet.h" />
@@ -110,10 +123,12 @@
     <ClInclude Include="SkynetUnitTracker.h" />
     <ClInclude Include="SmartEnum.h" />
     <ClInclude Include="StringUtils.h" />
-    <ClInclude Include="TerrainAnalyserInterface.h" />
+    <ClInclude Include="TerrainAnalyser.h" />
     <ClInclude Include="Unit.h" />
     <ClInclude Include="UnitGroup.h" />
-    <ClInclude Include="UnitTrackerInterface.h" />
+    <ClInclude Include="UnitTracker.h" />
+    <ClInclude Include="UnitUtil.h" />
+    <ClInclude Include="VectorUnique.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

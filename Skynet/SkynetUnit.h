@@ -19,8 +19,10 @@ public:
 	Position getTargetPosition() const override;
 
 	UnitType getType() const override;
+	UnitType getLastType() const;
 
 	Player getPlayer() const override;
+	Player getLastPlayer() const;
 
 	Unit getTarget() const override;
 
