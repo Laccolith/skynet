@@ -109,7 +109,7 @@
     <ClInclude Include="DrawingUtil.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="MapUtil.h" />
-    <ClInclude Include="Messager.h" />
+    <ClInclude Include="Messaging.h" />
     <ClInclude Include="RectangleArray.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="SkynetBase.h" />

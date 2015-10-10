@@ -95,9 +95,6 @@
     <ClInclude Include="DrawingUtil.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Messager.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainAnalyser.h">
       <Filter>TerrainAnalyser</Filter>
     </ClInclude>
@@ -141,6 +138,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="UnitUtil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Messaging.h">
       <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
