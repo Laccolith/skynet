@@ -5,11 +5,11 @@
 #include "VectorUnique.h"
 #include "Messaging.h"
 
-struct TerrainAnalyseComplete
+struct TerrainAnalysed
 {
 };
 
-class TerrainAnalyserInterface : public SkynetInterface, public MessageReporter<TerrainAnalyseComplete>
+class TerrainAnalyserInterface : public SkynetInterface, public MessageReporter<TerrainAnalysed>
 {
 public:
 	TerrainAnalyserInterface( Access & access ) : SkynetInterface( access, "TerrainAnalyser" ) {}

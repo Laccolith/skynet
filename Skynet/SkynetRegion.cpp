@@ -3,17 +3,12 @@
 #include "SkynetTerrainAnalyser.h"
 #include "Chokepoint.h"
 
-SkynetRegion::SkynetRegion( SkynetTerrainAnalyser & terrain_analyser, WalkPosition center, int clearance )
-	: m_terrain_analyser( terrain_analyser )
-	, m_center( center )
+SkynetRegion::SkynetRegion( WalkPosition center, int clearance, int connectivity )
+	: m_center( center )
 	, m_clearance( clearance )
+	, m_connectivity( connectivity )
 	, m_size( 0 )
 {}
-
-bool SkynetRegion::isConnected( Region other ) const
-{
-	return m_terrain_analyser.getConnectivity( m_center ) == m_terrain_analyser.getConnectivity( other->getCenter() );
-}
 
 void SkynetRegion::draw( Color color ) const
 {

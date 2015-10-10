@@ -16,12 +16,16 @@ public:
 	const UnitGroup &getMinerals() const override { return m_minerals; }
 	const UnitGroup &getGeysers() const override { return m_geysers; }
 
+	bool isValid() const override { return m_is_valid; }
+
 	void draw( Color color ) const override;
 
 protected:
 	friend SkynetTerrainAnalyser;
 
 	void addResources( const UnitGroup & resources );
+
+	void markInvalid() { m_is_valid = false; }
 
 private:
 	Position m_center_position;
@@ -31,4 +35,6 @@ private:
 
 	UnitGroup m_minerals;
 	UnitGroup m_geysers;
+
+	bool m_is_valid = true;
 };

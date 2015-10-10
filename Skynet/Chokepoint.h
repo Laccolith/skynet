@@ -11,5 +11,7 @@ public:
 
 	virtual const std::pair<Region, Region> &getRegions() const = 0;
 
+	virtual bool isValid() const = 0;
+
 	virtual void draw( Color color ) const = 0;
 };

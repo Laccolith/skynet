@@ -18,12 +18,16 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
 
 void SkynetTerrainAnalyser::update()
 {
-	if( !m_analysed )
+	if( !m_data.m_analysed )
 	{
-		analyse();
-		m_analysed = true;
-		setDebug( true );
+		Process( m_map_size, m_data, getResources() );
+		postMessage<TerrainAnalysed>();
 	}
+
+	if( isDebugging() && BWAPI::Broodwar->getKeyState( BWAPI::Key( '6' ) ) )
+		++m_reprocess_request;
+
+	check_data();
 
 	if( isDebugging() )
 	{
@@ -38,58 +42,64 @@ void SkynetTerrainAnalyser::update()
 		{
 			if( show_connectivity )
 			{
-				int current_connectivity = m_tile_connectivity[mouse_tile];
+				int current_connectivity = m_data.m_tile_connectivity[mouse_tile];
 
 				WalkPosition top_left( BWAPI::Broodwar->getScreenPosition() );
 				WalkPosition bottom_right( top_left + std::min( WalkPosition( Position( 640, 480 ) ), m_map_size ) );
 
 				MapUtil::forEachPosition( top_left, bottom_right, [this, current_connectivity]( WalkPosition pos )
 				{
-					if( m_tile_connectivity[pos] == current_connectivity )
+					if( m_data.m_tile_connectivity[pos] == current_connectivity )
 						BWAPI::Broodwar->drawBoxMap( pos.x * 8, pos.y * 8, pos.x * 8 + 7, pos.y * 8 + 7, Colors::Red );
 				} );
 
-				if( m_connectivity_to_small_obstacles[current_connectivity] )
+				if( m_data.m_connectivity_to_small_obstacles[current_connectivity] )
 					BWAPI::Broodwar->drawTextMouse( 8, -8, "Small Obstacle" );
 			}
 
 			if( show_clearnace )
-				BWAPI::Broodwar->drawCircleMap( mouse_tile.x * 8, mouse_tile.y * 8, m_tile_clearance[mouse_tile], Colors::Red );
+				BWAPI::Broodwar->drawCircleMap( mouse_tile.x * 8, mouse_tile.y * 8, m_data.m_tile_clearance[mouse_tile], Colors::Red );
 		}
 
 		if( show_regions )
 		{
-			for( auto region : m_regions )
+			for( auto region : m_data.m_regions )
 				region->draw( Colors::Blue );
 		}
 
 		if( show_chokepoints )
 		{
-			for( auto chokepoint : m_chokepoints )
+			for( auto chokepoint : m_data.m_chokepoints )
 				chokepoint->draw( Colors::Red );
 		}
 
 		if( show_base_locations )
 		{
-			for( auto base_location : m_base_locations )
+			for( auto base_location : m_data.m_base_locations )
 				base_location->draw( Colors::Green );
 		}
+
+		if( m_async_future.valid() )
+			BWAPI::Broodwar->drawTextScreen( 10, 10, "Analysing Terrain" );
 	}
 }
 
-void SkynetTerrainAnalyser::analyse()
+SkynetTerrainAnalyser::Process::Process( WalkPosition map_size, Data & data, const UnitGroup & resources )
+	: m_map_size( map_size )
+	, m_data( data )
+	, m_resources( resources )
 {
 	calculateConnectivity();
 	calculateWalkTileClearance();
 	calculateRegions();
 	createBases();
 
-	postMessage<TerrainAnalyseComplete>();
+	m_data.m_analysed = true;
 }
 
-void SkynetTerrainAnalyser::calculateConnectivity()
+void SkynetTerrainAnalyser::Process::calculateConnectivity()
 {
-	m_tile_connectivity.resize( m_map_size.x, m_map_size.y, -1 );
+	m_data.m_tile_connectivity.resize( m_map_size.x, m_map_size.y, -1 );
 
 	std::atomic<int> connectivity_counter;
 
@@ -101,13 +111,13 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 			{
 				WalkPosition pos( x, y );
 
-				if( m_tile_connectivity[pos] != -1 ) continue;
+				if( m_data.m_tile_connectivity[pos] != -1 ) continue;
 				if( BWAPI::Broodwar->isWalkable( pos ) != walkable_tiles ) continue;
 
 				int region_area = 0;
 				int region_connectivity = connectivity_counter++;
 
-				m_tile_connectivity[pos] = region_connectivity;
+				m_data.m_tile_connectivity[pos] = region_connectivity;
 
 				std::queue<WalkPosition> unvisited_tiles;
 				unvisited_tiles.push( pos );
@@ -119,31 +129,31 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 					++region_area;
 
 					WalkPosition pos_north( tile.x, tile.y - 1 );
-					if( tile.y > 0 && BWAPI::Broodwar->isWalkable( pos_north ) == walkable_tiles && m_tile_connectivity[pos_north] == -1 )
+					if( tile.y > 0 && BWAPI::Broodwar->isWalkable( pos_north ) == walkable_tiles && m_data.m_tile_connectivity[pos_north] == -1 )
 					{
 						unvisited_tiles.push( pos_north );
-						m_tile_connectivity[pos_north] = region_connectivity;
+						m_data.m_tile_connectivity[pos_north] = region_connectivity;
 					}
 
 					WalkPosition pos_east( tile.x + 1, tile.y );
-					if( tile.x < m_map_size.x - 1 && BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_tile_connectivity[pos_east] == -1 )
+					if( tile.x < m_map_size.x - 1 && BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_data.m_tile_connectivity[pos_east] == -1 )
 					{
 						unvisited_tiles.push( pos_east );
-						m_tile_connectivity[pos_east] = region_connectivity;
+						m_data.m_tile_connectivity[pos_east] = region_connectivity;
 					}
 
 					WalkPosition pos_south( tile.x, tile.y + 1 );
-					if( tile.y < m_map_size.y - 1 && BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_tile_connectivity[pos_south] == -1 )
+					if( tile.y < m_map_size.y - 1 && BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_data.m_tile_connectivity[pos_south] == -1 )
 					{
 						unvisited_tiles.push( pos_south );
-						m_tile_connectivity[pos_south] = region_connectivity;
+						m_data.m_tile_connectivity[pos_south] = region_connectivity;
 					}
 
 					WalkPosition pos_west( tile.x - 1, tile.y );
-					if( tile.x > 0 && BWAPI::Broodwar->isWalkable( pos_west ) == walkable_tiles && m_tile_connectivity[pos_west] == -1 )
+					if( tile.x > 0 && BWAPI::Broodwar->isWalkable( pos_west ) == walkable_tiles && m_data.m_tile_connectivity[pos_west] == -1 )
 					{
 						unvisited_tiles.push( pos_west );
-						m_tile_connectivity[pos_west] = region_connectivity;
+						m_data.m_tile_connectivity[pos_west] = region_connectivity;
 					}
 
 					unvisited_tiles.pop();
@@ -151,8 +161,8 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 
 				if( !walkable_tiles )
 				{
-					m_connectivity_to_small_obstacles.resize( region_connectivity + 1, false );
-					m_connectivity_to_small_obstacles[region_connectivity] = region_area < 200;
+					m_data.m_connectivity_to_small_obstacles.resize( region_connectivity + 1, false );
+					m_data.m_connectivity_to_small_obstacles[region_connectivity] = region_area < 200;
 				}
 			}
 		}
@@ -162,13 +172,13 @@ void SkynetTerrainAnalyser::calculateConnectivity()
 	calculate_connectivity( false );
 	thread.join();
 
-	m_connectivity_to_small_obstacles.resize( connectivity_counter + 1, false );
+	m_data.m_connectivity_to_small_obstacles.resize( connectivity_counter + 1, false );
 }
 
-void SkynetTerrainAnalyser::calculateWalkTileClearance()
+void SkynetTerrainAnalyser::Process::calculateWalkTileClearance()
 {
-	m_tile_clearance.resize( m_map_size.x, m_map_size.y, -1 );
-	m_tile_to_closest_obstacle.resize( m_map_size.x, m_map_size.y );
+	m_data.m_tile_clearance.resize( m_map_size.x, m_map_size.y, -1 );
+	m_data.m_tile_to_closest_obstacle.resize( m_map_size.x, m_map_size.y );
 
 	Heap<WalkPosition, int> unvisited_tiles( true );
 	for( int x = 0; x < m_map_size.x; ++x )
@@ -179,17 +189,17 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 
 			if( !BWAPI::Broodwar->isWalkable( pos ) )
 			{
-				m_tile_clearance[pos] = 0;
-				m_tile_to_closest_obstacle[pos] = pos;
+				m_data.m_tile_clearance[pos] = 0;
+				m_data.m_tile_to_closest_obstacle[pos] = pos;
 
-				if( !m_connectivity_to_small_obstacles[m_tile_connectivity[pos]] )
+				if( !m_data.m_connectivity_to_small_obstacles[m_data.m_tile_connectivity[pos]] )
 					unvisited_tiles.set( pos, 0 );
 			}
 			else if( x == 0 || y == 0 || x == m_map_size.x - 1 || y == m_map_size.y - 1 )
 			{
-				m_tile_clearance[pos] = 10;
+				m_data.m_tile_clearance[pos] = 10;
 
-				m_tile_to_closest_obstacle[pos] = WalkPosition(
+				m_data.m_tile_to_closest_obstacle[pos] = WalkPosition(
 					(x == 0 ? -1 : (x == m_map_size.x - 1 ? m_map_size.x : x)),
 					(y == 0 ? -1 : (y == m_map_size.y - 1 ? m_map_size.y : y)) );
 
@@ -200,10 +210,10 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 
 	auto visit_direction = [this, &unvisited_tiles]( int distance, WalkPosition current_obstacle, WalkPosition next_pos )
 	{
-		if( m_tile_clearance[next_pos] == -1 || distance < m_tile_clearance[next_pos] )
+		if( m_data.m_tile_clearance[next_pos] == -1 || distance < m_data.m_tile_clearance[next_pos] )
 		{
-			m_tile_clearance[next_pos] = distance;
-			m_tile_to_closest_obstacle[next_pos] = current_obstacle;
+			m_data.m_tile_clearance[next_pos] = distance;
+			m_data.m_tile_to_closest_obstacle[next_pos] = current_obstacle;
 			unvisited_tiles.set( next_pos, distance );
 		}
 	};
@@ -215,7 +225,7 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 		const int diag_distance = distance + 4;
 		unvisited_tiles.pop();
 
-		const WalkPosition current_obstacle = m_tile_to_closest_obstacle[tile];
+		const WalkPosition current_obstacle = m_data.m_tile_to_closest_obstacle[tile];
 
 		const int west = tile.x - 1;
 		const int north = tile.y - 1;
@@ -253,9 +263,9 @@ void SkynetTerrainAnalyser::calculateWalkTileClearance()
 	}
 }
 
-void SkynetTerrainAnalyser::calculateRegions()
+void SkynetTerrainAnalyser::Process::calculateRegions()
 {
-	m_tile_to_region.resize( m_map_size.x, m_map_size.y, nullptr );
+	m_data.m_tile_to_region.resize( m_map_size.x, m_map_size.y, nullptr );
 	std::map<WalkPosition, SkynetChokepoint *> choke_tiles;
 
 	while( true )
@@ -269,13 +279,13 @@ void SkynetTerrainAnalyser::calculateRegions()
 			{
 				WalkPosition pos( x, y );
 
-				if( m_tile_to_region[pos] )
+				if( m_data.m_tile_to_region[pos] )
 					continue;
 
-				const int localMaximaValue = m_tile_clearance[pos];
-				if( localMaximaValue > current_region_clearance )
+				const int local_maxima_value = m_data.m_tile_clearance[pos];
+				if( local_maxima_value > current_region_clearance )
 				{
-					current_region_clearance = localMaximaValue;
+					current_region_clearance = local_maxima_value;
 					current_region_tile = pos;
 				}
 			}
@@ -284,9 +294,9 @@ void SkynetTerrainAnalyser::calculateRegions()
 		if( current_region_clearance == 0 )
 			break;
 
-		m_region_storage.emplace_back( std::make_unique<SkynetRegion>( *this, current_region_tile, current_region_clearance ) );
-		SkynetRegion *current_region = m_region_storage.back().get();
-		m_regions.push_back( current_region );
+		m_data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( current_region_tile, current_region_clearance, m_data.m_tile_connectivity[current_region_tile] ) );
+		SkynetRegion *current_region = m_data.m_region_storage.back().get();
+		m_data.m_regions.push_back( current_region );
 
 		std::map<WalkPosition, WalkPosition> tile_to_last_minima;
 		std::map<WalkPosition, std::vector<WalkPosition>> tile_to_children;
@@ -318,14 +328,14 @@ void SkynetTerrainAnalyser::calculateRegions()
 				continue;
 			}
 
-			if( m_tile_to_region[current_tile] )
+			if( m_data.m_tile_to_region[current_tile] )
 			{
 				//LOGMESSAGEWARNING("2 regions possibly connected without a choke");
 				continue;
 			}
 
 			WalkPosition last_minima = tile_to_last_minima[current_tile];
-			const int choke_size = m_tile_clearance[last_minima];
+			const int choke_size = m_data.m_tile_clearance[last_minima];
 
 			bool found_chokepoint = false;
 			if( choke_size < int( float( current_region_clearance )*0.90f ) && choke_size < int( float( current_tile_clearance )*0.80f ) )
@@ -348,9 +358,9 @@ void SkynetTerrainAnalyser::calculateRegions()
 			{
 				std::pair<WalkPosition, WalkPosition> choke_sides = findChokePoint( last_minima );
 
-				m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( last_minima, choke_sides.first, choke_sides.second, choke_size ) );
-				SkynetChokepoint *current_chokepoint = m_chokepoint_storage.back().get();
-				m_chokepoints.push_back( current_chokepoint );
+				m_data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( last_minima, choke_sides.first, choke_sides.second, choke_size ) );
+				SkynetChokepoint *current_chokepoint = m_data.m_chokepoint_storage.back().get();
+				m_data.m_chokepoints.push_back( current_chokepoint );
 
 				current_chokepoint->setRegion1( current_region );
 				current_region->addChokepoint( current_chokepoint );
@@ -358,7 +368,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 				std::set<WalkPosition> choke_children;
 				MapUtil::forEachPositionInLine( choke_sides.second, choke_sides.first, [this, &tile_to_children, &current_region_tile, &choke_tiles, &choke_children, &current_chokepoint]( WalkPosition line_pos )
 				{
-					if( line_pos >= WalkPositions::Origin && line_pos < m_map_size && m_tile_clearance[line_pos] != 0 && !m_tile_to_region[line_pos] )
+					if( line_pos.x >= 0 && line_pos.y >= 0 && line_pos.x < m_map_size.x && line_pos.y < m_map_size.y && m_data.m_tile_clearance[line_pos] != 0 && !m_data.m_tile_to_region[line_pos] )
 					{
 						tile_to_children[current_region_tile].push_back( line_pos );
 						choke_tiles[line_pos] = current_chokepoint;
@@ -385,7 +395,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 			}
 			else
 			{
-				if( m_tile_clearance[current_tile] < choke_size )
+				if( m_data.m_tile_clearance[current_tile] < choke_size )
 					last_minima = current_tile;
 
 				for( int i = 0; i < 4; ++i )
@@ -394,10 +404,10 @@ void SkynetTerrainAnalyser::calculateRegions()
 						(i == 0 ? current_tile.x - 1 : (i == 1 ? current_tile.x + 1 : current_tile.x)),
 						(i == 2 ? current_tile.y - 1 : (i == 3 ? current_tile.y + 1 : current_tile.y)) );
 
-					if( next_tile < WalkPositions::Origin || next_tile >= m_map_size )
+					if( next_tile.x < 0 || next_tile.y < 0 || next_tile.x >= m_map_size.x || next_tile.y >= m_map_size.y )
 						continue;
 
-					if( m_tile_clearance[next_tile] == 0 )
+					if( m_data.m_tile_clearance[next_tile] == 0 )
 						continue;
 
 					if( tile_to_last_minima.count( next_tile ) == 0 )
@@ -405,7 +415,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 						tile_to_last_minima[next_tile] = last_minima;
 						tile_to_children[current_tile].push_back( next_tile );
 
-						unvisited_tiles.set( next_tile, m_tile_clearance[next_tile] );
+						unvisited_tiles.set( next_tile, m_data.m_tile_clearance[next_tile] );
 					}
 				}
 			}
@@ -423,7 +433,7 @@ void SkynetTerrainAnalyser::calculateRegions()
 			for( auto next_tile : tile_to_children[*current_tile] )
 				tile_steps.insert( next_tile );
 
-			m_tile_to_region[*current_tile] = current_region;
+			m_data.m_tile_to_region[*current_tile] = current_region;
 
 			tile_steps.erase( current_tile );
 		}
@@ -432,9 +442,9 @@ void SkynetTerrainAnalyser::calculateRegions()
 	}
 }
 
-std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::findChokePoint( WalkPosition center ) const
+std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::Process::findChokePoint( WalkPosition center ) const
 {
-	const WalkPosition side1 = m_tile_to_closest_obstacle[center];
+	const WalkPosition side1 = m_data.m_tile_to_closest_obstacle[center];
 
 	if( side1 == center )
 		return std::make_pair( side1, side1 );
@@ -462,10 +472,10 @@ std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::findChokePoint( Wal
 	while( true )
 	{
 		WalkPosition pos( x0, y0 );
-		if( pos < WalkPositions::Origin || pos >= m_map_size || !BWAPI::Broodwar->isWalkable( pos ) )
+		if( x0 < 0 || y0 < 0 || x0 >= m_map_size.x || y0 >= m_map_size.y || !BWAPI::Broodwar->isWalkable( pos ) )
 			return std::make_pair( side1, pos );
 
-		WalkPosition side2 = m_tile_to_closest_obstacle[pos];
+		WalkPosition side2 = m_data.m_tile_to_closest_obstacle[pos];
 
 		WalkPositionFloat side_2_direction( side2 - center );
 		normalise( side_2_direction );
@@ -489,18 +499,10 @@ std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::findChokePoint( Wal
 	}
 }
 
-void SkynetTerrainAnalyser::createBases()
+void SkynetTerrainAnalyser::Process::createBases()
 {
-	// Create a set of all Geysers and all mineral patches with more than 200 minerals
-	UnitGroup resources = UnitTracker().getGeysers();
-	for( Unit mineral : UnitTracker().getMinerals() )
-	{
-		if( mineral->getResources() > 200 )
-			resources.insert( mineral );
-	}
-
 	//Group them into clusters
-	std::vector<UnitGroup> resource_clusters = resources.getClusters( 260, 3 );
+	std::vector<UnitGroup> resource_clusters = m_resources.getClusters( 260, 3 );
 
 	for( const UnitGroup &resource_cluster : resource_clusters )
 	{
@@ -578,7 +580,7 @@ void SkynetTerrainAnalyser::createBases()
 		}, 18 );
 
 		bool added_to_other = false;
-		for( auto &other_base_location : m_base_location_storage )
+		for( auto &other_base_location : m_data.m_base_location_storage )
 		{
 			int dx = abs( base_location.x - other_base_location->getBuildLocation().x );
 			int dy = abs( base_location.y - other_base_location->getBuildLocation().y );
@@ -593,10 +595,63 @@ void SkynetTerrainAnalyser::createBases()
 
 		if( !added_to_other )
 		{
-			SkynetRegion *base_region = m_tile_to_region[WalkPosition(base_location)];
-			m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( base_location, base_region, resource_cluster ) );
-			m_base_locations.push_back( m_base_location_storage.back().get() );
-			base_region->addBase( m_base_locations.back() );
+			SkynetRegion *base_region = m_data.m_tile_to_region[WalkPosition(base_location)];
+			m_data.m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( base_location, base_region, resource_cluster ) );
+			m_data.m_base_locations.push_back( m_data.m_base_location_storage.back().get() );
+			base_region->addBase( m_data.m_base_locations.back() );
 		}
+	}
+}
+
+UnitGroup SkynetTerrainAnalyser::getResources()
+{
+	UnitGroup resources = UnitTracker().getGeysers();
+	for( Unit mineral : UnitTracker().getMinerals() )
+	{
+		if( mineral->getResources() > 200 )
+			resources.insert( mineral );
+	}
+
+	return resources;
+}
+
+void SkynetTerrainAnalyser::check_data()
+{
+	m_old_regions.clear();
+	m_old_chokepoints.clear();
+	m_old_base_locations.clear();
+
+	if( m_async_future.valid() )
+	{
+		if( m_async_future.wait_for( std::chrono::milliseconds( 2 ) ) == std::future_status::ready )
+		{
+			m_old_regions = std::move( m_data.m_region_storage );
+			for( auto & region : m_old_regions ) region->markInvalid();
+
+			m_old_chokepoints = std::move( m_data.m_chokepoint_storage );
+			for( auto & chokepoint : m_old_chokepoints ) chokepoint->markInvalid();
+
+			m_old_base_locations = std::move( m_data.m_base_location_storage );
+			for( auto & base_location : m_old_base_locations ) base_location->markInvalid();
+
+			m_data = std::move( *m_async_future.get() );
+			postMessage<TerrainAnalysed>();
+		}
+	}
+
+	if( !m_async_future.valid() && m_data.m_request < m_reprocess_request )
+	{
+		UnitGroup resources = getResources();
+		int request = m_reprocess_request;
+		auto map_size = m_map_size;
+		m_async_future = std::async( std::launch::async, [resources, request, map_size] () -> std::unique_ptr<Data>
+		{
+			auto new_data = std::make_unique<Data>();
+			new_data->m_request = request;
+
+			Process( map_size, *new_data, resources );
+
+			return new_data;
+		} );
 	}
 }

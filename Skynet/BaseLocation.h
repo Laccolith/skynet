@@ -15,5 +15,7 @@ public:
 	virtual const UnitGroup &getMinerals() const = 0;
 	virtual const UnitGroup &getGeysers() const = 0;
 
+	virtual bool isValid() const = 0;
+
 	virtual void draw( Color color ) const = 0;
 };
