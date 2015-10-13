@@ -88,6 +88,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Access.cpp" />
+    <ClCompile Include="DrawBuffer.cpp" />
     <ClCompile Include="DrawingUtil.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUtil.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="Access.h" />
     <ClInclude Include="BaseLocation.h" />
     <ClInclude Include="Chokepoint.h" />
+    <ClInclude Include="DrawBuffer.h" />
     <ClInclude Include="DrawingUtil.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="MapUtil.h" />

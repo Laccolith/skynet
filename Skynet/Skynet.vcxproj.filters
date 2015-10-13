@@ -63,6 +63,9 @@
     <ClCompile Include="SkynetBaseLocation.cpp">
       <Filter>TerrainAnalyser\Skynet</Filter>
     </ClCompile>
+    <ClCompile Include="DrawBuffer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Skynet.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="SkynetBaseLocation.h">
       <Filter>TerrainAnalyser\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawBuffer.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

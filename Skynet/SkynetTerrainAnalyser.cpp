@@ -605,8 +605,8 @@ void SkynetTerrainAnalyser::Process::createBases()
 
 UnitGroup SkynetTerrainAnalyser::getResources()
 {
-	UnitGroup resources = UnitTracker().getGeysers();
-	for( Unit mineral : UnitTracker().getMinerals() )
+	UnitGroup resources = getUnitTracker().getGeysers();
+	for( Unit mineral : getUnitTracker().getMinerals() )
 	{
 		if( mineral->getResources() > 200 )
 			resources.insert( mineral );

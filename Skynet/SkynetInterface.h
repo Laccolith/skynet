@@ -16,11 +16,13 @@ public:
 	const std::string &getName() const { return m_name; }
 
 protected:
-	UnitTrackerInterface & UnitTracker() { return m_access.UnitTracker(); }
-	const UnitTrackerInterface & UnitTracker() const { return m_access.UnitTracker(); }
+	DrawBuffer & getDrawBuffer() { return m_access.getDrawBuffer(); }
 
-	TerrainAnalyserInterface & TerrainAnalyser() { return m_access.TerrainAnalyser(); }
-	const TerrainAnalyserInterface & TerrainAnalyser() const { return m_access.TerrainAnalyser(); }
+	UnitTrackerInterface & getUnitTracker() { return m_access.getUnitTracker(); }
+	const UnitTrackerInterface & getUnitTracker() const { return m_access.getUnitTracker(); }
+
+	TerrainAnalyserInterface & getTerrainAnalyser() { return m_access.getTerrainAnalyser(); }
+	const TerrainAnalyserInterface & getTerrainAnalyser() const { return m_access.getTerrainAnalyser(); }
 
 	Skynet & getSkynet() { return m_access.getSkynet(); }
 	const Skynet & getSkynet() const { return m_access.getSkynet(); }

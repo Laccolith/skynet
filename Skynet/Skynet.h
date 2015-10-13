@@ -9,7 +9,7 @@
 class SkynetInterface;
 class Skynet
 {
-	bool in_startup = true;
+	bool m_in_startup = true;
 	std::unique_ptr<Access> m_access;
 
 	std::unordered_map<std::string, SkynetInterface*> m_interfaces;

@@ -16,7 +16,7 @@ Skynet::Skynet( std::string name )
 		return lhs.first < rhs.first;
 	} );
 	
-	in_startup = false;
+	m_in_startup = false;
 	BWAPI::Broodwar->printf( "%s is online.", name.c_str() );
 }
 
@@ -51,7 +51,7 @@ void Skynet::update()
 
 void Skynet::registerInterface( SkynetInterface & inter )
 {
-	if( in_startup )
+	if( m_in_startup )
 		m_interfaces[inter.getName()] = &inter;
 	else
 		BWAPI::Broodwar->printf( "Interface %s has attempted to register itself after startup.", inter.getName().c_str() );
@@ -59,7 +59,7 @@ void Skynet::registerInterface( SkynetInterface & inter )
 
 void Skynet::registerUpdateProcess( float priority, std::function<void()> update_function )
 {
-	if( in_startup )
+	if( m_in_startup )
 		m_update_processes.emplace_back( priority, std::move( update_function ) );
 	else
 		BWAPI::Broodwar->printf( "An update process has been attempted to register after startup." );
