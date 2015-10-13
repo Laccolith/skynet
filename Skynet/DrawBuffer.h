@@ -112,9 +112,9 @@ private:
 	std::vector<std::unique_ptr<BufferedItem>> m_items;
 
 	template <typename T, typename ...ARGS>
-	void add( ARGS&&... args )
+	void add( int num_frames, ARGS&&... args )
 	{
-		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( std::forward<ARGS>( args )... ) );
+		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( num_frames, std::forward<ARGS>( args )... ) );
 	}
 };
 

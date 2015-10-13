@@ -60,6 +60,10 @@ private:
 
 		int m_request = 0;
 
+		float m_connectivity_time_seconds = 0.0f;
+		float m_clearance_time_seconds = 0.0f;
+		float m_regions_time_seconds = 0.0f;
+
 		Data & operator=( Data && other)
 		{
 			m_analysed = other.m_analysed;
@@ -79,6 +83,10 @@ private:
 			m_tile_to_closest_obstacle = std::move( other.m_tile_to_closest_obstacle );
 
 			m_request = other.m_request;
+
+			m_connectivity_time_seconds = other.m_connectivity_time_seconds;
+			m_clearance_time_seconds = other.m_clearance_time_seconds;
+			m_regions_time_seconds = other.m_regions_time_seconds;
 
 			return *this;
 		}
@@ -106,7 +114,8 @@ private:
 	std::future<std::unique_ptr<Data>> m_async_future;
 
 	UnitGroup getResources();
-	void check_data();
+	void checkData();
+	void processComplete();
 
 	std::vector<std::unique_ptr<SkynetRegion>> m_old_regions;
 	std::vector<std::unique_ptr<SkynetChokepoint>> m_old_chokepoints;
