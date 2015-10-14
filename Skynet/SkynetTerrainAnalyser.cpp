@@ -9,6 +9,7 @@
 #include <thread>
 #include <atomic>
 #include <queue>
+#include <array>
 
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
 	: TerrainAnalyserInterface( access )
@@ -276,12 +277,23 @@ void SkynetTerrainAnalyser::Process::calculateWalkTileClearance()
 	m_data.m_clearance_time_seconds = elapsed_seconds.count();
 }
 
+struct RegionTileData
+{
+	SkynetChokepoint * chokepoint = nullptr;
+	WalkPosition last_minima = WalkPositions::None;
+	unsigned int children_flags = 0;
+
+	void set_child( int i ) { children_flags |= i; }
+	bool has_child( int i ) const { return ( children_flags & i ) != 0; }
+};
+
 void SkynetTerrainAnalyser::Process::calculateRegions()
 {
 	auto start_time = std::chrono::system_clock::now();
 
 	m_data.m_tile_to_region.resize( m_map_size.x, m_map_size.y, nullptr );
-	RectangleArray<SkynetChokepoint *, WALKPOSITION_SCALE> choke_tiles( m_map_size.x, m_map_size.y, nullptr );
+
+	RectangleArray<RegionTileData, WALKPOSITION_SCALE> tile_data( m_map_size.x, m_map_size.y );
 
 	while( true )
 	{
@@ -295,7 +307,7 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 			{
 				WalkPosition pos( x, y );
 
-				if( m_data.m_tile_to_region[pos] )
+				if( m_data.m_tile_to_region[pos] || tile_data[pos].chokepoint )
 					continue;
 
 				const int local_maxima_value = m_data.m_tile_clearance[pos];
@@ -316,14 +328,11 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 		SkynetRegion *current_region = m_data.m_region_storage.back().get();
 		m_data.m_regions.push_back( current_region );
 
-		std::map<WalkPosition, WalkPosition> tile_to_last_minima;
-		std::map<WalkPosition, std::vector<WalkPosition>> tile_to_children;
-
 		Heap<WalkPosition, int> unvisited_tiles;
 
 		// Start the algorithm from this tile
 		unvisited_tiles.set( current_region_tile, current_region_clearance );
-		tile_to_last_minima[current_region_tile] = current_region_tile;
+		tile_data[current_region_tile].last_minima = current_region_tile;
 
 		// Count the number of tiles we touch along the way
 		int region_size = 0;
@@ -336,23 +345,24 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 			unvisited_tiles.pop();
 
 			// If this tile belongs to an existing chokepoint
-			if( choke_tiles[current_tile] )
+			auto existing_chokepoint = tile_data[current_tile].chokepoint;
+			if( existing_chokepoint )
 			{
 				// Chokepoint already has a second region
-				if( choke_tiles[current_tile]->getRegions().second )
+				if( existing_chokepoint->getRegions().second )
 				{
 					// It is not the current region, this shouldn't happen
-					if( choke_tiles[current_tile]->getRegions().second != current_region )
+					if( existing_chokepoint->getRegions().second != current_region )
 					{
 						//DrawBuffer::Instance().drawBufferedBox(BWAPI::CoordinateType::Map, currentTile.x * 8, currentTile.y * 8, currentTile.x * 8 + 8, currentTile.y * 8 + 8, 999999, BWAPI::Colors::Red);
 						//LOGMESSAGEWARNING("Touched a choke saved to anouther region");
 					}
 				}
 				// This chokepoint wasn't created by the current region, add it as the other side
-				else if( choke_tiles[current_tile]->getRegions().first != current_region )
+				else if( existing_chokepoint->getRegions().first != current_region )
 				{
-					current_region->addChokepoint( choke_tiles[current_tile] );
-					choke_tiles[current_tile]->setRegion2( current_region );
+					current_region->addChokepoint( existing_chokepoint );
+					existing_chokepoint->setRegion2( current_region );
 				}
 
 				continue;
@@ -369,7 +379,7 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 				continue;
 			}
 
-			WalkPosition last_minima = tile_to_last_minima[current_tile];
+			WalkPosition last_minima = tile_data[current_tile].last_minima;
 			const int last_minima_size = m_data.m_tile_clearance[last_minima];
 
 			// Test change in clearance between current position and region position
@@ -406,14 +416,14 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 				current_region->addChokepoint( current_chokepoint );
 
 				// For every tile between the chokepoint sides
-				std::set<WalkPosition> choke_children;
-				MapUtil::forEachPositionInLine( choke_sides.second, choke_sides.first, [this, &region_size, &choke_tiles, &choke_children, &current_chokepoint]( WalkPosition line_pos )
+				std::queue<WalkPosition> choke_children;
+				MapUtil::forEachPositionInLine( choke_sides.second, choke_sides.first, [this, &region_size, &tile_data, &choke_children, &current_chokepoint]( WalkPosition line_pos )
 				{
 					if( line_pos.x >= 0 && line_pos.y >= 0 && line_pos.x < m_map_size.x && line_pos.y < m_map_size.y && m_data.m_tile_clearance[line_pos] != 0 && !m_data.m_tile_to_region[line_pos] )
 					{
 						++region_size;
-						choke_tiles[line_pos] = current_chokepoint;
-						choke_children.insert( line_pos );
+						tile_data[line_pos].chokepoint = current_chokepoint;
+						choke_children.push( line_pos );
 					}
 
 					return false;
@@ -423,17 +433,25 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 				while( !choke_children.empty() )
 				{
 					--region_size;
-					auto current_tile = choke_children.begin();
+					auto current_tile = choke_children.front();
+					choke_children.pop();
 
-					tile_to_last_minima.erase( *current_tile );
-					unvisited_tiles.erase( *current_tile );
+					m_data.m_tile_to_region[current_tile] = nullptr;
+					tile_data[current_tile].last_minima = WalkPositions::None;
+					unvisited_tiles.erase( current_tile );
 
-					for( auto next_tile : tile_to_children[*current_tile] )
-						choke_children.insert( next_tile );
+					for( int i = 0; i < 4; ++i )
+					{
+						if( tile_data[current_tile].has_child( i ) )
+						{
+							WalkPosition next_tile(
+								(i == 0 ? current_tile.x - 1 : (i == 1 ? current_tile.x + 1 : current_tile.x)),
+								(i == 2 ? current_tile.y - 1 : (i == 3 ? current_tile.y + 1 : current_tile.y)) );
+							choke_children.push( next_tile );
+						}
+					}
 
-					tile_to_children.erase( *current_tile );
-
-					choke_children.erase( current_tile );
+					tile_data[current_tile].children_flags = 0;
 				}
 			}
 			// A chokepoint was not found for this current position
@@ -458,10 +476,10 @@ void SkynetTerrainAnalyser::Process::calculateRegions()
 					if( m_data.m_tile_clearance[next_tile] == 0 )
 						continue;
 
-					if( tile_to_last_minima.count( next_tile ) == 0 )
+					if( tile_data[next_tile].last_minima == WalkPositions::None )
 					{
-						tile_to_last_minima[next_tile] = last_minima;
-						tile_to_children[current_tile].push_back( next_tile );
+						tile_data[next_tile].last_minima = last_minima;
+						tile_data[current_tile].set_child( i );
 
 						unvisited_tiles.set( next_tile, m_data.m_tile_clearance[next_tile] );
 					}

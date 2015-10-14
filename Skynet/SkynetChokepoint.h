@@ -31,7 +31,7 @@ private:
 	std::pair<WalkPosition, WalkPosition> m_sides;
 	int m_clearance;
 
-	std::pair<Region, Region> m_regions;
+	std::pair<Region, Region> m_regions = { nullptr, nullptr };
 
 	bool m_is_valid = true;
 };
