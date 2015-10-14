@@ -48,7 +48,9 @@ void SkynetTerrainAnalyser::update()
 				int current_connectivity = m_data.m_tile_connectivity[mouse_tile];
 
 				WalkPosition top_left( BWAPI::Broodwar->getScreenPosition() );
-				WalkPosition bottom_right( top_left + std::min( WalkPosition( Position( 640, 480 ) ), m_map_size ) );
+				WalkPosition bottom_right( top_left + WalkPosition( Position( 640, 480 ) ) );
+				if( bottom_right.x > m_map_size.x ) bottom_right.x = m_map_size.x;
+				if( bottom_right.y > m_map_size.y ) bottom_right.y = m_map_size.y;
 
 				MapUtil::forEachPosition( top_left, bottom_right, [this, current_connectivity]( WalkPosition pos )
 				{
@@ -121,6 +123,7 @@ void SkynetTerrainAnalyser::Process::calculateConnectivity()
 
 				int region_area = 0;
 				int region_connectivity = connectivity_counter++;
+				bool touches_edge = false;
 
 				m_data.m_tile_connectivity[pos] = region_connectivity;
 
@@ -134,28 +137,32 @@ void SkynetTerrainAnalyser::Process::calculateConnectivity()
 					++region_area;
 
 					WalkPosition pos_north( tile.x, tile.y - 1 );
-					if( tile.y > 0 && BWAPI::Broodwar->isWalkable( pos_north ) == walkable_tiles && m_data.m_tile_connectivity[pos_north] == -1 )
+					if( tile.y <= 0 ) touches_edge = true;
+					else if( BWAPI::Broodwar->isWalkable( pos_north ) == walkable_tiles && m_data.m_tile_connectivity[pos_north] == -1 )
 					{
 						unvisited_tiles.push( pos_north );
 						m_data.m_tile_connectivity[pos_north] = region_connectivity;
 					}
 
 					WalkPosition pos_east( tile.x + 1, tile.y );
-					if( tile.x < m_map_size.x - 1 && BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_data.m_tile_connectivity[pos_east] == -1 )
+					if( tile.x >= m_map_size.x - 1 ) touches_edge = true;
+					else if( BWAPI::Broodwar->isWalkable( pos_east ) == walkable_tiles && m_data.m_tile_connectivity[pos_east] == -1 )
 					{
 						unvisited_tiles.push( pos_east );
 						m_data.m_tile_connectivity[pos_east] = region_connectivity;
 					}
 
 					WalkPosition pos_south( tile.x, tile.y + 1 );
-					if( tile.y < m_map_size.y - 1 && BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_data.m_tile_connectivity[pos_south] == -1 )
+					if( tile.y >= m_map_size.y - 1 ) touches_edge = true;
+					else if( BWAPI::Broodwar->isWalkable( pos_south ) == walkable_tiles && m_data.m_tile_connectivity[pos_south] == -1 )
 					{
 						unvisited_tiles.push( pos_south );
 						m_data.m_tile_connectivity[pos_south] = region_connectivity;
 					}
 
 					WalkPosition pos_west( tile.x - 1, tile.y );
-					if( tile.x > 0 && BWAPI::Broodwar->isWalkable( pos_west ) == walkable_tiles && m_data.m_tile_connectivity[pos_west] == -1 )
+					if( tile.x <= 0 ) touches_edge = true;
+					else if( BWAPI::Broodwar->isWalkable( pos_west ) == walkable_tiles && m_data.m_tile_connectivity[pos_west] == -1 )
 					{
 						unvisited_tiles.push( pos_west );
 						m_data.m_tile_connectivity[pos_west] = region_connectivity;
@@ -167,7 +174,7 @@ void SkynetTerrainAnalyser::Process::calculateConnectivity()
 				if( !walkable_tiles )
 				{
 					m_data.m_connectivity_to_small_obstacles.resize( region_connectivity + 1, false );
-					m_data.m_connectivity_to_small_obstacles[region_connectivity] = region_area < 200;
+					m_data.m_connectivity_to_small_obstacles[region_connectivity] = region_area < 200 && !touches_edge;
 				}
 			}
 		}

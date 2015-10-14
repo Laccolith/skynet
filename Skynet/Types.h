@@ -56,14 +56,14 @@ typedef ChokepointInterface *Chokepoint;
 class BaseLocationInterface;
 typedef BaseLocationInterface *BaseLocation;
 
-template <typename T, int Scale>
-inline float dotProduct( BWAPI::Point<T, Scale> v1, BWAPI::Point<T, Scale> v2 )
+template <int Scale>
+inline float dotProduct( BWAPI::Point<float, Scale> v1, BWAPI::Point<float, Scale> v2 )
 {
 	return v1.x * v2.x + v1.y * v2.y;
 }
 
-template <typename T, int Scale>
-inline float normalise( BWAPI::Point<T, Scale> & v )
+template <int Scale>
+inline float normalise( BWAPI::Point<float, Scale> & v )
 {
 	float length = sqrt( v.x * v.x + v.y * v.y );
 
