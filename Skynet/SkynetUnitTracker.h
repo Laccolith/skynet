@@ -40,4 +40,6 @@ private:
 	void onDestroy( std::unique_ptr<SkynetUnit> & unit );
 
 	void updateUnit( SkynetUnit * unit );
+
+	DEFINE_DEBUGGING_INTERFACE( Default );
 };

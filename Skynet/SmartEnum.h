@@ -49,10 +49,7 @@ namespace SmartEnum
 			if( equal_sign_pos != std::string::npos )
 			{
 				current_enum_value = std::stoi( current_enum_entry.substr( equal_sign_pos + 1 ) );
-				current_enum_entry.erase( equal_sign_pos );
 			}
-
-			StringUtils::trimWhitespace( current_enum_entry );
 
 			values.push_back( static_cast<T>( current_enum_value ) );
 
@@ -72,16 +69,16 @@ inline const std::vector<T> & values()
 }
 
 #define SMART_ENUM( TYPE, UNDERLYING_TYPE, ... ) \
-	enum TYPE : UNDERLYING_TYPE { __VA_ARGS__ }; \
+	enum class TYPE : UNDERLYING_TYPE { __VA_ARGS__ }; \
 	\
 	template <> \
-	inline const std::vector<TYPE> & values<TYPE>() \
+	inline static const std::vector<TYPE> & values<TYPE>() \
 	{ \
 		static const auto list = SmartEnum::makeEnumValues<TYPE, UNDERLYING_TYPE>( #__VA_ARGS__ ); \
 		return list; \
 	} \
 	\
-	inline const std::string & toString( TYPE value ) \
+	inline static const std::string & toString( TYPE value ) \
 	{ \
 		static const auto names = SmartEnum::makeEnumNames<UNDERLYING_TYPE>( #__VA_ARGS__ ); \
 		return names.at( (UNDERLYING_TYPE)value ); \

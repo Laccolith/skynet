@@ -258,7 +258,7 @@ UnitGroup::SizeType UnitGroup::getFlyingCount() const
 	return count;
 }
 
-std::vector<UnitGroup> UnitGroup::getClusters( int distance, int min_size )
+std::vector<UnitGroup> UnitGroup::getClusters( int distance, int min_size ) const
 {
 	std::vector<UnitGroup> clusters;
 

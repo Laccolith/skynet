@@ -17,14 +17,14 @@ public:
 
 	void update();
 
-	const std::vector<Region> &getRegions() const override { return m_data.m_regions; }
-	const std::vector<Chokepoint> &getChokepoints() const override { return m_data.m_chokepoints; }
-	const std::vector<BaseLocation> &getBaseLocations() const override { return m_data.m_base_locations; }
+	const std::vector<Region> &getRegions() const override { return m_processed_data.m_regions; }
+	const std::vector<Chokepoint> &getChokepoints() const override { return m_processed_data.m_chokepoints; }
+	const std::vector<BaseLocation> &getBaseLocations() const override { return m_processed_data.m_base_locations; }
 
-	Region getRegion( WalkPosition pos ) const override { return m_data.m_tile_to_region[clampToMap(pos)]; }
-	int getClearance( WalkPosition pos ) const override { return m_data.m_tile_clearance[clampToMap( pos )]; }
-	int getConnectivity( WalkPosition pos ) const override { return m_data.m_tile_connectivity[clampToMap( pos )]; }
-	WalkPosition getClosestObstacle( WalkPosition pos ) const override { return m_data.m_tile_to_closest_obstacle[clampToMap( pos )]; }
+	Region getRegion( WalkPosition pos ) const override { return m_processed_data.m_tile_to_region[clampToMap( pos )]; }
+	int getClearance( WalkPosition pos ) const override { return m_processed_data.m_tile_clearance[clampToMap( pos )]; }
+	int getConnectivity( WalkPosition pos ) const override { return m_processed_data.m_tile_connectivity[clampToMap( pos )]; }
+	WalkPosition getClosestObstacle( WalkPosition pos ) const override { return m_processed_data.m_tile_to_closest_obstacle[clampToMap( pos )]; }
 
 	WalkPosition clampToMap( WalkPosition pos ) const
 	{
@@ -92,32 +92,26 @@ private:
 		}
 	};
 
-	Data m_data;
+	Data m_processed_data;
 
 	int m_reprocess_request = 0;
 
-	struct Process
-	{
-		Process( WalkPosition map_size, Data & data, const UnitGroup & resources );
+	void process( Data & data, UnitGroup resources );
 
-		WalkPosition m_map_size;
-		Data & m_data;
-		UnitGroup m_resources;
-
-		void calculateConnectivity();
-		void calculateWalkTileClearance();
-		void calculateRegions();
-		std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center ) const;
-		void createBases();
-	};
+	void calculateConnectivity( Data & data );
+	void calculateWalkTileClearance( Data & data );
+	void calculateRegions( Data & data );
+	std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center, Data & data ) const;
+	void createBases( Data & data, const UnitGroup & resources );
 
 	std::future<std::unique_ptr<Data>> m_async_future;
 
 	UnitGroup getResources();
 	void checkData();
-	void processComplete();
 
 	std::vector<std::unique_ptr<SkynetRegion>> m_old_regions;
 	std::vector<std::unique_ptr<SkynetChokepoint>> m_old_chokepoints;
 	std::vector<std::unique_ptr<SkynetBaseLocation>> m_old_base_locations;
+
+	DEFINE_DEBUGGING_INTERFACE( Default, RegionAnalysis );
 };

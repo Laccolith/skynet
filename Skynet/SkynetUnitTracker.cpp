@@ -95,7 +95,7 @@ void SkynetUnitTracker::update()
 	for( auto & unit : m_bwapi_units )
 		updateUnit( unit.second.get() );
 
-	if( isDebugging() )
+	if( isDebugging( Debug::Default ) )
 	{
 		for( auto unit : m_all_units )
 			unit->drawUnitPosition();

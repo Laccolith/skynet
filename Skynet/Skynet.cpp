@@ -34,14 +34,19 @@ void Skynet::update()
 			if( tokens[0] == "debug" )
 			{
 				if( tokens.size() < 3 )
+				{
+					BWAPI::Broodwar->printf( "Not enough commands for debug, expects interface and command." );
 					continue;
+				}
 
 				auto it = m_interfaces.find( tokens[1] );
 				if( it != m_interfaces.end() )
-					it->second->setDebug( tokens[2] != "0" && tokens[2] != "false" );
+					it->second->debugCommand( tokens[2] );
 				else
 					BWAPI::Broodwar->printf( "%s is not a known interface.", tokens[1].c_str() );
 			}
+			else
+				BWAPI::Broodwar->printf( "%s is not a command.", tokens[0].c_str() );
 		}
 	}
 

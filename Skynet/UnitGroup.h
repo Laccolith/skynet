@@ -34,7 +34,7 @@ public:
 	SizeType getCloakedCount() const;
 	SizeType getFlyingCount() const;
 
-	std::vector<UnitGroup> getClusters( int distance, int min_size );
+	std::vector<UnitGroup> getClusters( int distance, int min_size ) const;
 };
 
 const UnitGroup empty_unit_group;

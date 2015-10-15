@@ -3,6 +3,7 @@
 #include "SkynetInterface.h"
 
 #include <vector>
+#include <mutex>
 
 struct BufferedText
 {
@@ -110,10 +111,12 @@ public:
 
 private:
 	std::vector<std::unique_ptr<BufferedItem>> m_items;
+	std::mutex m_items_mutex;
 
 	template <typename T, typename ...ARGS>
 	void add( int num_frames, ARGS&&... args )
 	{
+		std::lock_guard<std::mutex> lock( m_items_mutex );
 		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( num_frames, std::forward<ARGS>( args )... ) );
 	}
 };
