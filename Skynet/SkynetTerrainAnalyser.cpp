@@ -320,6 +320,13 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 	RectangleArray<RegionTileData, WALKPOSITION_SCALE> tile_data( m_map_size.x, m_map_size.y );
 	RectangleArray<SkynetChokepoint *, WALKPOSITION_SCALE> tile_to_chokepoint( m_map_size.x, m_map_size.y, nullptr );
 
+	auto comp = []( const std::pair<WalkPosition, int> & first, const std::pair<WalkPosition, int> & second )
+	{
+		return first.second < second.second;
+	};
+
+	std::priority_queue<std::pair<WalkPosition, int>, std::vector<std::pair<WalkPosition, int>>, decltype(comp)> unvisited_tiles;
+
 	while( true )
 	{
 		int current_region_clearance = 0;
@@ -355,10 +362,8 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		SkynetRegion *current_region = data.m_region_storage.back().get();
 		data.m_regions.push_back( current_region );
 
-		Heap<WalkPosition, int> unvisited_tiles;
-
 		// Start the algorithm from this tile
-		unvisited_tiles.set( current_region_tile, current_region_clearance );
+		unvisited_tiles.emplace( current_region_tile, current_region_clearance );
 		tile_data[current_region_tile].last_minima = current_region_tile;
 
 		// Count the number of tiles we touch along the way
@@ -370,6 +375,9 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 			WalkPosition current_tile = unvisited_tiles.top().first;
 			int current_tile_clearance = unvisited_tiles.top().second;
 			unvisited_tiles.pop();
+
+			if( tile_data[current_tile].last_minima == WalkPositions::None )
+				continue;
 
 			// If this tile belongs to an existing chokepoint
 			auto existing_chokepoint = tile_to_chokepoint[current_tile];
@@ -454,9 +462,6 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 						++region_size;
 						tile_to_chokepoint[line_pos] = current_chokepoint;
 						choke_children.push( line_pos );
-
-						if( debug_window )
-							debug_window->addBox( line_pos.x * 8 + 2, line_pos.y * 8 + 2, line_pos.x * 8 + 6, line_pos.y * 8 + 6, Colors::Orange );
 					}
 
 					return false;
@@ -464,6 +469,12 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 				
 				MapUtil::forEachPositionInLine( choke_sides.first, last_minima, add_choke_children );
 				MapUtil::forEachPositionInLine( last_minima, choke_sides.second, add_choke_children );
+
+				if( debug_window )
+				{
+					debug_window->addLine( choke_sides.first.x * 8, choke_sides.first.y * 8, last_minima.x * 8, last_minima.y * 8, 8, Colors::Orange );
+					debug_window->addLine( last_minima.x * 8, last_minima.y * 8, choke_sides.second.x * 8, choke_sides.second.y * 8, 8, Colors::Orange );
+				}
 
 				// Remove any tiles that are after the chokepoint as they are now cut off
 				while( !choke_children.empty() )
@@ -474,7 +485,6 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 					data.m_tile_to_region[current_tile] = nullptr;
 					tile_data[current_tile].last_minima = WalkPositions::None;
-					unvisited_tiles.erase( current_tile );
 
 					for( int i = 0; i < 4; ++i )
 					{
@@ -517,7 +527,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 						tile_data[next_tile].last_minima = last_minima;
 						tile_data[current_tile].set_child( i );
 
-						unvisited_tiles.set( next_tile, data.m_tile_clearance[next_tile] );
+						unvisited_tiles.emplace( next_tile, data.m_tile_clearance[next_tile] );
 					}
 				}
 			}

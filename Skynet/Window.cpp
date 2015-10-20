@@ -3,6 +3,7 @@
 #include <future>
 #include <thread>
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 #if defined(_DEBUG)
 #pragma comment(lib, "sfml-graphics-s-d.lib")
@@ -139,11 +140,33 @@ public:
 
 	void addBox( int left, int top, int right, int bottom, Color color )
 	{
-		std::lock_guard<std::mutex> lock( m_mutex );
-
 		auto new_shape = std::make_unique<sf::RectangleShape>( sf::Vector2f( float( right - left ), float( bottom - top ) ) * m_scale );
 		new_shape->setPosition( sf::Vector2f( float( left ), float( top ) ) * m_scale );
 		new_shape->setFillColor( sf::Color( color.red(), color.green(), color.blue() ) );
+
+		std::lock_guard<std::mutex> lock( m_mutex );
+		m_shapes.push_back( std::move( new_shape ) );
+	}
+
+	void addLine( int x1, int y1, int x2, int y2, float thickness, Color color )
+	{
+		PositionFloat start = PositionFloat( float( x1 ), float( y1 ) );
+		PositionFloat end = PositionFloat( float( x2 ), float( y2 ) );
+
+		PositionFloat line_direction = end - start;
+		float length = normalise( line_direction );
+		
+		float dot = dotProduct( line_direction, PositionFloat( 0.0f, -1.0f ) );
+		float acos = std::acos( dot );
+		float angle = acos * 180 / 3.14159265359f;
+
+		auto new_shape = std::make_unique<sf::RectangleShape>( sf::Vector2f( length, thickness ) * m_scale );
+		new_shape->setOrigin( 0.0f, thickness * 0.5f * m_scale );
+		new_shape->setPosition( sf::Vector2f( start.x, start.y ) * m_scale );
+		new_shape->rotate( angle );
+		new_shape->setFillColor( sf::Color( color.red(), color.green(), color.blue() ) );
+
+		std::lock_guard<std::mutex> lock( m_mutex );
 		m_shapes.push_back( std::move( new_shape ) );
 	}
 };
@@ -166,4 +189,15 @@ void Window::addBox( int left, int top, int right, int bottom, Color color )
 void Window::addBox( Position top_left, Position bottom_right, Color color )
 {
 	addBox( top_left.x, top_left.y, bottom_right.x, bottom_right.y, color );
+}
+
+void Window::addLine( int x1, int y1, int x2, int y2, float thickness, Color color )
+{
+	if( m_impl )
+		m_impl->addLine( x1, y1, x2, y2, thickness, color );
+}
+
+void Window::addLine( Position start, Position end, float thickness, Color color )
+{
+	addLine( start.x, start.y, end.x, end.y, thickness, color );
 }
