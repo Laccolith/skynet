@@ -110,6 +110,7 @@ public:
 	}
 
 private:
+	int m_current_frame = 0;
 	std::vector<std::unique_ptr<BufferedItem>> m_items;
 	std::mutex m_items_mutex;
 
@@ -117,7 +118,7 @@ private:
 	void add( int num_frames, ARGS&&... args )
 	{
 		std::lock_guard<std::mutex> lock( m_items_mutex );
-		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( num_frames, std::forward<ARGS>( args )... ) );
+		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( m_current_frame + num_frames, std::forward<ARGS>( args )... ) );
 	}
 };
 
@@ -175,8 +176,8 @@ template <typename T, typename ...ARGS>
 class BufferedItemImpl : public BufferedItem
 {
 public:
-	BufferedItemImpl( int num_frames, ARGS&&... args )
-		: BufferedItem( BWAPI::Broodwar->getFrameCount() + num_frames )
+	BufferedItemImpl( int removal_frame, ARGS&&... args )
+		: BufferedItem( removal_frame )
 		, m_arguments( std::forward<ARGS>( args )... )
 	{}
 
