@@ -12,8 +12,8 @@ public:
 
 	virtual Region getRegion() const = 0;
 
-	virtual const UnitGroup &getMinerals() const = 0;
-	virtual const UnitGroup &getGeysers() const = 0;
+	virtual const UnitGroup &getStaticMinerals() const = 0;
+	virtual const UnitGroup &getStaticGeysers() const = 0;
 
 	virtual bool isValid() const = 0;
 

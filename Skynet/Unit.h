@@ -155,4 +155,6 @@ public:
 	virtual void attack( Position target, int accuracy = WALKPOSITION_SCALE ) = 0;
 	virtual void useTech( TechType tech, Position target ) = 0;
 	virtual void useTech( TechType tech, Unit target ) = 0;
+
+	virtual ~UnitInterface() {}
 };

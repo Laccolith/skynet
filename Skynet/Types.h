@@ -56,6 +56,9 @@ typedef ChokepointInterface *Chokepoint;
 class BaseLocationInterface;
 typedef BaseLocationInterface *BaseLocation;
 
+class BaseInterface;
+typedef BaseInterface *Base;
+
 template <int Scale>
 inline float dotProduct( BWAPI::Point<float, Scale> v1, BWAPI::Point<float, Scale> v2 )
 {

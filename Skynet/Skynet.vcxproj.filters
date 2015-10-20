@@ -19,6 +19,12 @@
     <Filter Include="TerrainAnalyser\Skynet">
       <UniqueIdentifier>{ff828603-1ee3-450f-abf1-aa97640b3d05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BaseTracker">
+      <UniqueIdentifier>{b0db21c6-b6fb-4817-89e5-3595e3ed1dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BaseTracker\Skynet">
+      <UniqueIdentifier>{7de606fc-5f78-44b6-acb8-13f2a6a53925}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -68,6 +74,12 @@
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBaseTracker.cpp">
+      <Filter>BaseTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBase.cpp">
+      <Filter>BaseTracker\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +166,18 @@
     </ClInclude>
     <ClInclude Include="Window.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseTracker.h">
+      <Filter>BaseTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBaseTracker.h">
+      <Filter>BaseTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="Base.h">
+      <Filter>BaseTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBase.h">
+      <Filter>BaseTracker\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

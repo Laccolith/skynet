@@ -99,7 +99,7 @@ private:
 	void process( Data & data, UnitGroup resources );
 
 	void calculateConnectivity( Data & data );
-	void calculateWalkTileClearance( Data & data );
+	void calculateClearance( Data & data );
 	void calculateRegions( Data & data );
 	std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center, Data & data ) const;
 	void createBases( Data & data, const UnitGroup & resources );

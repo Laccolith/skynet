@@ -13,8 +13,8 @@ public:
 
 	Region getRegion() const override { return m_region; }
 
-	const UnitGroup &getMinerals() const override { return m_minerals; }
-	const UnitGroup &getGeysers() const override { return m_geysers; }
+	const UnitGroup &getStaticMinerals() const override { return m_minerals; }
+	const UnitGroup &getStaticGeysers() const override { return m_geysers; }
 
 	bool isValid() const override { return m_is_valid; }
 

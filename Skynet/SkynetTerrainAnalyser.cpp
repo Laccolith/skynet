@@ -17,8 +17,6 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	getSkynet().registerUpdateProcess( 1.0f, [this](){ update(); } );
-	setDebugging( Debug::Default, true );
-	setDebugging( Debug::RegionAnalysis, true );
 }
 
 void SkynetTerrainAnalyser::update()
@@ -98,7 +96,7 @@ void SkynetTerrainAnalyser::update()
 void SkynetTerrainAnalyser::process( Data & data, UnitGroup resources )
 {
 	calculateConnectivity( data );
-	calculateWalkTileClearance( data );
+	calculateClearance( data );
 	calculateRegions( data );
 	createBases( data, resources );
 
@@ -193,7 +191,7 @@ void SkynetTerrainAnalyser::calculateConnectivity( Data & data )
 	data.m_connectivity_time_seconds = elapsed_seconds.count();
 }
 
-void SkynetTerrainAnalyser::calculateWalkTileClearance( Data & data )
+void SkynetTerrainAnalyser::calculateClearance( Data & data )
 {
 	auto start_time = std::chrono::system_clock::now();
 

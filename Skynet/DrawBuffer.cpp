@@ -5,7 +5,7 @@
 DrawBuffer::DrawBuffer( Access & access )
 	: SkynetInterface( access, "DrawBuffer" )
 {
-	getSkynet().registerUpdateProcess( 1.0f, [this]() { update(); } );
+	getSkynet().registerUpdateProcess( 100000000.0f, [this]() { update(); } );
 }
 
 void DrawBuffer::update()
