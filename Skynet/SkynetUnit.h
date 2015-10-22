@@ -6,8 +6,10 @@ class SkynetUnitTracker;
 class SkynetUnit : public UnitInterface
 {
 public:
-	SkynetUnit( BWAPI::Unit unit, SkynetUnitTracker & tracker );
-	SkynetUnit( Player player, Position pos, UnitType type, int startTime );
+	SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & tracker );
+	SkynetUnit( int id, Player player, Position pos, UnitType type, int startTime );
+
+	int getID() const override { return m_id; }
 
 	TilePosition getTilePosition() const override;
 	TilePosition getTilePosition( int in_frames_time ) const override;
@@ -157,6 +159,7 @@ public:
 	void markDead();
 
 private:
+	int m_id;
 	BWAPI::Unit m_unit = nullptr;
 
 	UnitAccessType m_access_type = UnitAccessType::Prediction;

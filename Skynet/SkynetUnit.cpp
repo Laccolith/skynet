@@ -5,8 +5,9 @@
 #include "MapUtil.h"
 #include "DrawingUtil.h"
 
-SkynetUnit::SkynetUnit( BWAPI::Unit unit, SkynetUnitTracker & tracker )
+SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & tracker )
 	: m_unit( unit )
+	, m_id( id )
 {
 	bool useable = exists();
 	if( useable )
@@ -26,8 +27,9 @@ SkynetUnit::SkynetUnit( BWAPI::Unit unit, SkynetUnitTracker & tracker )
 	}
 }
 
-SkynetUnit::SkynetUnit( Player player, Position pos, UnitType type, int startTime )
-	: m_position( pos )
+SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int startTime )
+	: m_id( id )
+	, m_position( pos )
 	, m_target_position( pos )
 	, m_type( type )
 	, m_player( player )
@@ -431,7 +433,7 @@ void SkynetUnit::drawUnitPosition() const
 	const UnitType &type = getType();
 	Player player = getPlayer();
 
-	const int barHeight = 4;
+	const int bar_height = 4;
 
 	if( (!isCompleted() || isMorphing()) && accessibility() != UnitAccessType::Prediction )
 	{
@@ -444,11 +446,11 @@ void SkynetUnit::drawUnitPosition() const
 
 		progress = 1.0f - progress;
 
-		BWAPI::Color barColour = isMorphing() ? BWAPI::Colors::Red : BWAPI::Colors::Purple;
+		Color bar_colour = isMorphing() ? Colors::Red : Colors::Purple;
 
-		BWAPI::Position bottomLeft( pos.x - type.dimensionLeft(), pos.y + type.dimensionDown() + barHeight - 1 );
+		Position bottom_left( pos.x - type.dimensionLeft(), pos.y + type.dimensionDown() + bar_height - 1 );
 
-		DrawingUtil::drawProgressBar( bottomLeft, type.dimensionLeft() + type.dimensionRight(), barHeight, progress, barColour, player->getColor() );
+		DrawingUtil::drawProgressBar( bottom_left, type.dimensionLeft() + type.dimensionRight(), bar_height, progress, bar_colour, player->getColor() );
 	}
 
 	if( type.maxShields() > 0 )
@@ -456,9 +458,9 @@ void SkynetUnit::drawUnitPosition() const
 		float progress = static_cast<float>(getShield());
 		progress /= type.maxShields();
 
-		BWAPI::Position bottomLeft( pos.x - type.dimensionLeft(), pos.y - type.dimensionUp() - barHeight + 2 );
+		Position bottom_left( pos.x - type.dimensionLeft(), pos.y - type.dimensionUp() - bar_height + 2 );
 
-		DrawingUtil::drawProgressBar( bottomLeft, type.dimensionLeft() + type.dimensionRight(), barHeight, progress, Colors::Blue, player->getColor() );
+		DrawingUtil::drawProgressBar( bottom_left, type.dimensionLeft() + type.dimensionRight(), bar_height, progress, Colors::Blue, player->getColor() );
 	}
 
 	if( type.maxHitPoints() > 0 )
@@ -466,13 +468,14 @@ void SkynetUnit::drawUnitPosition() const
 		float progress = static_cast<float>(getHealth());
 		progress /= type.maxHitPoints();
 
-		BWAPI::Position bottomLeft( pos.x - type.dimensionLeft(), pos.y - type.dimensionUp() + 1 );
+		Position bottom_left( pos.x - type.dimensionLeft(), pos.y - type.dimensionUp() + 1 );
 
-		DrawingUtil::drawProgressBar( bottomLeft, type.dimensionLeft() + type.dimensionRight(), barHeight, progress, Colors::Green, player->getColor() );
+		DrawingUtil::drawProgressBar( bottom_left, type.dimensionLeft() + type.dimensionRight(), bar_height, progress, Colors::Green, player->getColor() );
 	}
 
-	BWAPI::Broodwar->drawBox( BWAPI::CoordinateType::Map, pos.x - type.dimensionLeft(), pos.y - type.dimensionUp(), pos.x + type.dimensionRight(), pos.y + type.dimensionDown(), player->getColor() );
+	BWAPI::Broodwar->drawBoxMap( pos.x - type.dimensionLeft(), pos.y - type.dimensionUp(), pos.x + type.dimensionRight(), pos.y + type.dimensionDown(), player->getColor() );
 
+	BWAPI::Broodwar->drawTextMap( pos.x + type.dimensionRight(), pos.y - 10, "%i : %s", m_id, type.getName().c_str() );
 	BWAPI::Broodwar->drawTextMap( pos.x + type.dimensionRight(), pos.y, "%s", player->getName().c_str() );
 
 	UnitAccessType access = accessibility();
@@ -1391,9 +1394,9 @@ void SkynetUnit::update( SkynetUnitTracker & tracker )
 	else if( m_unit->isCompleted() && !m_unit->isMorphing() )
 		m_completed_time = BWAPI::Broodwar->getFrameCount();
 
-	m_order_target = tracker.getUnit( m_unit->getOrderTarget() );
-	m_target = tracker.getUnit( m_unit->getTarget() );
-	m_build_unit = tracker.getUnit( m_unit->getBuildUnit() );
+	if( m_unit->getOrderTarget() ) m_order_target = tracker.getUnit( m_unit->getOrderTarget() );
+	if( m_unit->getTarget() )m_target = tracker.getUnit( m_unit->getTarget() );
+	if( m_unit->getBuildUnit() )m_build_unit = tracker.getUnit( m_unit->getBuildUnit() );
 }
 
 void SkynetUnit::markDead()

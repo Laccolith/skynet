@@ -4,6 +4,8 @@
 
 #include "SkynetUnit.h"
 
+#include <array>
+
 class SkynetUnitTracker : public UnitTrackerInterface
 {
 public:
@@ -23,14 +25,17 @@ public:
 
 private:
 	// Are bwapi unit ids good to use as a index to a vector, rather than using this map?
-	std::unordered_map<BWAPI::Unit, std::unique_ptr<SkynetUnit>> m_bwapi_units;
+	std::vector<std::unique_ptr<SkynetUnit>> m_bwapi_units;
 
-	std::unordered_map<Player, std::map<UnitType, UnitGroup>> m_player_to_type_to_units;
-	std::unordered_map<Player, UnitGroup> m_player_to_units;
+	std::vector<std::array<UnitGroup, (int)UnitTypes::Enum::Unknown>> m_player_to_type_to_units;
+	std::vector<UnitGroup> m_player_to_units;
 
 	UnitGroup m_all_units;
 
 	std::vector<std::unique_ptr<SkynetUnit>> m_dead_units;
+
+	std::vector<int> m_free_ids;
+	int m_current_id_counter;
 
 	void onUnitDiscover( BWAPI::Unit unit );
 	void onUnitDestroy( BWAPI::Unit unit );

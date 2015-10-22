@@ -5,16 +5,15 @@
 SkynetUnitTracker::SkynetUnitTracker( Access & access )
 	: UnitTrackerInterface( access )
 {
+	m_player_to_type_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
+	m_player_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
+
 	getSkynet().registerUpdateProcess( 0.0f, [this]() { update(); } );
 }
 
 Unit SkynetUnitTracker::getUnit( BWAPI::Unit unit ) const
 {
-	auto it = m_bwapi_units.find( unit );
-	if( it != m_bwapi_units.end() )
-		return it->second.get();
-
-	return nullptr;
+	return m_bwapi_units[unit->getID()].get();
 }
 
 UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
@@ -23,9 +22,8 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 
 	for( BWAPI::Unit unit : units )
 	{
-		auto it = m_bwapi_units.find( unit );
-		if( it != m_bwapi_units.end() )
-			return_units.insert( it->second.get() );
+		if( m_bwapi_units[unit->getID()] )
+			return_units.insert( m_bwapi_units[unit->getID()].get() );
 	}
 
 	return return_units;
@@ -33,24 +31,12 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 
 const UnitGroup & SkynetUnitTracker::getAllUnits( UnitType type, Player player ) const
 {
-	auto it = m_player_to_type_to_units.find( player );
-	if( it == m_player_to_type_to_units.end() )
-		return empty_unit_group;
-
-	auto it2 = it->second.find( type );
-	if( it2 == it->second.end() )
-		return empty_unit_group;
-
-	return it2->second;
+	return m_player_to_type_to_units[player->getID()][type];
 }
 
 const UnitGroup & SkynetUnitTracker::getAllUnits( Player player ) const
 {
-	auto it = m_player_to_units.find( player );
-	if( it == m_player_to_units.end() )
-		return empty_unit_group;
-
-	return it->second;
+	return m_player_to_units[player->getID()];
 }
 
 UnitGroup SkynetUnitTracker::getAllEnemyUnits( Player player ) const
@@ -78,13 +64,9 @@ UnitGroup SkynetUnitTracker::getAllEnemyUnits( UnitType type, Player player ) co
 void SkynetUnitTracker::update()
 {
 	// We only keep dead units for one frame
+	for( auto & dead_unit : m_dead_units )
+		m_free_ids.push_back( dead_unit->getID() );
 	m_dead_units.clear();
-
-	for( const Event &event : BWAPI::Broodwar->getEvents() )
-	{
-		if( event.getType() == Events::UnitDiscover )
-			onUnitDiscover( event.getUnit() );
-	}
 
 	for( const Event &event : BWAPI::Broodwar->getEvents() )
 	{
@@ -92,8 +74,17 @@ void SkynetUnitTracker::update()
 			onUnitDestroy( event.getUnit() );
 	}
 
+	for( const Event &event : BWAPI::Broodwar->getEvents() )
+	{
+		if( event.getType() == Events::UnitDiscover )
+			onUnitDiscover( event.getUnit() );
+	}
+
 	for( auto & unit : m_bwapi_units )
-		updateUnit( unit.second.get() );
+	{
+		if( unit )
+			updateUnit( unit.get() );
+	}
 
 	if( isDebugging( Debug::Default ) )
 	{
@@ -104,37 +95,36 @@ void SkynetUnitTracker::update()
 
 void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 {
-	auto & new_unit = m_bwapi_units[unit];
+	if( unit->getID() >= (int)m_bwapi_units.size() )
+		m_bwapi_units.resize( unit->getID() + 1 );
+
+	auto & new_unit = m_bwapi_units[unit->getID()];
 
 	if( new_unit )
 		return;
 
-	/*Unit prediction = mAccess.getUnitPredictor().onNewUnit( unit );
-	if( prediction )
-	{
-		new_unit = prediction;
-		return;
-	}*/
+	// TODO: Prediction
 	
-	new_unit = std::make_unique<SkynetUnit>( unit, *this );
+	if( !m_free_ids.empty() )
+	{
+		new_unit = std::make_unique<SkynetUnit>( unit, m_free_ids.back(), *this );
+		m_free_ids.pop_back();
+	}
+	else
+		new_unit = std::make_unique<SkynetUnit>( unit, ++m_current_id_counter, *this );
 
 	onDiscover( new_unit.get() );
 }
 
 void SkynetUnitTracker::onUnitDestroy( BWAPI::Unit unit )
 {
-	auto it = m_bwapi_units.find( unit );
-	if( it != m_bwapi_units.end() )
-	{
-		onDestroy( it->second );
-		m_bwapi_units.erase( it );
-	}
+	onDestroy( m_bwapi_units[unit->getID()] );
 }
 
 void SkynetUnitTracker::onDiscover( Unit unit )
 {
-	m_player_to_type_to_units[unit->getPlayer()][unit->getType()].insert( unit );
-	m_player_to_units[unit->getPlayer()].insert( unit );
+	m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit );
+	m_player_to_units[unit->getPlayer()->getID()].insert( unit );
 	m_all_units.insert( unit );
 
 	postMessage( UnitDiscover{ unit } );
@@ -147,15 +137,15 @@ void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType
 
 	if( passed_last_player )
 	{
-		m_player_to_units[last_player].remove( unit );
-		m_player_to_units[unit->getPlayer()].insert( unit );
+		m_player_to_units[last_player->getID()].remove( unit );
+		m_player_to_units[unit->getPlayer()->getID()].insert( unit );
 
-		m_player_to_type_to_units[last_player][last_type].remove( unit );
-		m_player_to_type_to_units[unit->getPlayer()][unit->getType()].insert( unit );
+		m_player_to_type_to_units[last_player->getID()][last_type].remove( unit );
+		m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit );
 	}
 	else
 	{
-		auto & player_units = m_player_to_type_to_units[unit->getPlayer()];
+		auto & player_units = m_player_to_type_to_units[unit->getPlayer()->getID()];
 		player_units[last_type].remove( unit );
 		player_units[unit->getType()].insert( unit );
 	}
@@ -167,8 +157,8 @@ void SkynetUnitTracker::onDestroy( std::unique_ptr<SkynetUnit> & unit )
 {
 	unit->markDead();
 
-	m_player_to_units[unit->getLastPlayer()].remove( unit.get() );
-	m_player_to_type_to_units[unit->getLastPlayer()][unit->getLastType()].remove( unit.get() );
+	m_player_to_units[unit->getLastPlayer()->getID()].remove( unit.get() );
+	m_player_to_type_to_units[unit->getLastPlayer()->getID()][unit->getLastType()].remove( unit.get() );
 	m_all_units.remove( unit.get() );
 
 	postMessage( UnitDestroy{ unit.get() } );

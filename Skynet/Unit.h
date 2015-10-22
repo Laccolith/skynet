@@ -18,6 +18,8 @@ SMART_ENUM( UnitAccessType, int,
 class UnitInterface
 {
 public:
+	virtual int getID() const = 0;
+
 	virtual TilePosition getTilePosition() const = 0;
 	virtual TilePosition getTilePosition( int in_frames_time ) const = 0;
 	virtual WalkPosition getWalkPosition() const = 0;
