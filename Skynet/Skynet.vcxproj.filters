@@ -180,4 +180,7 @@
       <Filter>BaseTracker\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Skynet.natvis" />
+  </ItemGroup>
 </Project>

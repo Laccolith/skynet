@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  
+  <Type Name="RectangleArray&lt;*,*&gt;">
+    <DisplayString>{{width={m_width} height={m_height}}}</DisplayString>
+    <Expand>
+      <Item Name="[width]">m_width</Item>
+      <Item Name="[height]">m_height</Item>
+      <ArrayItems Condition="m_data != 0">
+        <Direction>Forward</Direction>
+        <Rank>2</Rank>
+        <Size>$i == 0 ? m_width : m_height</Size>
+        <ValuePointer>m_data</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+</AutoVisualizer>
