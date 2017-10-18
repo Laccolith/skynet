@@ -2,6 +2,7 @@
 
 #include "Types.h"
 
+#include <set>
 #include <functional>
 
 namespace MapUtil

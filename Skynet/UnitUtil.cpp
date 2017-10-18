@@ -1,5 +1,7 @@
 #include "UnitUtil.h"
 
+#include <set>
+
 bool UnitUtil::hasAddon( UnitType type )
 {
 	return(type == UnitTypes::Terran_Command_Center

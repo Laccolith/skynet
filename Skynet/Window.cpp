@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#if __has_include( "SFML/Graphics.hpp" )
+
 #include <future>
 #include <thread>
 #include <SFML/Graphics.hpp>
@@ -20,6 +22,8 @@
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "freetype.lib")
 #pragma comment(lib, "jpeg.lib")
+
+#define HAS_SFML
 
 class WindowImpl
 {
@@ -170,6 +174,19 @@ public:
 		m_shapes.push_back( std::move( new_shape ) );
 	}
 };
+
+#else
+
+class WindowImpl
+{
+public:
+	WindowImpl(std::string title, int width, int height) {}
+
+	void addBox(int left, int top, int right, int bottom, Color color) {}
+	void addLine(int x1, int y1, int x2, int y2, float thickness, Color color) {}
+};
+
+#endif
 
 Window::Window() = default;
 
