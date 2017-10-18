@@ -109,7 +109,7 @@ void SkynetTerrainAnalyser::calculateConnectivity( Data & data )
 
 	data.m_tile_connectivity.resize( m_map_size.x, m_map_size.y, -1 );
 
-	std::atomic<int> connectivity_counter;
+	std::atomic<int> connectivity_counter( 0 );
 
 	auto calculate_connectivity = [this, &connectivity_counter, &data]( bool walkable_tiles )
 	{
@@ -323,7 +323,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		return first.second < second.second;
 	};
 
-	std::priority_queue<std::pair<WalkPosition, int>, std::vector<std::pair<WalkPosition, int>>, decltype(comp)> unvisited_tiles;
+	std::priority_queue<std::pair<WalkPosition, int>, std::vector<std::pair<WalkPosition, int>>, decltype(comp)> unvisited_tiles( comp );
 
 	while( true )
 	{
@@ -602,8 +602,8 @@ void SkynetTerrainAnalyser::createBases( Data & data, const UnitGroup & resource
 
 	for( const UnitGroup &resource_cluster : resource_clusters )
 	{
-		TilePosition base_location;
-		int best_rating;
+		TilePosition base_location = TilePositions::Invalid;
+		int best_rating = m_map_size.x * m_map_size.y;
 		MapUtil::spiralSearch( TilePosition( resource_cluster.getCenter() ), [&resource_cluster, &base_location, best_rating] ( TilePosition location ) mutable -> bool
 		{
 			for( int x = location.x; x < location.x + UnitTypes::Protoss_Nexus.tileWidth(); ++x )
@@ -674,6 +674,11 @@ void SkynetTerrainAnalyser::createBases( Data & data, const UnitGroup & resource
 
 			return false;
 		}, 18 );
+
+		if( !base_location.isValid() )
+		{
+			continue;
+		}
 
 		bool added_to_other = false;
 		for( auto &other_base_location : data.m_base_location_storage )
