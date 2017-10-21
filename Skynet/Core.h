@@ -1,0 +1,43 @@
+#pragma once
+
+#include <functional>
+
+class CoreModule;
+class DrawBuffer;
+class PlayerTrackerInterface;
+class UnitTrackerInterface;
+class TerrainAnalyserInterface;
+class BaseTrackerInterface;
+class ResourceTrackerInterface;
+class TaskManagerInterface;
+
+class Core
+{
+public:
+	virtual void update() = 0;
+
+	virtual void registerModule( CoreModule & inter ) = 0;
+	virtual void registerUpdateProcess( float priority, std::function<void()> update_function ) = 0;
+
+	virtual DrawBuffer & getDrawBuffer() = 0;
+
+	virtual PlayerTrackerInterface & getPlayerTracker() = 0;
+	virtual const PlayerTrackerInterface & getPlayerTracker() const = 0;
+
+	virtual UnitTrackerInterface & getUnitTracker() = 0;
+	virtual const UnitTrackerInterface & getUnitTracker() const = 0;
+
+	virtual TerrainAnalyserInterface & getTerrainAnalyser() = 0;
+	virtual const TerrainAnalyserInterface & getTerrainAnalyser() const = 0;
+
+	virtual BaseTrackerInterface & getBaseTracker() = 0;
+	virtual const BaseTrackerInterface & getBaseTracker() const = 0;
+
+	virtual ResourceTrackerInterface & getResourceTracker() = 0;
+	virtual const ResourceTrackerInterface & getResourceTracker() const = 0;
+
+	virtual TaskManagerInterface & getTaskManager() = 0;
+	virtual const TaskManagerInterface & getTaskManager() const = 0;
+
+	~Core() {}
+};

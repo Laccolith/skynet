@@ -1,6 +1,8 @@
 #pragma once
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
+
+#include "Types.h"
 
 #include <vector>
 #include <mutex>
@@ -48,10 +50,10 @@ struct BufferedLine
 };
 
 class BufferedItem;
-class DrawBuffer : public SkynetInterface
+class DrawBuffer : public CoreModule
 {
 public:
-	DrawBuffer( Access & access );
+	DrawBuffer( Core & core );
 
 	void update();
 

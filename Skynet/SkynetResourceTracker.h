@@ -5,7 +5,7 @@
 class SkynetResourceTracker : public ResourceTrackerInterface
 {
 public:
-	SkynetResourceTracker( Access & access );
+	SkynetResourceTracker( Core & core );
 
 private:
 	DEFINE_DEBUGGING_INTERFACE( Default );

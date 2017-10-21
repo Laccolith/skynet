@@ -1,11 +1,12 @@
 #include "DrawBuffer.h"
 
-#include "Skynet.h"
+#include "CoreModule.h"
+#include "Types.h"
 
-DrawBuffer::DrawBuffer( Access & access )
-	: SkynetInterface( access, "DrawBuffer" )
+DrawBuffer::DrawBuffer( Core & core )
+	: CoreModule( core, "DrawBuffer" )
 {
-	getSkynet().registerUpdateProcess( 100000000.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 100000000.0f, [this]() { update(); } );
 }
 
 void DrawBuffer::update()

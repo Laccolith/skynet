@@ -1,15 +1,14 @@
 #include "SkynetUnitTracker.h"
 
-#include "Skynet.h"
 #include "PlayerTracker.h"
 
-SkynetUnitTracker::SkynetUnitTracker( Access & access )
-	: UnitTrackerInterface( access )
+SkynetUnitTracker::SkynetUnitTracker( Core & core )
+	: UnitTrackerInterface( core )
 {
 	m_player_to_type_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
 	m_player_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
 
-	getSkynet().registerUpdateProcess( 0.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 0.0f, [this]() { update(); } );
 }
 
 Unit SkynetUnitTracker::getUnit( BWAPI::Unit unit ) const
@@ -32,12 +31,12 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 
 const UnitGroup & SkynetUnitTracker::getGeysers() const
 {
-	return getAllUnits( BWAPI::UnitTypes::Resource_Vespene_Geyser, getPlayerTracker().getNeutralPlayer() );
+	return getAllUnits( UnitTypes::Resource_Vespene_Geyser, getPlayerTracker().getNeutralPlayer() );
 }
 
 const UnitGroup & SkynetUnitTracker::getMinerals() const
 {
-	return getAllUnits( BWAPI::UnitTypes::Resource_Mineral_Field, getPlayerTracker().getNeutralPlayer() );
+	return getAllUnits( UnitTypes::Resource_Mineral_Field, getPlayerTracker().getNeutralPlayer() );
 }
 
 const UnitGroup & SkynetUnitTracker::getAllUnits( UnitType type, Player player ) const
@@ -144,7 +143,7 @@ void SkynetUnitTracker::onDiscover( Unit unit )
 void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType last_type )
 {
 	Player passed_last_player = last_player == unit->getPlayer() ? nullptr : last_player;
-	UnitType passed_last_type = last_type == unit->getType() ? BWAPI::UnitTypes::None : last_type;
+	UnitType passed_last_type = last_type == unit->getType() ? UnitTypes::None : last_type;
 
 	if( passed_last_player )
 	{

@@ -6,10 +6,12 @@
 #include "SkynetBase.h"
 #include "RectangleArray.h"
 
+#include <memory>
+
 class SkynetBaseTracker : public BaseTrackerInterface, public MessageListener<TerrainAnalysed>
 {
 public:
-	SkynetBaseTracker( Access & access );
+	SkynetBaseTracker( Core & core );
 
 	const std::vector<Base> &getAllBases() const override { return m_bases; }
 

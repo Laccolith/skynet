@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include <vector>
 #include <functional>
 #include <tuple>
 
@@ -67,16 +67,20 @@ public:
 private:
 	friend class MessageListener<T>;
 
-	std::set<MessageListener<T>*> m_listeners;
+	std::vector<MessageListener<T>*> m_listeners;
 
 	void registerForMessage( MessageListener<T>* listener )
 	{
-		m_listeners.insert( listener );
+		m_listeners.emplace_back( listener );
 	}
 
 	void unRegisterForMessage( MessageListener<T>* listener )
 	{
-		m_listeners.erase( listener );
+		auto it = std::find( m_listeners.begin(), m_listeners.end(), listener );
+		if( it != m_listeners.end() )
+		{
+			m_listeners.erase( it );
+		}
 	}
 };
 

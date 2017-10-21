@@ -1,15 +1,27 @@
-#include "Skynet.h"
+#include "SkynetCore.h"
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
 #include "StringUtils.h"
 
-#include <BWAPI.h>
+#include "DrawBuffer.h"
+#include "SkynetPlayerTracker.h"
+#include "SkynetUnitTracker.h"
+#include "SkynetTerrainAnalyser.h"
+#include "SkynetBaseTracker.h"
+#include "SkynetResourceTracker.h"
+#include "SkynetTaskManager.h"
 
-Skynet::Skynet( std::string name )
+SkynetCore::SkynetCore()
 {
 	BWAPI::Broodwar->enableFlag( BWAPI::Flag::UserInput );
 
-	m_access = std::make_unique<Access>( *this );
+	m_draw_buffer = std::make_unique<DrawBuffer>( *this );
+	m_player_tracker = std::make_unique<SkynetPlayerTracker>( *this );
+	m_unit_tracker = std::make_unique<SkynetUnitTracker>( *this );
+	m_terrain_analyser = std::make_unique<SkynetTerrainAnalyser>( *this );
+	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
+	m_resource_tracker = std::make_unique<SkynetResourceTracker>( *this );
+	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
 
 	std::sort( m_update_processes.begin(), m_update_processes.end(), []( const std::pair<float, std::function<void()>> & lhs, const std::pair<float, std::function<void()>> & rhs )
 	{
@@ -17,10 +29,12 @@ Skynet::Skynet( std::string name )
 	} );
 
 	m_in_startup = false;
-	BWAPI::Broodwar->printf( "%s is online.", name.c_str() );
+	BWAPI::Broodwar->printf( "Skynet is online." );
 }
 
-void Skynet::update()
+SkynetCore::~SkynetCore() = default;
+
+void SkynetCore::update()
 {
 	for( auto & e : BWAPI::Broodwar->getEvents() )
 	{
@@ -41,7 +55,12 @@ void Skynet::update()
 
 				auto it = m_interfaces.find( tokens[1] );
 				if( it != m_interfaces.end() )
-					it->second->debugCommand( tokens[2] );
+				{
+					if( !it->second->debugCommand( tokens[2] ) )
+					{
+						BWAPI::Broodwar->printf( "%s is not a valid debug command.", tokens[2].c_str() );
+					}
+				}
 				else
 					BWAPI::Broodwar->printf( "%s is not a known interface.", tokens[1].c_str() );
 			}
@@ -54,15 +73,15 @@ void Skynet::update()
 		update.second();
 }
 
-void Skynet::registerInterface( SkynetInterface & inter )
+void SkynetCore::registerModule( CoreModule & inter )
 {
 	if( m_in_startup )
 		m_interfaces[inter.getName()] = &inter;
 	else
-		BWAPI::Broodwar->printf( "Interface %s has attempted to register itself after startup.", inter.getName().c_str() );
+		BWAPI::Broodwar->printf( "Module %s has attempted to register itself after startup.", inter.getName().c_str() );
 }
 
-void Skynet::registerUpdateProcess( float priority, std::function<void()> update_function )
+void SkynetCore::registerUpdateProcess( float priority, std::function<void()> update_function )
 {
 	if( m_in_startup )
 		m_update_processes.emplace_back( priority, std::move( update_function ) );

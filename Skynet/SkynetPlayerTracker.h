@@ -4,10 +4,12 @@
 
 #include "SkynetPlayer.h"
 
+#include <memory>
+
 class SkynetPlayerTracker : public PlayerTrackerInterface
 {
 public:
-	SkynetPlayerTracker( Access & access );
+	SkynetPlayerTracker( Core & core );
 
 	Player getLocalPlayer() const override { return m_local_player; }
 	Player getNeutralPlayer() const override { return m_neutral_player; }

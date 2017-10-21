@@ -43,22 +43,19 @@
     <Filter Include="PlayerTracker\Skynet">
       <UniqueIdentifier>{b167d2de-6c1f-4b17-8288-a2a7c270c550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TaskManager\Skynet\Requirements">
+      <UniqueIdentifier>{cbd658b2-0806-4b6f-b22e-d99546a68c32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Skynet">
+      <UniqueIdentifier>{40540470-613a-4f86-9079-36e0b61ff58c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Skynet.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Access.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="UnitGroup.cpp">
       <Filter>UnitTracker</Filter>
-    </ClCompile>
-    <ClCompile Include="SkynetInterface.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="MapUtil.cpp">
       <Filter>Utility</Filter>
@@ -111,17 +108,20 @@
     <ClCompile Include="SkynetPlayer.cpp">
       <Filter>PlayerTracker\Skynet</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetTask.cpp">
+      <Filter>TaskManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetCore.cpp">
+      <Filter>Core\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreModule.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTaskRequirementMineral.cpp">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Skynet.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SkynetInterface.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Access.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="SmartEnum.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -233,9 +233,35 @@
     <ClInclude Include="SkynetPlayer.h">
       <Filter>PlayerTracker\Skynet</Filter>
     </ClInclude>
+    <ClInclude Include="Task.h">
+      <Filter>TaskManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTask.h">
+      <Filter>TaskManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirementMineral.h">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetCore.h">
+      <Filter>Core\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreAccess.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreModule.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirement.h">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Skynet.natvis" />
-    <None Include="bwapi.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bwapi.ini" />
   </ItemGroup>
 </Project>

@@ -167,9 +167,9 @@ private:
 
 	int m_updated_time = 0;
 
-	Position m_position = BWAPI::Positions::Unknown;
-	Position m_target_position = BWAPI::Positions::None;
-	UnitType m_type = BWAPI::UnitTypes::Unknown;
+	Position m_position = Positions::Unknown;
+	Position m_target_position = Positions::None;
+	UnitType m_type = UnitTypes::Unknown;
 	Player m_player = nullptr;
 	Player m_last_player = nullptr;
 

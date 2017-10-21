@@ -10,7 +10,7 @@
 #include <Windows.h>
 #endif
 
-#include "Skynet.h"
+#include "SkynetCore.h"
 
 #if !defined( SKYNET_DLL )
 void connect()
@@ -33,7 +33,7 @@ int main()
 		if( !BWAPI::Broodwar->isInGame() )
 			continue;
 
-		Skynet skynet( "Skynet(Client)" );
+		SkynetCore skynet;
 
 		while( BWAPI::BWAPIClient.isConnected() && BWAPI::Broodwar->isInGame() )
 		{
@@ -58,12 +58,12 @@ BOOL APIENTRY DllMain( HANDLE, DWORD, LPVOID )
 
 class SkynetAIModule : public BWAPI::AIModule
 {
-	std::unique_ptr<Skynet> m_skynet;
+	std::unique_ptr<SkynetCore> m_skynet;
 
 public:
 	void onStart() override
 	{
-		m_skynet = std::make_unique<Skynet>( "Skynet(Module)" );
+		m_skynet = std::make_unique<SkynetCore>();
 	}
 
 	void onFrame() override

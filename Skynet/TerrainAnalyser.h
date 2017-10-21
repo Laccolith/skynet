@@ -1,22 +1,24 @@
 #pragma once
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
 
-#include "VectorUnique.h"
 #include "Messaging.h"
+#include "Types.h"
+
+#include <vector>
 
 struct TerrainAnalysed
 {
 };
 
-class TerrainAnalyserInterface : public SkynetInterface, public MessageReporter<TerrainAnalysed>
+class TerrainAnalyserInterface : public CoreModule, public MessageReporter<TerrainAnalysed>
 {
 public:
-	TerrainAnalyserInterface( Access & access ) : SkynetInterface( access, "TerrainAnalyser" ) {}
+	TerrainAnalyserInterface( Core & core ) : CoreModule( core, "TerrainAnalyser" ) {}
 
-	virtual const std::vector<Region> &getRegions() const = 0;
-	virtual const std::vector<Chokepoint> &getChokepoints() const = 0;
-	virtual const std::vector<BaseLocation> &getBaseLocations() const = 0;
+	virtual const std::vector<Region> & getRegions() const = 0;
+	virtual const std::vector<Chokepoint> & getChokepoints() const = 0;
+	virtual const std::vector<BaseLocation> & getBaseLocations() const = 0;
 
 	virtual Region getRegion( WalkPosition pos ) const = 0;
 	virtual int getClearance( WalkPosition pos ) const = 0;

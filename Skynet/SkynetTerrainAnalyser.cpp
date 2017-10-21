@@ -1,6 +1,6 @@
 #include "SkynetTerrainAnalyser.h"
 
-#include "Skynet.h"
+#include "Types.h"
 #include "Heap.h"
 #include "MapUtil.h"
 #include "UnitTracker.h"
@@ -12,11 +12,11 @@
 #include <queue>
 #include <array>
 
-SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
-	: TerrainAnalyserInterface( access )
+SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
+	: TerrainAnalyserInterface( core )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
-	getSkynet().registerUpdateProcess( 1.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 1.0f, [this]() { update(); } );
 }
 
 void SkynetTerrainAnalyser::update()

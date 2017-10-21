@@ -13,13 +13,13 @@
 class SkynetTerrainAnalyser : public TerrainAnalyserInterface
 {
 public:
-	SkynetTerrainAnalyser( Access & access );
+	SkynetTerrainAnalyser( Core & core );
 
 	void update();
 
-	const std::vector<Region> &getRegions() const override { return m_processed_data.m_regions; }
-	const std::vector<Chokepoint> &getChokepoints() const override { return m_processed_data.m_chokepoints; }
-	const std::vector<BaseLocation> &getBaseLocations() const override { return m_processed_data.m_base_locations; }
+	const std::vector<Region> & getRegions() const override { return m_processed_data.m_regions; }
+	const std::vector<Chokepoint> & getChokepoints() const override { return m_processed_data.m_chokepoints; }
+	const std::vector<BaseLocation> & getBaseLocations() const override { return m_processed_data.m_base_locations; }
 
 	Region getRegion( WalkPosition pos ) const override { return m_processed_data.m_tile_to_region[clampToMap( pos )]; }
 	int getClearance( WalkPosition pos ) const override { return m_processed_data.m_tile_clearance[clampToMap( pos )]; }

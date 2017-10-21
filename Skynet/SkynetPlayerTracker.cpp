@@ -1,9 +1,7 @@
 #include "SkynetPlayerTracker.h"
 
-#include "Skynet.h"
-
-SkynetPlayerTracker::SkynetPlayerTracker( Access & access )
-	: PlayerTrackerInterface( access )
+SkynetPlayerTracker::SkynetPlayerTracker( Core & core )
+	: PlayerTrackerInterface( core )
 {
 	bool had_neutral_player = false;
 	for( auto player : BWAPI::Broodwar->getPlayers() )

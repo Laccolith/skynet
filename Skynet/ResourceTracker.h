@@ -1,9 +1,9 @@
 #pragma once
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
 
-class ResourceTrackerInterface : public SkynetInterface
+class ResourceTrackerInterface : public CoreModule
 {
 public:
-	ResourceTrackerInterface( Access &access ) : SkynetInterface( access, "ResourceTracker" ) {}
+	ResourceTrackerInterface( Core & core ) : CoreModule( core, "ResourceTracker" ) {}
 };

@@ -1,0 +1,54 @@
+#pragma once
+
+#include "Core.h"
+
+#include <unordered_map>
+#include <vector>
+#include <functional>
+#include <memory>
+
+class SkynetCore : public Core
+{
+public:
+	SkynetCore();
+	~SkynetCore();
+
+	void update() override;
+
+	void registerModule( CoreModule & inter ) override;
+	void registerUpdateProcess( float priority, std::function<void()> update_function ) override;
+
+	DrawBuffer & getDrawBuffer() override { return *m_draw_buffer; }
+
+	PlayerTrackerInterface & getPlayerTracker() override { return *m_player_tracker; }
+	const PlayerTrackerInterface & getPlayerTracker() const override { return *m_player_tracker; }
+
+	UnitTrackerInterface & getUnitTracker() override { return *m_unit_tracker; }
+	const UnitTrackerInterface & getUnitTracker() const override { return *m_unit_tracker; }
+
+	TerrainAnalyserInterface & getTerrainAnalyser() override { return *m_terrain_analyser; }
+	const TerrainAnalyserInterface & getTerrainAnalyser() const override { return *m_terrain_analyser; }
+
+	BaseTrackerInterface & getBaseTracker() override { return *m_base_tracker; }
+	const BaseTrackerInterface & getBaseTracker() const override { return *m_base_tracker; }
+
+	ResourceTrackerInterface & getResourceTracker() override { return *m_resource_tracker; }
+	const ResourceTrackerInterface & getResourceTracker() const override { return *m_resource_tracker; }
+
+	TaskManagerInterface & getTaskManager() override { return *m_task_manager; }
+	const TaskManagerInterface & getTaskManager() const override { return *m_task_manager; }
+
+private:
+	bool m_in_startup = true;
+
+	std::unordered_map<std::string, CoreModule*> m_interfaces;
+	std::vector<std::pair<float, std::function<void()>>> m_update_processes;
+
+	std::unique_ptr<DrawBuffer> m_draw_buffer;
+	std::unique_ptr<PlayerTrackerInterface> m_player_tracker;
+	std::unique_ptr<UnitTrackerInterface> m_unit_tracker;
+	std::unique_ptr<TerrainAnalyserInterface> m_terrain_analyser;
+	std::unique_ptr<BaseTrackerInterface> m_base_tracker;
+	std::unique_ptr<ResourceTrackerInterface> m_resource_tracker;
+	std::unique_ptr<TaskManagerInterface> m_task_manager;
+};

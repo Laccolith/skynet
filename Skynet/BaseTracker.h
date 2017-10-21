@@ -1,11 +1,13 @@
 #pragma once
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
 
-class BaseTrackerInterface : public SkynetInterface
+#include "Base.h"
+
+class BaseTrackerInterface : public CoreModule
 {
 public:
-	BaseTrackerInterface( Access &access ) : SkynetInterface( access, "BaseTracker" ) {}
+	BaseTrackerInterface( Core & core ) : CoreModule( core, "BaseTracker" ) {}
 
 	virtual const std::vector<Base> &getAllBases() const = 0;
 

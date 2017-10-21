@@ -1,15 +1,14 @@
 #include "SkynetBaseTracker.h"
 
-#include "Skynet.h"
 #include "BaseLocation.h"
 #include "Unit.h"
 #include "Region.h"
 
-SkynetBaseTracker::SkynetBaseTracker( Access & access )
-	: BaseTrackerInterface( access )
+SkynetBaseTracker::SkynetBaseTracker( Core & core )
+	: BaseTrackerInterface( core )
 	, MessageListener<TerrainAnalysed>( getTerrainAnalyser() )
 {
-	getSkynet().registerUpdateProcess( 1.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 1.5f, [this]() { update(); } );
 }
 
 void SkynetBaseTracker::update()

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "SkynetInterface.h"
+#include "CoreModule.h"
 
 #include "Player.h"
 
-class PlayerTrackerInterface : public SkynetInterface
+class PlayerTrackerInterface : public CoreModule
 {
 public:
-	PlayerTrackerInterface( Access &access ) : SkynetInterface( access, "PlayerTracker" ) {}
+	PlayerTrackerInterface( Core & core ) : CoreModule( core, "PlayerTracker" ) {}
 
 	virtual Player getLocalPlayer() const = 0;
 	virtual Player getNeutralPlayer() const = 0;

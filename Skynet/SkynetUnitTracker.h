@@ -5,21 +5,22 @@
 #include "SkynetUnit.h"
 
 #include <array>
+#include <memory>
 
 class SkynetUnitTracker : public UnitTrackerInterface
 {
 public:
-	SkynetUnitTracker( Access & access );
+	SkynetUnitTracker( Core & core );
 
 	Unit getUnit( BWAPI::Unit unit ) const override;
 	UnitGroup getUnitGroup( const BWAPI::Unitset &units ) const override;
 
-	const UnitGroup &getGeysers() const override;
-	const UnitGroup &getMinerals() const override;
+	const UnitGroup & getGeysers() const override;
+	const UnitGroup & getMinerals() const override;
 
-	const UnitGroup &getAllUnits() const override { return m_all_units; }
-	const UnitGroup &getAllUnits( UnitType type, Player player ) const override;
-	const UnitGroup &getAllUnits( Player player ) const override;
+	const UnitGroup & getAllUnits() const override { return m_all_units; }
+	const UnitGroup & getAllUnits( UnitType type, Player player ) const override;
+	const UnitGroup & getAllUnits( Player player ) const override;
 
 	UnitGroup getAllEnemyUnits( Player player ) const override;
 	UnitGroup getAllEnemyUnits( UnitType type, Player player ) const override;
