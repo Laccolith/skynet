@@ -17,11 +17,23 @@ public:
 protected:
 	DrawBuffer & getDrawBuffer() { return m_access.getDrawBuffer(); }
 
+	PlayerTrackerInterface & getPlayerTracker() { return m_access.getPlayerTracker(); }
+	const PlayerTrackerInterface & getPlayerTracker() const { return m_access.getPlayerTracker(); }
+
 	UnitTrackerInterface & getUnitTracker() { return m_access.getUnitTracker(); }
 	const UnitTrackerInterface & getUnitTracker() const { return m_access.getUnitTracker(); }
 
 	TerrainAnalyserInterface & getTerrainAnalyser() { return m_access.getTerrainAnalyser(); }
 	const TerrainAnalyserInterface & getTerrainAnalyser() const { return m_access.getTerrainAnalyser(); }
+
+	BaseTrackerInterface & getBaseTracker() { return m_access.getBaseTracker(); }
+	const BaseTrackerInterface & getBaseTracker() const { return m_access.getBaseTracker(); }
+
+	ResourceTrackerInterface & getResourceTracker() { return m_access.getResourceTracker(); }
+	const ResourceTrackerInterface & getResourceTracker() const { return m_access.getResourceTracker(); }
+
+	TaskManagerInterface & getTaskManager() { return m_access.getTaskManager(); }
+	const TaskManagerInterface & getTaskManager() const { return m_access.getTaskManager(); }
 
 	Skynet & getSkynet() { return m_access.getSkynet(); }
 	const Skynet & getSkynet() const { return m_access.getSkynet(); }

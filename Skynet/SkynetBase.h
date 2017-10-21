@@ -25,9 +25,9 @@ public:
 
 	Player getPlayer() const override { return m_player; }
 
-	bool isEnemyBase() const override { return BWAPI::Broodwar->self()->isEnemy( m_player ); }
-	bool isMyBase() const override { return m_player == BWAPI::Broodwar->self(); }
-	bool isAllyBase() const override { return BWAPI::Broodwar->self()->isAlly( m_player ); }
+	bool isEnemyBase() const override;
+	bool isMyBase() const override;
+	bool isAllyBase() const override;
 	bool isContested() const override { return m_is_contested; }
 
 	void draw() const override;

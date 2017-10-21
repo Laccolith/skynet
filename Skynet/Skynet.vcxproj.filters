@@ -25,6 +25,24 @@
     <Filter Include="BaseTracker\Skynet">
       <UniqueIdentifier>{7de606fc-5f78-44b6-acb8-13f2a6a53925}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ResourceTracker">
+      <UniqueIdentifier>{d59ff6da-b630-4bd0-9895-4eaa21f64639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ResourceTracker\Skynet">
+      <UniqueIdentifier>{40f8f7f6-2f6f-4f55-8fb5-de35b761401e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TaskManager">
+      <UniqueIdentifier>{2075ce6d-11ad-41f8-bf84-9e356afac91f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TaskManager\Skynet">
+      <UniqueIdentifier>{b7e75a12-5db2-4ec3-a3c9-a045101bdc6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlayerTracker">
+      <UniqueIdentifier>{0ef65af3-7538-4ebc-91c0-5564ec034c5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlayerTracker\Skynet">
+      <UniqueIdentifier>{b167d2de-6c1f-4b17-8288-a2a7c270c550}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,6 +98,18 @@
     </ClCompile>
     <ClCompile Include="SkynetBase.cpp">
       <Filter>BaseTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetResourceTracker.cpp">
+      <Filter>ResourceTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTaskManager.cpp">
+      <Filter>TaskManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetPlayerTracker.cpp">
+      <Filter>PlayerTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetPlayer.cpp">
+      <Filter>PlayerTracker\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,8 +209,33 @@
     <ClInclude Include="SkynetBase.h">
       <Filter>BaseTracker\Skynet</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceTracker.h">
+      <Filter>ResourceTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetResourceTracker.h">
+      <Filter>ResourceTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.h">
+      <Filter>TaskManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskManager.h">
+      <Filter>TaskManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>PlayerTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerTracker.h">
+      <Filter>PlayerTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetPlayerTracker.h">
+      <Filter>PlayerTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetPlayer.h">
+      <Filter>PlayerTracker\Skynet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Skynet.natvis" />
+    <None Include="bwapi.ini" />
   </ItemGroup>
 </Project>

@@ -2,11 +2,12 @@
 
 #include "Unit.h"
 
+class PlayerTrackerInterface;
 class SkynetUnitTracker;
 class SkynetUnit : public UnitInterface
 {
 public:
-	SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & tracker );
+	SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker );
 	SkynetUnit( int id, Player player, Position pos, UnitType type, int startTime );
 
 	int getID() const override { return m_id; }
@@ -155,7 +156,7 @@ public:
 	void setBuildTime( int time );
 	void setPosition( Position position );
 
-	void update( SkynetUnitTracker & tracker );
+	void update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker );
 	void markDead();
 
 private:
@@ -170,6 +171,7 @@ private:
 	Position m_target_position = BWAPI::Positions::None;
 	UnitType m_type = BWAPI::UnitTypes::Unknown;
 	Player m_player = nullptr;
+	Player m_last_player = nullptr;
 
 	int m_resources = 0;
 	int m_health = 0;

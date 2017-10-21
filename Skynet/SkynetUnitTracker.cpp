@@ -1,6 +1,7 @@
 #include "SkynetUnitTracker.h"
 
 #include "Skynet.h"
+#include "PlayerTracker.h"
 
 SkynetUnitTracker::SkynetUnitTracker( Access & access )
 	: UnitTrackerInterface( access )
@@ -29,6 +30,16 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 	return return_units;
 }
 
+const UnitGroup & SkynetUnitTracker::getGeysers() const
+{
+	return getAllUnits( BWAPI::UnitTypes::Resource_Vespene_Geyser, getPlayerTracker().getNeutralPlayer() );
+}
+
+const UnitGroup & SkynetUnitTracker::getMinerals() const
+{
+	return getAllUnits( BWAPI::UnitTypes::Resource_Mineral_Field, getPlayerTracker().getNeutralPlayer() );
+}
+
 const UnitGroup & SkynetUnitTracker::getAllUnits( UnitType type, Player player ) const
 {
 	return m_player_to_type_to_units[player->getID()][type];
@@ -42,7 +53,7 @@ const UnitGroup & SkynetUnitTracker::getAllUnits( Player player ) const
 UnitGroup SkynetUnitTracker::getAllEnemyUnits( Player player ) const
 {
 	UnitGroup enemies;
-	for( Player enemy : BWAPI::Broodwar->getPlayers() )
+	for( Player enemy : getPlayerTracker().getAllPlayers() )
 	{
 		if( player->isEnemy( enemy ) )
 			enemies += getAllUnits( enemy );
@@ -53,7 +64,7 @@ UnitGroup SkynetUnitTracker::getAllEnemyUnits( Player player ) const
 UnitGroup SkynetUnitTracker::getAllEnemyUnits( UnitType type, Player player ) const
 {
 	UnitGroup enemies;
-	for( BWAPI::Player enemy : BWAPI::Broodwar->getPlayers() )
+	for( Player enemy : getPlayerTracker().getAllPlayers() )
 	{
 		if( player->isEnemy( enemy ) )
 			enemies += getAllUnits( type, enemy );
@@ -96,7 +107,7 @@ void SkynetUnitTracker::update()
 void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 {
 	if( unit->getID() >= (int)m_bwapi_units.size() )
-		m_bwapi_units.resize( unit->getID() + 1 );
+		m_bwapi_units.resize( std::max( unit->getID() + 1, (int)BWAPI::Broodwar->getAllUnits().size() ) );
 
 	auto & new_unit = m_bwapi_units[unit->getID()];
 
@@ -107,11 +118,11 @@ void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 	
 	if( !m_free_ids.empty() )
 	{
-		new_unit = std::make_unique<SkynetUnit>( unit, m_free_ids.back(), *this );
+		new_unit = std::make_unique<SkynetUnit>( unit, m_free_ids.back(), *this, getPlayerTracker());
 		m_free_ids.pop_back();
 	}
 	else
-		new_unit = std::make_unique<SkynetUnit>( unit, ++m_current_id_counter, *this );
+		new_unit = std::make_unique<SkynetUnit>( unit, m_current_id_counter++, *this, getPlayerTracker());
 
 	onDiscover( new_unit.get() );
 }
@@ -171,7 +182,7 @@ void SkynetUnitTracker::updateUnit( SkynetUnit * unit )
 	Player last_player = unit->getLastPlayer();
 	UnitType last_type = unit->getLastType();
 
-	unit->update( *this );
+	unit->update( *this, getPlayerTracker() );
 
 	if( last_player != unit->getPlayer() || last_type != unit->getType() )
 		onMorphRenegade( unit, last_player, last_type );

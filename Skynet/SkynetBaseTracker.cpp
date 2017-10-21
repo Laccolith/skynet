@@ -10,7 +10,6 @@ SkynetBaseTracker::SkynetBaseTracker( Access & access )
 	, MessageListener<TerrainAnalysed>( getTerrainAnalyser() )
 {
 	getSkynet().registerUpdateProcess( 1.0f, [this]() { update(); } );
-	setDebugging( Debug::Default, true );
 }
 
 void SkynetBaseTracker::update()

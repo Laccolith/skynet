@@ -1,11 +1,12 @@
 #include "SkynetUnit.h"
 
 #include "SkynetUnitTracker.h"
+#include "PlayerTracker.h"
 
 #include "MapUtil.h"
 #include "DrawingUtil.h"
 
-SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & tracker )
+SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker )
 	: m_unit( unit )
 	, m_id( id )
 {
@@ -16,7 +17,7 @@ SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & tracker )
 		m_morphing = unit->isMorphing();
 	}
 
-	update( tracker );
+	update( unitTracker, playerTracker );
 
 	if( useable )
 	{
@@ -33,6 +34,7 @@ SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int 
 	, m_target_position( pos )
 	, m_type( type )
 	, m_player( player )
+	, m_last_player(player)
 	, m_updated_time( BWAPI::Broodwar->getFrameCount() )
 	, m_completed_time( startTime + type.buildTime() )
 	, m_exists_time( startTime )
@@ -180,14 +182,14 @@ UnitType SkynetUnit::getLastType() const
 Player SkynetUnit::getPlayer() const
 {
 	if( exists() )
-		return m_unit->getPlayer();
+		return m_player;
 
-	return m_player;
+	return m_last_player;
 }
 
 Player SkynetUnit::getLastPlayer() const
 {
-	return m_player;
+	return m_last_player;
 }
 
 Unit SkynetUnit::getTarget() const
@@ -409,7 +411,7 @@ UnitAccessType SkynetUnit::accessibility() const
 
 		// If it doesn't exist but its ours it must be dead, is also possible to check if the player has left the game
 		// but in some game modes they don't disappear when player->leftGame() returns true, noticed in protoss champaign
-		if( getPlayer() == BWAPI::Broodwar->self() )
+		if( getPlayer()->isLocalPlayer() )
 			return UnitAccessType::Dead;
 
 		const UnitType &type = getType();
@@ -1360,8 +1362,10 @@ void SkynetUnit::setPosition( Position position )
 	m_target_position = position;
 }
 
-void SkynetUnit::update( SkynetUnitTracker & tracker )
+void SkynetUnit::update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker )
 {
+	m_player = m_unit ? playerTracker.getPlayer( m_unit->getPlayer() ) : m_last_player;
+
 	if( !exists() )
 		return;
 
@@ -1372,7 +1376,7 @@ void SkynetUnit::update( SkynetUnitTracker & tracker )
 	m_position = m_unit->getPosition();
 	m_target_position = m_unit->getTargetPosition();
 	m_type = m_unit->getType();
-	m_player = m_unit->getPlayer();
+	m_last_player = playerTracker.getPlayer( m_unit->getPlayer() );
 
 	m_resources = m_unit->getResources();
 	m_health = m_unit->getHitPoints();
@@ -1394,9 +1398,9 @@ void SkynetUnit::update( SkynetUnitTracker & tracker )
 	else if( m_unit->isCompleted() && !m_unit->isMorphing() )
 		m_completed_time = BWAPI::Broodwar->getFrameCount();
 
-	if( m_unit->getOrderTarget() ) m_order_target = tracker.getUnit( m_unit->getOrderTarget() );
-	if( m_unit->getTarget() )m_target = tracker.getUnit( m_unit->getTarget() );
-	if( m_unit->getBuildUnit() )m_build_unit = tracker.getUnit( m_unit->getBuildUnit() );
+	if( m_unit->getOrderTarget() ) m_order_target = unitTracker.getUnit( m_unit->getOrderTarget() );
+	if( m_unit->getTarget() )m_target = unitTracker.getUnit( m_unit->getTarget() );
+	if( m_unit->getBuildUnit() )m_build_unit = unitTracker.getUnit( m_unit->getBuildUnit() );
 }
 
 void SkynetUnit::markDead()

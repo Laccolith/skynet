@@ -11,20 +11,22 @@ class SkynetUnitTracker : public UnitTrackerInterface
 public:
 	SkynetUnitTracker( Access & access );
 
-	virtual Unit getUnit( BWAPI::Unit unit ) const;
-	virtual UnitGroup getUnitGroup( const BWAPI::Unitset &units ) const;
+	Unit getUnit( BWAPI::Unit unit ) const override;
+	UnitGroup getUnitGroup( const BWAPI::Unitset &units ) const override;
 
-	virtual const UnitGroup &getAllUnits() const { return m_all_units; }
-	virtual const UnitGroup &getAllUnits( UnitType type, Player player = BWAPI::Broodwar->self() ) const;
-	virtual const UnitGroup &getAllUnits( Player player = BWAPI::Broodwar->self() ) const;
+	const UnitGroup &getGeysers() const override;
+	const UnitGroup &getMinerals() const override;
 
-	virtual UnitGroup getAllEnemyUnits( Player player = BWAPI::Broodwar->self() ) const;
-	virtual UnitGroup getAllEnemyUnits( UnitType type, Player player = BWAPI::Broodwar->self() ) const;
+	const UnitGroup &getAllUnits() const override { return m_all_units; }
+	const UnitGroup &getAllUnits( UnitType type, Player player ) const override;
+	const UnitGroup &getAllUnits( Player player ) const override;
+
+	UnitGroup getAllEnemyUnits( Player player ) const override;
+	UnitGroup getAllEnemyUnits( UnitType type, Player player ) const override;
 
 	void update();
 
 private:
-	// Are bwapi unit ids good to use as a index to a vector, rather than using this map?
 	std::vector<std::unique_ptr<SkynetUnit>> m_bwapi_units;
 
 	std::vector<std::array<UnitGroup, (int)UnitTypes::Enum::Unknown>> m_player_to_type_to_units;

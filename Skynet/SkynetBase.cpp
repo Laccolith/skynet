@@ -2,6 +2,7 @@
 
 #include "BaseLocation.h"
 #include "Unit.h"
+#include "Player.h"
 
 template <typename ...ARGS>
 inline void drawLabel( Position pos, int &yOffset, const ARGS &... args )
@@ -10,9 +11,24 @@ inline void drawLabel( Position pos, int &yOffset, const ARGS &... args )
 	yOffset -= 10;
 }
 
+bool SkynetBase::isEnemyBase() const
+{
+	return BWAPI::Broodwar->self()->isEnemy( m_player->getBWAPIPlayer() );
+}
+
+bool SkynetBase::isMyBase() const
+{
+	return m_player->isLocalPlayer();
+}
+
+bool SkynetBase::isAllyBase() const
+{
+	return BWAPI::Broodwar->self()->isAlly( m_player->getBWAPIPlayer() );
+}
+
 void SkynetBase::draw() const
 {
-	BWAPI::Broodwar->drawCircleMap( m_center_position, 78, (m_player != nullptr ? m_player : BWAPI::Broodwar->neutral())->getColor(), false );
+	BWAPI::Broodwar->drawCircleMap( m_center_position, 78, (m_player != nullptr ? m_player->getColor() : BWAPI::Broodwar->neutral()->getColor()), false );
 
 	int y_pos = 30;
 	if( m_is_start_location )
