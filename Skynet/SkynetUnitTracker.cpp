@@ -106,8 +106,8 @@ void SkynetUnitTracker::update()
 
 void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 {
-	if( unit->getID() >= (int)m_bwapi_units.size() )
-		m_bwapi_units.resize( std::max( unit->getID() + 1, (int)BWAPI::Broodwar->getAllUnits().size() ) );
+	if( unit->getID() >= (int) m_bwapi_units.size() )
+		m_bwapi_units.resize( std::max( unit->getID() + 1, (int) BWAPI::Broodwar->getAllUnits().size() ) );
 
 	auto & new_unit = m_bwapi_units[unit->getID()];
 
@@ -115,14 +115,14 @@ void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 		return;
 
 	// TODO: Prediction
-	
+
 	if( !m_free_ids.empty() )
 	{
-		new_unit = std::make_unique<SkynetUnit>( unit, m_free_ids.back(), *this, getPlayerTracker());
+		new_unit = std::make_unique<SkynetUnit>( unit, m_free_ids.back(), *this, getPlayerTracker() );
 		m_free_ids.pop_back();
 	}
 	else
-		new_unit = std::make_unique<SkynetUnit>( unit, m_current_id_counter++, *this, getPlayerTracker());
+		new_unit = std::make_unique<SkynetUnit>( unit, m_current_id_counter++, *this, getPlayerTracker() );
 
 	onDiscover( new_unit.get() );
 }

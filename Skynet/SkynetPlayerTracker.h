@@ -4,7 +4,7 @@
 
 #include "SkynetPlayer.h"
 
-class SkynetPlayerTracker: public PlayerTrackerInterface
+class SkynetPlayerTracker : public PlayerTrackerInterface
 {
 public:
 	SkynetPlayerTracker( Access & access );

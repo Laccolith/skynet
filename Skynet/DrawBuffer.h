@@ -179,17 +179,18 @@ public:
 	BufferedItemImpl( int removal_frame, ARGS&&... args )
 		: BufferedItem( removal_frame )
 		, m_arguments( std::forward<ARGS>( args )... )
-	{}
+	{
+	}
 
 	void draw() const override
 	{
-		drawImp( typename Gens<std::tuple_size<decltype( m_arguments )>::value>::type() );
+		drawImp( typename Gens<std::tuple_size<decltype(m_arguments)>::value>::type() );
 	}
 
 	template<int ...S>
 	void drawImp( Seq<S...> ) const
 	{
-		T::draw( Out<std::tuple_element<S, decltype( m_arguments )>::type>::out( std::get<S>( m_arguments ) )... );
+		T::draw( Out<std::tuple_element<S, decltype(m_arguments)>::type>::out( std::get<S>( m_arguments ) )... );
 	}
 
 private:

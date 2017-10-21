@@ -18,7 +18,8 @@ public:
 		: m_width( 0 )
 		, m_height( 0 )
 		, m_data( nullptr )
-	{}
+	{
+	}
 
 	~RectangleArray()
 	{

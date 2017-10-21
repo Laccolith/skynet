@@ -108,5 +108,5 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 	}
 
 	for( TilePosition start_location : BWAPI::Broodwar->getStartLocations() )
-		static_cast<SkynetBase*>( m_tile_to_base[start_location] )->m_is_start_location = true;
+		static_cast<SkynetBase*>(m_tile_to_base[start_location])->m_is_start_location = true;
 }

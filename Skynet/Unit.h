@@ -11,7 +11,7 @@ SMART_ENUM( UnitAccessType, int,
 	Prediction,
 	Partial,
 	Full
-	);
+);
 
 #include "UnitGroup.h"
 

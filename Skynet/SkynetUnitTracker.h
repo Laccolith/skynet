@@ -29,7 +29,7 @@ public:
 private:
 	std::vector<std::unique_ptr<SkynetUnit>> m_bwapi_units;
 
-	std::vector<std::array<UnitGroup, (int)UnitTypes::Enum::Unknown>> m_player_to_type_to_units;
+	std::vector<std::array<UnitGroup, (int) UnitTypes::Enum::Unknown>> m_player_to_type_to_units;
 	std::vector<UnitGroup> m_player_to_units;
 
 	UnitGroup m_all_units;

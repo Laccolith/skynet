@@ -16,7 +16,7 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Access & access )
 	: TerrainAnalyserInterface( access )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
-	getSkynet().registerUpdateProcess( 1.0f, [this](){ update(); } );
+	getSkynet().registerUpdateProcess( 1.0f, [this]() { update(); } );
 }
 
 void SkynetTerrainAnalyser::update()
@@ -34,11 +34,11 @@ void SkynetTerrainAnalyser::update()
 
 	if( isDebugging( Debug::Default ) )
 	{
-		bool show_connectivity = BWAPI::Broodwar->getKeyState( BWAPI::Key('1') );
-		bool show_clearance = BWAPI::Broodwar->getKeyState( BWAPI::Key('2') );
-		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key('3') );
-		bool show_chokepoints = BWAPI::Broodwar->getKeyState( BWAPI::Key('4') );
-		bool show_base_locations = BWAPI::Broodwar->getKeyState( BWAPI::Key('5') );
+		bool show_connectivity = BWAPI::Broodwar->getKeyState( BWAPI::Key( '1' ) );
+		bool show_clearance = BWAPI::Broodwar->getKeyState( BWAPI::Key( '2' ) );
+		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key( '3' ) );
+		bool show_chokepoints = BWAPI::Broodwar->getKeyState( BWAPI::Key( '4' ) );
+		bool show_base_locations = BWAPI::Broodwar->getKeyState( BWAPI::Key( '5' ) );
 
 		WalkPosition mouse_tile( BWAPI::Broodwar->getMousePosition() + BWAPI::Broodwar->getScreenPosition() );
 		if( mouse_tile.isValid() )
@@ -130,7 +130,7 @@ void SkynetTerrainAnalyser::calculateConnectivity( Data & data )
 
 				std::queue<WalkPosition> unvisited_tiles;
 				unvisited_tiles.push( pos );
-				
+
 				while( !unvisited_tiles.empty() )
 				{
 					const WalkPosition &tile = unvisited_tiles.front();
@@ -290,8 +290,8 @@ struct RegionTileData
 	WalkPosition last_minima = WalkPositions::None;
 	unsigned int children_flags = 0;
 
-	void set_child( int i ) { children_flags |= ( i + 1 ); }
-	bool has_child( int i ) const { return ( children_flags & ( i + 1 ) ) != 0; }
+	void set_child( int i ) { children_flags |= (i + 1); }
+	bool has_child( int i ) const { return (children_flags & (i + 1)) != 0; }
 };
 
 void SkynetTerrainAnalyser::calculateRegions( Data & data )
@@ -307,7 +307,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		{
 			for( int y = 0; y < m_map_size.y; ++y )
 			{
-				if( data.m_tile_clearance[WalkPosition( x, y )] == 0)
+				if( data.m_tile_clearance[WalkPosition( x, y )] == 0 )
 					debug_window->addBox( x * 8, y * 8, x * 8 + 8, y * 8 + 8, Colors::Red );
 			}
 		}
@@ -464,7 +464,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 					return false;
 				};
-				
+
 				MapUtil::forEachPositionInLine( choke_sides.first, last_minima, add_choke_children );
 				MapUtil::forEachPositionInLine( last_minima, choke_sides.second, add_choke_children );
 
@@ -604,7 +604,7 @@ void SkynetTerrainAnalyser::createBases( Data & data, const UnitGroup & resource
 	{
 		TilePosition base_location = TilePositions::Invalid;
 		int best_rating = m_map_size.x * m_map_size.y;
-		MapUtil::spiralSearch( TilePosition( resource_cluster.getCenter() ), [&resource_cluster, &base_location, best_rating] ( TilePosition location ) mutable -> bool
+		MapUtil::spiralSearch( TilePosition( resource_cluster.getCenter() ), [&resource_cluster, &base_location, best_rating]( TilePosition location ) mutable -> bool
 		{
 			for( int x = location.x; x < location.x + UnitTypes::Protoss_Nexus.tileWidth(); ++x )
 			{
@@ -744,7 +744,7 @@ void SkynetTerrainAnalyser::checkData()
 	{
 		UnitGroup resources = getResources();
 		int request = m_reprocess_request;
-		m_async_future = std::async( std::launch::async, [this, resources, request] () -> std::unique_ptr<Data>
+		m_async_future = std::async( std::launch::async, [this, resources, request]() -> std::unique_ptr<Data>
 		{
 			auto new_data = std::make_unique<Data>();
 			new_data->m_request = request;

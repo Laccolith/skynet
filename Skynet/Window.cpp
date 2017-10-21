@@ -77,7 +77,7 @@ public:
 						view.zoom( zoom_factor );
 						current_zoom *= zoom_factor;
 						sfml_window.setView( view );
-						
+
 						break;
 					}
 
@@ -159,7 +159,7 @@ public:
 
 		PositionFloat line_direction = end - start;
 		float length = normalise( line_direction );
-		
+
 		float dot = dotProduct( line_direction, PositionFloat( 0.0f, -1.0f ) );
 		float acos = std::acos( dot );
 		float angle = acos * 180 / 3.14159265359f;
@@ -180,10 +180,10 @@ public:
 class WindowImpl
 {
 public:
-	WindowImpl(std::string title, int width, int height) {}
+	WindowImpl( std::string title, int width, int height ) {}
 
-	void addBox(int left, int top, int right, int bottom, Color color) {}
-	void addLine(int x1, int y1, int x2, int y2, float thickness, Color color) {}
+	void addBox( int left, int top, int right, int bottom, Color color ) {}
+	void addLine( int x1, int y1, int x2, int y2, float thickness, Color color ) {}
 };
 
 #endif

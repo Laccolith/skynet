@@ -34,7 +34,7 @@ SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int 
 	, m_target_position( pos )
 	, m_type( type )
 	, m_player( player )
-	, m_last_player(player)
+	, m_last_player( player )
 	, m_updated_time( BWAPI::Broodwar->getFrameCount() )
 	, m_completed_time( startTime + type.buildTime() )
 	, m_exists_time( startTime )

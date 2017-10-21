@@ -15,7 +15,7 @@ Skynet::Skynet( std::string name )
 	{
 		return lhs.first < rhs.first;
 	} );
-	
+
 	m_in_startup = false;
 	BWAPI::Broodwar->printf( "%s is online.", name.c_str() );
 }
@@ -27,7 +27,7 @@ void Skynet::update()
 		if( e.getType() == BWAPI::EventType::SendText )
 		{
 			auto tokens = StringUtils::split( e.getText(), "\t " );
-			
+
 			if( tokens.empty() )
 				continue;
 

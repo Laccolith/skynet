@@ -47,7 +47,7 @@ public:
 	}
 
 private:
-	std::function<void(const T &)> m_function;
+	std::function<void( const T & )> m_function;
 };
 
 template <typename T>

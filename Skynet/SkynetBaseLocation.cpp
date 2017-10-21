@@ -3,7 +3,7 @@
 #include "Unit.h"
 
 SkynetBaseLocation::SkynetBaseLocation( TilePosition build_location, Region region, const UnitGroup & resources )
-	: m_center_position( Position( build_location ) + ( Position( UnitTypes::Protoss_Nexus.tileSize() ) / 2) )
+	: m_center_position( Position( build_location ) + (Position( UnitTypes::Protoss_Nexus.tileSize() ) / 2) )
 	, m_build_location( build_location )
 	, m_region( region )
 {

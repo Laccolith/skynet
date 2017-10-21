@@ -64,7 +64,7 @@ private:
 		float m_clearance_time_seconds = 0.0f;
 		float m_regions_time_seconds = 0.0f;
 
-		Data & operator=( Data && other)
+		Data & operator=( Data && other )
 		{
 			m_analysed = other.m_analysed;
 

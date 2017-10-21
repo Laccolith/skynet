@@ -28,7 +28,7 @@ Position UnitGroup::getCenter() const
 	for( auto group_unit : *this )
 		position += group_unit->getPosition();
 
-	return position / float(size());
+	return position / float( size() );
 }
 
 UnitGroup UnitGroup::getBestFittingToCircle( int circle_size, int in_frames_time ) const
@@ -55,7 +55,7 @@ UnitGroup UnitGroup::getBestFittingToCircle( int circle_size, int in_frames_time
 
 		if( furthest_it == circle_units.end() )
 			break;
-		
+
 		circle_units.erase( furthest_it );
 	}
 

@@ -51,7 +51,7 @@ namespace SmartEnum
 				current_enum_value = std::stoi( current_enum_entry.substr( equal_sign_pos + 1 ) );
 			}
 
-			values.push_back( static_cast<T>( current_enum_value ) );
+			values.push_back( static_cast<T>(current_enum_value) );
 
 			current_enum_value++;
 		}
@@ -63,7 +63,7 @@ namespace SmartEnum
 template <typename T>
 inline const std::vector<T> & values()
 {
-	static_assert( false, "values called with non enum type" );
+	static_assert(false, "values called with non enum type");
 	static std::vector<T> list;
 	return list;
 }

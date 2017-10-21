@@ -8,7 +8,8 @@ SkynetRegion::SkynetRegion( WalkPosition center, int clearance, int connectivity
 	, m_clearance( clearance )
 	, m_connectivity( connectivity )
 	, m_size( 0 )
-{}
+{
+}
 
 void SkynetRegion::draw( Color color ) const
 {
