@@ -25,12 +25,6 @@
     <Filter Include="BaseTracker\Skynet">
       <UniqueIdentifier>{7de606fc-5f78-44b6-acb8-13f2a6a53925}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ResourceTracker">
-      <UniqueIdentifier>{d59ff6da-b630-4bd0-9895-4eaa21f64639}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ResourceTracker\Skynet">
-      <UniqueIdentifier>{40f8f7f6-2f6f-4f55-8fb5-de35b761401e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TaskManager">
       <UniqueIdentifier>{2075ce6d-11ad-41f8-bf84-9e356afac91f}</UniqueIdentifier>
     </Filter>
@@ -48,6 +42,12 @@
     </Filter>
     <Filter Include="Core\Skynet">
       <UniqueIdentifier>{40540470-613a-4f86-9079-36e0b61ff58c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ResourceManager">
+      <UniqueIdentifier>{d59ff6da-b630-4bd0-9895-4eaa21f64639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ResourceManager\Skynet">
+      <UniqueIdentifier>{40f8f7f6-2f6f-4f55-8fb5-de35b761401e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -96,9 +96,6 @@
     <ClCompile Include="SkynetBase.cpp">
       <Filter>BaseTracker\Skynet</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetResourceTracker.cpp">
-      <Filter>ResourceTracker\Skynet</Filter>
-    </ClCompile>
     <ClCompile Include="SkynetTaskManager.cpp">
       <Filter>TaskManager\Skynet</Filter>
     </ClCompile>
@@ -118,6 +115,15 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="SkynetTaskRequirementMineral.cpp">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetResourceManager.cpp">
+      <Filter>ResourceManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTaskRequirementGas.cpp">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTaskRequirementSupply.cpp">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClCompile>
   </ItemGroup>
@@ -209,12 +215,6 @@
     <ClInclude Include="SkynetBase.h">
       <Filter>BaseTracker\Skynet</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceTracker.h">
-      <Filter>ResourceTracker</Filter>
-    </ClInclude>
-    <ClInclude Include="SkynetResourceTracker.h">
-      <Filter>ResourceTracker\Skynet</Filter>
-    </ClInclude>
     <ClInclude Include="TaskManager.h">
       <Filter>TaskManager</Filter>
     </ClInclude>
@@ -255,6 +255,18 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="SkynetTaskRequirement.h">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetResourceManager.h">
+      <Filter>ResourceManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirementGas.h">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirementSupply.h">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClInclude>
   </ItemGroup>

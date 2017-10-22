@@ -8,7 +8,7 @@
 #include "SkynetUnitTracker.h"
 #include "SkynetTerrainAnalyser.h"
 #include "SkynetBaseTracker.h"
-#include "SkynetResourceTracker.h"
+#include "SkynetResourceManager.h"
 #include "SkynetTaskManager.h"
 
 SkynetCore::SkynetCore()
@@ -20,7 +20,7 @@ SkynetCore::SkynetCore()
 	m_unit_tracker = std::make_unique<SkynetUnitTracker>( *this );
 	m_terrain_analyser = std::make_unique<SkynetTerrainAnalyser>( *this );
 	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
-	m_resource_tracker = std::make_unique<SkynetResourceTracker>( *this );
+	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
 
 	std::sort( m_update_processes.begin(), m_update_processes.end(), []( const std::pair<float, std::function<void()>> & lhs, const std::pair<float, std::function<void()>> & rhs )

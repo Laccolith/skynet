@@ -1,11 +1,18 @@
 #include "SkynetTaskRequirementMineral.h"
 
-SkynetTaskRequirementMineral::SkynetTaskRequirementMineral( int ammount )
-	: m_ammount( ammount )
+#include "ResourceManager.h"
+
+SkynetTaskRequirementMineral::SkynetTaskRequirementMineral( int amount )
+	: m_amount( amount )
 {
 }
 
-int SkynetTaskRequirementMineral::getEarliestTime()
+int SkynetTaskRequirementMineral::getEarliestTime( CoreAccess & access )
 {
-	return 0;
+	return access.getResourceManager().earliestMineralAvailability( m_amount );
+}
+
+void SkynetTaskRequirementMineral::reserveTime( CoreAccess & access, int time )
+{
+	access.getResourceManager().reserveTaskMinerals( time, m_amount );
 }

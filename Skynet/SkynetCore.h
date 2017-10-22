@@ -32,8 +32,8 @@ public:
 	BaseTrackerInterface & getBaseTracker() override { return *m_base_tracker; }
 	const BaseTrackerInterface & getBaseTracker() const override { return *m_base_tracker; }
 
-	ResourceTrackerInterface & getResourceTracker() override { return *m_resource_tracker; }
-	const ResourceTrackerInterface & getResourceTracker() const override { return *m_resource_tracker; }
+	ResourceManagerInterface & getResourceManager() override { return *m_resource_tracker; }
+	const ResourceManagerInterface & getResourceManager() const override { return *m_resource_tracker; }
 
 	TaskManagerInterface & getTaskManager() override { return *m_task_manager; }
 	const TaskManagerInterface & getTaskManager() const override { return *m_task_manager; }
@@ -49,6 +49,6 @@ private:
 	std::unique_ptr<UnitTrackerInterface> m_unit_tracker;
 	std::unique_ptr<TerrainAnalyserInterface> m_terrain_analyser;
 	std::unique_ptr<BaseTrackerInterface> m_base_tracker;
-	std::unique_ptr<ResourceTrackerInterface> m_resource_tracker;
+	std::unique_ptr<ResourceManagerInterface> m_resource_tracker;
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
 };

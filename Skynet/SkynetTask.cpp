@@ -2,6 +2,8 @@
 
 #include "SkynetTaskManager.h"
 #include "SkynetTaskRequirementMineral.h"
+#include "SkynetTaskRequirementGas.h"
+#include "SkynetTaskRequirementSupply.h"
 
 #include "Types.h"
 
@@ -17,33 +19,39 @@ SkynetTask::~SkynetTask()
 
 void SkynetTask::updateTime()
 {
-	int current_time = BWAPI::Broodwar->getFrameCount();
-
-	m_earliest_time = current_time;
+	m_earliest_time = 0;
 
 	for( auto & requirement : m_requirements )
 	{
-		m_earliest_time = std::max( m_earliest_time, requirement->getEarliestTime() );
+		m_earliest_time = std::max( m_earliest_time, requirement->getEarliestTime( m_task_manager ) );
 	}
 
 	// A unit requirement has to be calculated last so that it doesn't overrun it's allotted time
 	if( m_unit_requirement )
 	{
 		int travel_time = 0;
-		m_earliest_time = std::max( m_earliest_time, m_unit_requirement->getEarliestTime( m_earliest_time, travel_time ) );
+		m_earliest_time = std::max( m_earliest_time, m_unit_requirement->getReserveEarliestTime( m_earliest_time, travel_time ) );
 
-		if( m_earliest_time - travel_time <= current_time )
-		{
-			m_assigned_unit = m_unit_requirement->getChosenUnit();
-		}
-		else
-		{
-			m_assigned_unit = nullptr;
-		}
+		m_assigned_unit = travel_time >= m_earliest_time ? m_unit_requirement->getChosenUnit() : nullptr;
+	}
+
+	for( auto & requirement : m_requirements )
+	{
+		requirement->reserveTime( m_task_manager, m_earliest_time );
 	}
 }
 
-void SkynetTask::addRequirementMineral( int ammount )
+void SkynetTask::addRequirementMineral( int amount )
 {
-	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementMineral>( ammount ) );
+	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementMineral>( amount ) );
+}
+
+void SkynetTask::addRequirementGas( int amount )
+{
+	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementGas>( amount ) );
+}
+
+void SkynetTask::addRequirementSupply( int amount )
+{
+	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementSupply>( amount ) );
 }

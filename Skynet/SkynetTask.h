@@ -19,7 +19,9 @@ public:
 	int getPlannedTime() override { return m_earliest_time; }
 	Unit getAssignedUnit() override { return m_assigned_unit; }
 
-	void addRequirementMineral( int ammount ) override;
+	void addRequirementMineral( int amount ) override;
+	void addRequirementGas( int amount ) override;
+	void addRequirementSupply( int amount ) override;
 
 private:
 	SkynetTaskManager & m_task_manager;

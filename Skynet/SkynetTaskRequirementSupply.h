@@ -2,10 +2,10 @@
 
 #include "SkynetTaskRequirement.h"
 
-class SkynetTaskRequirementMineral : public SkynetTaskRequirement
+class SkynetTaskRequirementSupply : public SkynetTaskRequirement
 {
 public:
-	SkynetTaskRequirementMineral( int amount );
+	SkynetTaskRequirementSupply( int amount );
 
 	int getEarliestTime( CoreAccess & access ) override;
 	void reserveTime( CoreAccess & access, int time ) override;

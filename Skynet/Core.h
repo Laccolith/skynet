@@ -8,7 +8,7 @@ class PlayerTrackerInterface;
 class UnitTrackerInterface;
 class TerrainAnalyserInterface;
 class BaseTrackerInterface;
-class ResourceTrackerInterface;
+class ResourceManagerInterface;
 class TaskManagerInterface;
 
 class Core
@@ -33,8 +33,8 @@ public:
 	virtual BaseTrackerInterface & getBaseTracker() = 0;
 	virtual const BaseTrackerInterface & getBaseTracker() const = 0;
 
-	virtual ResourceTrackerInterface & getResourceTracker() = 0;
-	virtual const ResourceTrackerInterface & getResourceTracker() const = 0;
+	virtual ResourceManagerInterface & getResourceManager() = 0;
+	virtual const ResourceManagerInterface & getResourceManager() const = 0;
 
 	virtual TaskManagerInterface & getTaskManager() = 0;
 	virtual const TaskManagerInterface & getTaskManager() const = 0;

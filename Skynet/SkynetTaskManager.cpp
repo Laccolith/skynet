@@ -5,7 +5,7 @@
 SkynetTaskManager::SkynetTaskManager( Core & core )
 	: TaskManagerInterface( core )
 {
-	core.registerUpdateProcess( 2.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 3.0f, [this]() { update(); } );
 }
 
 void SkynetTaskManager::update()
