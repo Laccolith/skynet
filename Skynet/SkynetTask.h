@@ -16,8 +16,9 @@ public:
 
 	void updateTime();
 
-	int getPlannedTime() override { return m_earliest_time; }
-	Unit getAssignedUnit() override { return m_assigned_unit; }
+	bool requirementsFulfilled() const override { return m_earliest_time <= 0; }
+	int getPlannedTime() const override { return m_earliest_time; }
+	Unit getAssignedUnit() const override { return m_assigned_unit; }
 
 	void addRequirementMineral( int amount ) override;
 	void addRequirementGas( int amount ) override;

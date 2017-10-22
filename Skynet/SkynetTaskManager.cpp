@@ -10,16 +10,14 @@ SkynetTaskManager::SkynetTaskManager( Core & core )
 
 void SkynetTaskManager::update()
 {
-	int current_time = BWAPI::Broodwar->getFrameCount();
-
 	for( auto & task : m_tasks )
 	{
 		task->updateTime();
 	}
 
-	m_tasks.erase( std::remove_if( m_tasks.begin(), m_tasks.end(), [current_time]( auto task ) -> bool
+	m_tasks.erase( std::remove_if( m_tasks.begin(), m_tasks.end(), []( auto task ) -> bool
 	{
-		return task->getPlannedTime() <= current_time;
+		return task->requirementsFulfilled();
 	} ), m_tasks.end() );
 }
 
