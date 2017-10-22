@@ -1001,7 +1001,7 @@ Unit SkynetUnit::getBuildUnit() const
 
 void SkynetUnit::train( UnitType type )
 {
-	if( exists() )
+	if( !exists() )
 		return;
 
 	if( m_unit->getSecondaryOrder() == Orders::Train )
