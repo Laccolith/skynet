@@ -6,6 +6,7 @@ class CoreModule;
 class DrawBuffer;
 class PlayerTrackerInterface;
 class UnitTrackerInterface;
+class UnitManagerInterface;
 class TerrainAnalyserInterface;
 class BaseTrackerInterface;
 class ResourceManagerInterface;
@@ -26,6 +27,9 @@ public:
 
 	virtual UnitTrackerInterface & getUnitTracker() = 0;
 	virtual const UnitTrackerInterface & getUnitTracker() const = 0;
+
+	virtual UnitManagerInterface & getUnitManager() = 0;
+	virtual const UnitManagerInterface & getUnitManager() const = 0;
 
 	virtual TerrainAnalyserInterface & getTerrainAnalyser() = 0;
 	virtual const TerrainAnalyserInterface & getTerrainAnalyser() const = 0;

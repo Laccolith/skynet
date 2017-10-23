@@ -5,19 +5,21 @@
 
 #include <limits>
 
-const int requirement_max_time = std::numeric_limits<int>::max();
-
 class SkynetTaskRequirement
 {
 public:
 	virtual int getEarliestTime( CoreAccess & access ) = 0;
 	virtual void reserveTime( CoreAccess & access, int time ) = 0;
+
+	virtual ~SkynetTaskRequirement() {}
 };
 
 class SkynetTaskRequirementUnit
 {
 public:
-	virtual int getReserveEarliestTime( int current_earliest_time, int & travel_time ) = 0;
+	virtual int getReserveEarliestTime( CoreAccess & access, int current_earliest_time, int & travel_time ) = 0;
 
-	virtual Unit getChosenUnit() = 0;
+	virtual Unit getChosenUnit() const = 0;
+
+	virtual ~SkynetTaskRequirementUnit() {}
 };

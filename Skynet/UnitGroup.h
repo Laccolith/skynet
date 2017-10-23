@@ -35,6 +35,8 @@ public:
 	SizeType getFlyingCount() const;
 
 	std::vector<UnitGroup> getClusters( int distance, int min_size ) const;
+
+	void sortByDistance( Position position );
 };
 
 const UnitGroup empty_unit_group;

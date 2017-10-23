@@ -20,6 +20,9 @@ public:
 	UnitTrackerInterface & getUnitTracker() { return m_core.getUnitTracker(); }
 	const UnitTrackerInterface & getUnitTracker() const { return m_core.getUnitTracker(); }
 
+	UnitManagerInterface & getUnitManager() { return m_core.getUnitManager(); }
+	const UnitManagerInterface & getUnitManager() const { return m_core.getUnitManager(); }
+
 	TerrainAnalyserInterface & getTerrainAnalyser() { return m_core.getTerrainAnalyser(); }
 	const TerrainAnalyserInterface & getTerrainAnalyser() const { return m_core.getTerrainAnalyser(); }
 

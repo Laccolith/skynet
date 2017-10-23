@@ -26,6 +26,9 @@ public:
 	UnitTrackerInterface & getUnitTracker() override { return *m_unit_tracker; }
 	const UnitTrackerInterface & getUnitTracker() const override { return *m_unit_tracker; }
 
+	UnitManagerInterface & getUnitManager() override { return *m_unit_manager; }
+	const UnitManagerInterface & getUnitManager() const override { return *m_unit_manager; }
+
 	TerrainAnalyserInterface & getTerrainAnalyser() override { return *m_terrain_analyser; }
 	const TerrainAnalyserInterface & getTerrainAnalyser() const override { return *m_terrain_analyser; }
 
@@ -47,6 +50,7 @@ private:
 	std::unique_ptr<DrawBuffer> m_draw_buffer;
 	std::unique_ptr<PlayerTrackerInterface> m_player_tracker;
 	std::unique_ptr<UnitTrackerInterface> m_unit_tracker;
+	std::unique_ptr<UnitManagerInterface> m_unit_manager;
 	std::unique_ptr<TerrainAnalyserInterface> m_terrain_analyser;
 	std::unique_ptr<BaseTrackerInterface> m_base_tracker;
 	std::unique_ptr<ResourceManagerInterface> m_resource_tracker;

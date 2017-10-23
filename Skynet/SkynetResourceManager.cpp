@@ -63,7 +63,7 @@ int SkynetResourceManager::earliestAvailability( int required_amount, double fre
 			if( free_amount >= required_amount )
 			{
 				if( resource_rate <= 0 )
-					return requirement_max_time;
+					return max_time;
 
 				free_amount -= required_amount;
 				previous_free_amount -= required_amount;
@@ -86,7 +86,7 @@ int SkynetResourceManager::earliestAvailability( int required_amount, double fre
 	if( !currently_available )
 	{
 		if( resource_rate <= 0 )
-			return requirement_max_time;
+			return max_time;
 
 		free_amount -= required_amount;
 		earliest_time = last_time + int(std::ceil( -free_amount / resource_rate ) );

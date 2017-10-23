@@ -60,6 +60,8 @@ typedef BaseLocationInterface *BaseLocation;
 class BaseInterface;
 typedef BaseInterface *Base;
 
+const int max_time = std::numeric_limits<int>::max();
+
 template <int Scale>
 inline float dotProduct( BWAPI::Point<float, Scale> v1, BWAPI::Point<float, Scale> v2 )
 {

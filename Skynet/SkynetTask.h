@@ -24,11 +24,13 @@ public:
 	void addRequirementGas( int amount ) override;
 	void addRequirementSupply( int amount ) override;
 
+	void addRequirementUnit( UnitType unit_type, int duration, Position starting_position = Positions::None, Position ending_position = Positions::None ) override;
+	void addRequirementUnit( UnitType unit_type, Position starting_position = Positions::None, Position ending_position = Positions::None ) override;
+
 private:
 	SkynetTaskManager & m_task_manager;
 
-	bool m_active = false;
-	int m_earliest_time = requirement_max_time;
+	int m_earliest_time = max_time;
 	Unit m_assigned_unit = nullptr;
 
 	std::vector<std::unique_ptr<SkynetTaskRequirement>> m_requirements;

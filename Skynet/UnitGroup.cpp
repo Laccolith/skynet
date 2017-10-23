@@ -303,3 +303,11 @@ std::vector<UnitGroup> UnitGroup::getClusters( int distance, int min_size ) cons
 
 	return clusters;
 }
+
+void UnitGroup::sortByDistance( Position position )
+{
+	sort( [position]( Unit unit1, Unit unit2 )
+	{
+		return unit1->getPosition().getApproxDistance( position ) < unit2->getPosition().getApproxDistance( position );
+	} );
+}

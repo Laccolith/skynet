@@ -49,6 +49,12 @@
     <Filter Include="ResourceManager\Skynet">
       <UniqueIdentifier>{40f8f7f6-2f6f-4f55-8fb5-de35b761401e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UnitManager">
+      <UniqueIdentifier>{50729baa-ce00-4998-b2af-a3c23ad076dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UnitManager\Skynet">
+      <UniqueIdentifier>{29989414-8fe7-4957-92aa-346f5b2a6b3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -114,16 +120,16 @@
     <ClCompile Include="CoreModule.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetTaskRequirementMineral.cpp">
-      <Filter>TaskManager\Skynet\Requirements</Filter>
-    </ClCompile>
     <ClCompile Include="SkynetResourceManager.cpp">
       <Filter>ResourceManager\Skynet</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetTaskRequirementGas.cpp">
+    <ClCompile Include="SkynetUnitManager.cpp">
+      <Filter>UnitManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTaskRequirementUnit.cpp">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClCompile>
-    <ClCompile Include="SkynetTaskRequirementSupply.cpp">
+    <ClCompile Include="SkynetTaskRequirementResource.cpp">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,9 +245,6 @@
     <ClInclude Include="SkynetTask.h">
       <Filter>TaskManager\Skynet</Filter>
     </ClInclude>
-    <ClInclude Include="SkynetTaskRequirementMineral.h">
-      <Filter>TaskManager\Skynet\Requirements</Filter>
-    </ClInclude>
     <ClInclude Include="SkynetCore.h">
       <Filter>Core\Skynet</Filter>
     </ClInclude>
@@ -263,10 +266,16 @@
     <ClInclude Include="SkynetResourceManager.h">
       <Filter>ResourceManager\Skynet</Filter>
     </ClInclude>
-    <ClInclude Include="SkynetTaskRequirementGas.h">
+    <ClInclude Include="UnitManager.h">
+      <Filter>UnitManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetUnitManager.h">
+      <Filter>UnitManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirementUnit.h">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClInclude>
-    <ClInclude Include="SkynetTaskRequirementSupply.h">
+    <ClInclude Include="SkynetTaskRequirementResource.h">
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,6 +10,7 @@ public:
 	typedef typename ContainerType::value_type ValueType;
 	typedef typename ContainerType::size_type SizeType;
 
+	typedef typename ContainerType::iterator Iterator;
 	typedef typename ContainerType::const_iterator ConstIterator;
 
 	VectorUnique() = default;
@@ -50,6 +51,12 @@ public:
 
 	void clear() { m_values.clear(); }
 	void swap( VectorUnique &other ) { m_values.swap( other.m_values ); }
+
+	template<typename Compare>
+	void sort( Compare compare )
+	{
+		std::sort( m_values.begin(), m_values.end(), compare );
+	}
 
 private:
 	ContainerType m_values;
