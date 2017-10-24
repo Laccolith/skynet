@@ -14,7 +14,14 @@ int SkynetTaskRequirementMineral::getEarliestTime( CoreAccess & access )
 
 void SkynetTaskRequirementMineral::reserveTime( CoreAccess & access, int time )
 {
+	m_reserved = time <= 0;
 	access.getResourceManager().reserveTaskMinerals( time, m_amount );
+}
+
+void SkynetTaskRequirementMineral::freeReserved( CoreAccess & access )
+{
+	if( m_reserved )
+		access.getResourceManager().freeTaskMinerals( m_amount );
 }
 
 SkynetTaskRequirementGas::SkynetTaskRequirementGas( int amount )
@@ -29,7 +36,14 @@ int SkynetTaskRequirementGas::getEarliestTime( CoreAccess & access )
 
 void SkynetTaskRequirementGas::reserveTime( CoreAccess & access, int time )
 {
+	m_reserved = time <= 0;
 	access.getResourceManager().reserveTaskGas( time, m_amount );
+}
+
+void SkynetTaskRequirementGas::freeReserved( CoreAccess & access )
+{
+	if( m_reserved )
+		access.getResourceManager().freeTaskGas( m_amount );
 }
 
 SkynetTaskRequirementSupply::SkynetTaskRequirementSupply( int amount )
@@ -44,5 +58,12 @@ int SkynetTaskRequirementSupply::getEarliestTime( CoreAccess & access )
 
 void SkynetTaskRequirementSupply::reserveTime( CoreAccess & access, int time )
 {
+	m_reserved = time <= 0;
 	access.getResourceManager().reserveTaskSupply( time, m_amount );
+}
+
+void SkynetTaskRequirementSupply::freeReserved( CoreAccess & access )
+{
+	if( m_reserved )
+		access.getResourceManager().freeTaskSupply( m_amount );
 }

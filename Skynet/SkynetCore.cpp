@@ -38,26 +38,15 @@ SkynetCore::~SkynetCore() = default;
 
 void SkynetCore::update()
 {
+	static int training_progress = 0;
+
 	static std::unique_ptr<TaskInterface> train_task;
-	if( !train_task )
+	if( !train_task && training_progress == 0 )
 	{
 		train_task = getTaskManager().createTask();
-		train_task->addRequirementMineral( 50 );
+		train_task->addRequirementMineral( UnitTypes::Protoss_Probe.mineralPrice() );
+		//train_task->addRequirementSupply( UnitTypes::Protoss_Probe.supplyRequired() );
 		train_task->addRequirementUnit( UnitTypes::Protoss_Nexus, UnitTypes::Protoss_Probe.buildTime() );
-	}
-
-	static std::unique_ptr<TaskInterface> second_task;
-	if( !second_task )
-	{
-		second_task = getTaskManager().createTask();
-		second_task->addRequirementUnit( UnitTypes::Protoss_Nexus, UnitTypes::Protoss_Probe.buildTime() );
-	}
-
-	static std::unique_ptr<TaskInterface> third_task;
-	if( !third_task )
-	{
-		third_task = getTaskManager().createTask();
-		third_task->addRequirementUnit( UnitTypes::Protoss_Nexus, UnitTypes::Protoss_Probe.buildTime() );
 	}
 
 	for( auto & e : BWAPI::Broodwar->getEvents() )
@@ -96,11 +85,27 @@ void SkynetCore::update()
 	for( auto & update : m_update_processes )
 		update.second();
 
-	if( train_task->requirementsFulfilled() )
+	if( train_task && train_task->requirementsFulfilled() )
 	{
-		if( !train_task->getAssignedUnit()->isTraining() )
+		if( training_progress == 0 )
 		{
 			train_task->getAssignedUnit()->train( UnitTypes::Protoss_Probe );
+			training_progress = 1;
+		}
+		else if( training_progress == 1 )
+		{
+			Unit previous_unit = train_task->getAssignedUnit();
+			train_task = getTaskManager().createTask();
+			train_task->addRequirementUnit( previous_unit, previous_unit->getRemainingTrainTime() );
+			training_progress = 2;
+		}
+		else if( training_progress == 2 )
+		{
+			if( !train_task->getAssignedUnit()->isTraining() )
+			{
+				training_progress = 3;
+				train_task.reset();
+			}
 		}
 	}
 }

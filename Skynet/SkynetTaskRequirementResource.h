@@ -9,9 +9,11 @@ public:
 
 	int getEarliestTime( CoreAccess & access ) override;
 	void reserveTime( CoreAccess & access, int time ) override;
+	void freeReserved( CoreAccess & access ) override;
 
 private:
 	int m_amount;
+	bool m_reserved = false;
 };
 
 class SkynetTaskRequirementGas : public SkynetTaskRequirement
@@ -21,9 +23,11 @@ public:
 
 	int getEarliestTime( CoreAccess & access ) override;
 	void reserveTime( CoreAccess & access, int time ) override;
+	void freeReserved( CoreAccess & access ) override;
 
 private:
 	int m_amount;
+	bool m_reserved = false;
 };
 
 class SkynetTaskRequirementSupply : public SkynetTaskRequirement
@@ -33,7 +37,9 @@ public:
 
 	int getEarliestTime( CoreAccess & access ) override;
 	void reserveTime( CoreAccess & access, int time ) override;
+	void freeReserved( CoreAccess & access ) override;
 
 private:
 	int m_amount;
+	bool m_reserved = false;
 };

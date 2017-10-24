@@ -24,8 +24,15 @@ public:
 	void addRequirementGas( int amount ) override;
 	void addRequirementSupply( int amount ) override;
 
-	void addRequirementUnit( UnitType unit_type, int duration, Position starting_position = Positions::None, Position ending_position = Positions::None ) override;
-	void addRequirementUnit( UnitType unit_type, Position starting_position = Positions::None, Position ending_position = Positions::None ) override;
+	void addRequirementUnit( UnitType unit_type ) override;
+	void addRequirementUnit( UnitType unit_type, Position starting_position, Position ending_position ) override;
+	void addRequirementUnit( UnitType unit_type, int duration ) override;
+	void addRequirementUnit( UnitType unit_type, int duration, Position starting_position, Position ending_position ) override;
+
+	void addRequirementUnit( Unit unit ) override;
+	void addRequirementUnit( Unit unit, Position starting_position, Position ending_position ) override;
+	void addRequirementUnit( Unit unit, int duration ) override;
+	void addRequirementUnit( Unit unit, int duration, Position starting_position, Position ending_position ) override;
 
 private:
 	SkynetTaskManager & m_task_manager;

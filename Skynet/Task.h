@@ -13,8 +13,15 @@ public:
 	virtual void addRequirementGas( int amount ) = 0;
 	virtual void addRequirementSupply( int amount ) = 0;
 
-	virtual void addRequirementUnit( UnitType unit_type, int duration, Position starting_position = Positions::None, Position ending_position = Positions::None ) = 0;
-	virtual void addRequirementUnit( UnitType unit_type, Position starting_position = Positions::None, Position ending_position = Positions::None ) = 0;
+	virtual void addRequirementUnit( UnitType unit_type ) = 0;
+	virtual void addRequirementUnit( UnitType unit_type, Position starting_position, Position ending_position ) = 0;
+	virtual void addRequirementUnit( UnitType unit_type, int duration ) = 0;
+	virtual void addRequirementUnit( UnitType unit_type, int duration, Position starting_position, Position ending_position ) = 0;
+
+	virtual void addRequirementUnit( Unit unit ) = 0;
+	virtual void addRequirementUnit( Unit unit, Position starting_position, Position ending_position ) = 0;
+	virtual void addRequirementUnit( Unit unit, int duration ) = 0;
+	virtual void addRequirementUnit( Unit unit, int duration, Position starting_position, Position ending_position ) = 0;
 
 	virtual ~TaskInterface() {}
 };

@@ -10,6 +10,7 @@ class SkynetTaskRequirement
 public:
 	virtual int getEarliestTime( CoreAccess & access ) = 0;
 	virtual void reserveTime( CoreAccess & access, int time ) = 0;
+	virtual void freeReserved( CoreAccess & access ) = 0;
 
 	virtual ~SkynetTaskRequirement() {}
 };
@@ -17,7 +18,8 @@ public:
 class SkynetTaskRequirementUnit
 {
 public:
-	virtual int getReserveEarliestTime( CoreAccess & access, int current_earliest_time, int & travel_time ) = 0;
+	virtual int getReserveEarliestTime( CoreAccess & access, int current_earliest_time ) = 0;
+	virtual void freeReserved( CoreAccess & access ) = 0;
 
 	virtual Unit getChosenUnit() const = 0;
 

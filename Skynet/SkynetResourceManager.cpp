@@ -26,16 +26,37 @@ void SkynetResourceManager::reserveTaskResource( int time, int amount, std::vect
 
 void SkynetResourceManager::reserveTaskMinerals( int time, int amount )
 {
-	reserveTaskResource( time, amount, m_task_reserved_minerals );
+	if( time <= 0 )
+		m_reserved_minerals += amount;
+	else
+		reserveTaskResource( time, amount, m_task_reserved_minerals );
 }
 
 void SkynetResourceManager::reserveTaskGas( int time, int amount )
 {
-	reserveTaskResource( time, amount, m_task_reserved_gas );
+	if( time <= 0 )
+		m_reserved_gas += amount;
+	else
+		reserveTaskResource( time, amount, m_task_reserved_gas );
 }
 
 void SkynetResourceManager::reserveTaskSupply( int time, int amount )
 {
+}
+
+void SkynetResourceManager::freeTaskMinerals( int amount )
+{
+	m_reserved_minerals -= amount;
+}
+
+void SkynetResourceManager::freeTaskGas( int amount )
+{
+	m_reserved_gas -= amount;
+}
+
+void SkynetResourceManager::freeTaskSupply( int amount )
+{
+	m_reserved_supply -= amount;
 }
 
 int SkynetResourceManager::earliestAvailability( int required_amount, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const
@@ -97,12 +118,12 @@ int SkynetResourceManager::earliestAvailability( int required_amount, double fre
 
 int SkynetResourceManager::earliestMineralAvailability( int amount ) const
 {
-	return earliestAvailability( amount, BWAPI::Broodwar->self()->minerals(), m_mineral_rate, m_task_reserved_minerals );
+	return earliestAvailability( amount, BWAPI::Broodwar->self()->minerals() - m_reserved_minerals, m_mineral_rate, m_task_reserved_minerals );
 }
 
 int SkynetResourceManager::earliestGasAvailability( int amount ) const
 {
-	return earliestAvailability( amount, BWAPI::Broodwar->self()->gas(), m_gas_rate, m_task_reserved_gas );
+	return earliestAvailability( amount, BWAPI::Broodwar->self()->gas() - m_reserved_gas, m_gas_rate, m_task_reserved_gas );
 }
 
 int SkynetResourceManager::earliestSupplyAvailability( int amount ) const
