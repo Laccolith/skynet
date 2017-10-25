@@ -44,6 +44,19 @@ Unit SkynetTaskRequirementUnitType::getChosenUnit() const
 	return m_chosen_unit;
 }
 
+int SkynetTaskRequirementUnitType::getRemainingUnitTime( CoreAccess & access ) const
+{
+	return m_chosen_unit ? access.getUnitManager().remainingReservedTaskTime( m_chosen_unit ) : 0;
+}
+
+void SkynetTaskRequirementUnitType::requestUnitTimeChange( CoreAccess & access, int time )
+{
+	if( m_chosen_unit )
+	{
+		access.getUnitManager().modifyReservedTaskTime( m_chosen_unit, time );
+	}
+}
+
 int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units )
 {
 	m_chosen_unit = nullptr;
@@ -149,4 +162,17 @@ void SkynetTaskRequirementUnitSpecific::freeReserved( CoreAccess & access )
 Unit SkynetTaskRequirementUnitSpecific::getChosenUnit() const
 {
 	return m_is_reserved ? m_unit : nullptr;
+}
+
+int SkynetTaskRequirementUnitSpecific::getRemainingUnitTime( CoreAccess & access ) const
+{
+	return m_is_reserved ? access.getUnitManager().remainingReservedTaskTime( m_unit ) : 0;
+}
+
+void SkynetTaskRequirementUnitSpecific::requestUnitTimeChange( CoreAccess & access, int time )
+{
+	if( m_is_reserved )
+	{
+		access.getUnitManager().modifyReservedTaskTime( m_unit, time );
+	}
 }

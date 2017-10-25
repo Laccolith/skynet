@@ -11,6 +11,7 @@
 #include "SkynetBaseTracker.h"
 #include "SkynetResourceManager.h"
 #include "SkynetTaskManager.h"
+#include "SkynetControlTaskFactory.h"
 
 SkynetCore::SkynetCore()
 {
@@ -24,6 +25,7 @@ SkynetCore::SkynetCore()
 	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
 	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
+	m_control_task_factory = std::make_unique<SkynetControlTaskFactory>( *this );
 
 	std::sort( m_update_processes.begin(), m_update_processes.end(), []( const std::pair<float, std::function<void()>> & lhs, const std::pair<float, std::function<void()>> & rhs )
 	{
@@ -38,16 +40,7 @@ SkynetCore::~SkynetCore() = default;
 
 void SkynetCore::update()
 {
-	static int training_progress = 0;
-
-	static std::unique_ptr<TaskInterface> train_task;
-	if( !train_task && training_progress == 0 )
-	{
-		train_task = getTaskManager().createTask();
-		train_task->addRequirementMineral( UnitTypes::Protoss_Probe.mineralPrice() );
-		//train_task->addRequirementSupply( UnitTypes::Protoss_Probe.supplyRequired() );
-		train_task->addRequirementUnit( UnitTypes::Protoss_Nexus, UnitTypes::Protoss_Probe.buildTime() );
-	}
+	static auto train_task = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
 
 	for( auto & e : BWAPI::Broodwar->getEvents() )
 	{
@@ -84,30 +77,6 @@ void SkynetCore::update()
 
 	for( auto & update : m_update_processes )
 		update.second();
-
-	if( train_task && train_task->requirementsFulfilled() )
-	{
-		if( training_progress == 0 )
-		{
-			train_task->getAssignedUnit()->train( UnitTypes::Protoss_Probe );
-			training_progress = 1;
-		}
-		else if( training_progress == 1 )
-		{
-			Unit previous_unit = train_task->getAssignedUnit();
-			train_task = getTaskManager().createTask();
-			train_task->addRequirementUnit( previous_unit, previous_unit->getRemainingTrainTime() );
-			training_progress = 2;
-		}
-		else if( training_progress == 2 )
-		{
-			if( !train_task->getAssignedUnit()->isTraining() )
-			{
-				training_progress = 3;
-				train_task.reset();
-			}
-		}
-	}
 }
 
 void SkynetCore::registerModule( CoreModule & inter )

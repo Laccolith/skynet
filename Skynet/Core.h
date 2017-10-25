@@ -11,6 +11,7 @@ class TerrainAnalyserInterface;
 class BaseTrackerInterface;
 class ResourceManagerInterface;
 class TaskManagerInterface;
+class ControlTaskFactoryInterface;
 
 class Core
 {
@@ -42,6 +43,9 @@ public:
 
 	virtual TaskManagerInterface & getTaskManager() = 0;
 	virtual const TaskManagerInterface & getTaskManager() const = 0;
+
+	virtual ControlTaskFactoryInterface & getControlTaskFactory() = 0;
+	virtual const ControlTaskFactoryInterface & getControlTaskFactory() const = 0;
 
 	~Core() {}
 };

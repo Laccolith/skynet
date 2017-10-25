@@ -23,5 +23,8 @@ public:
 
 	virtual Unit getChosenUnit() const = 0;
 
+	virtual int getRemainingUnitTime( CoreAccess & access ) const = 0;
+	virtual void requestUnitTimeChange( CoreAccess & access, int time ) = 0;
+
 	virtual ~SkynetTaskRequirementUnit() {}
 };

@@ -15,6 +15,9 @@ public:
 
 	Unit getChosenUnit() const override;
 
+	int getRemainingUnitTime( CoreAccess & access ) const override;
+	void requestUnitTimeChange( CoreAccess & access, int time ) override;
+
 private:
 	UnitType m_unit_type;
 	int m_duration;
@@ -36,6 +39,9 @@ public:
 	void freeReserved( CoreAccess & access ) override;
 
 	Unit getChosenUnit() const override;
+
+	int getRemainingUnitTime( CoreAccess & access ) const override;
+	void requestUnitTimeChange( CoreAccess & access, int time ) override;
 
 private:
 	Unit m_unit;

@@ -18,6 +18,9 @@ public:
 	void reserveTaskUnit( Unit unit, int start_time, int end_time, Position starting_position = Positions::None, Position ending_position = Positions::None ) override;
 	void freeTaskUnit( Unit unit ) override;
 
+	int remainingReservedTaskTime( Unit unit ) const override;
+	void modifyReservedTaskTime( Unit unit, int time ) override;
+
 private:
 	struct UnitTimePoint
 	{

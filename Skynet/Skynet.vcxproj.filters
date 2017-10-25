@@ -55,6 +55,15 @@
     <Filter Include="UnitManager\Skynet">
       <UniqueIdentifier>{29989414-8fe7-4957-92aa-346f5b2a6b3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ControlTaskFactory">
+      <UniqueIdentifier>{b3d11e07-245e-4bcc-b764-2b7a17f4795a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ControlTaskFactory\SkynetControlTaskFactory">
+      <UniqueIdentifier>{1b44c4b2-9c82-49f2-91de-efd669600031}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ControlTaskFactory\SkynetControlTaskFactory\Tasks">
+      <UniqueIdentifier>{ba6a58ad-1001-4f77-8ab9-fccc38ff2f43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -131,6 +140,15 @@
     </ClCompile>
     <ClCompile Include="SkynetTaskRequirementResource.cpp">
       <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetControlTaskFactory.cpp">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetControlTaskTrain.cpp">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetControlTask.cpp">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +295,21 @@
     </ClInclude>
     <ClInclude Include="SkynetTaskRequirementResource.h">
       <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlTaskFactory.h">
+      <Filter>ControlTaskFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTaskFactory.h">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTaskTrain.h">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlTask.h">
+      <Filter>ControlTaskFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTask.h">
+      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

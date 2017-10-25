@@ -14,4 +14,7 @@ public:
 
 	virtual void reserveTaskUnit( Unit unit, int start_time, int end_time, Position starting_position = Positions::None, Position ending_position = Positions::None ) = 0;
 	virtual void freeTaskUnit( Unit unit ) = 0;
+
+	virtual int remainingReservedTaskTime( Unit unit ) const = 0;
+	virtual void modifyReservedTaskTime( Unit unit, int time ) = 0;
 };

@@ -181,3 +181,21 @@ void SkynetUnitManager::freeTaskUnit( Unit unit )
 	unit_timing.available_time = 0;
 	unit_timing.available_position = Positions::None;
 }
+
+int SkynetUnitManager::remainingReservedTaskTime( Unit unit ) const
+{
+	auto it = m_unit_timings.find( unit );
+	if( it == m_unit_timings.end() )
+		return 0;
+
+	return it->second.available_time;
+}
+
+void SkynetUnitManager::modifyReservedTaskTime( Unit unit, int time )
+{
+	auto it = m_unit_timings.find( unit );
+	if( it != m_unit_timings.end() )
+	{
+		it->second.available_time += time;
+	}
+}

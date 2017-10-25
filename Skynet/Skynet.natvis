@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="BWAPI::Type&lt;*,*&gt;">
+    <DisplayString>{typeNames[tid]}</DisplayString>
+    <Expand>
+      <Item Name="Name">typeNames[tid]</Item>
+      <Item Name="ID">tid</Item>
+    </Expand>
+  </Type>
   
   <Type Name="RectangleArray&lt;*,*&gt;">
     <DisplayString>{{width={m_width} height={m_height}}}</DisplayString>

@@ -41,6 +41,9 @@ public:
 	TaskManagerInterface & getTaskManager() override { return *m_task_manager; }
 	const TaskManagerInterface & getTaskManager() const override { return *m_task_manager; }
 
+	ControlTaskFactoryInterface & getControlTaskFactory() override { return *m_control_task_factory; }
+	const ControlTaskFactoryInterface & getControlTaskFactory() const override { return *m_control_task_factory; }
+
 private:
 	bool m_in_startup = true;
 
@@ -55,4 +58,5 @@ private:
 	std::unique_ptr<BaseTrackerInterface> m_base_tracker;
 	std::unique_ptr<ResourceManagerInterface> m_resource_tracker;
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
+	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
 };
