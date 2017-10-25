@@ -199,3 +199,39 @@ void SkynetUnitManager::modifyReservedTaskTime( Unit unit, int time )
 		it->second.available_time += time;
 	}
 }
+
+int SkynetUnitManager::getFreeTime( Unit unit ) const
+{
+	auto it = m_unit_timings.find( unit );
+	if( it == m_unit_timings.end() )
+		return max_time;
+
+	if( it->second.available_time > 0 )
+		return 0;
+
+	if( it->second.time_points.empty() )
+		return max_time;
+
+	auto& time_point = it->second.time_points.front();
+
+	int first_free_time = time_point.start_time;
+	int previous_time = 0;
+	int idle_time = 0;
+
+	for( auto & time_point : it->second.time_points )
+	{
+		idle_time += time_point.start_time - previous_time;
+
+		if( time_point.starting_position != Positions::None )
+		{
+			int travel_time = getTravelTime( unit, unit->getPosition(), time_point.starting_position );
+			idle_time -= travel_time;
+
+			return std::max( idle_time, first_free_time );
+		}
+
+		previous_time = time_point.end_time;
+	}
+
+	return first_free_time;
+}

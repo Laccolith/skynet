@@ -17,4 +17,6 @@ public:
 
 	virtual int remainingReservedTaskTime( Unit unit ) const = 0;
 	virtual void modifyReservedTaskTime( Unit unit, int time ) = 0;
+
+	virtual int getFreeTime( Unit unit ) const = 0;
 };

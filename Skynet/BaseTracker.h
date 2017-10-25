@@ -2,9 +2,14 @@
 
 #include "CoreModule.h"
 
+#include "Messaging.h"
 #include "Base.h"
 
-class BaseTrackerInterface : public CoreModule
+struct BasesRecreated
+{
+};
+
+class BaseTrackerInterface : public CoreModule, public MessageReporter<BasesRecreated>
 {
 public:
 	BaseTrackerInterface( Core & core ) : CoreModule( core, "BaseTracker" ) {}

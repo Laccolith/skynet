@@ -6,7 +6,7 @@
 SkynetControlTaskFactory::SkynetControlTaskFactory( Core & core )
 	: ControlTaskFactoryInterface( core )
 {
-	core.registerUpdateProcess( 5.0f, [this]() { preUpdate(); } );
+	core.registerUpdateProcess( 3.0f, [this]() { preUpdate(); } );
 	core.registerUpdateProcess( 5.0f, [this]() { postUpdate(); } );
 }
 

@@ -25,7 +25,7 @@ private:
 	std::vector<Base> m_bases;
 	std::vector<std::unique_ptr<SkynetBase>> m_base_storage;
 
-	RectangleArray<Base, TILEPOSITION_SCALE> m_tile_to_base;
+	RectangleArray<SkynetBase*, TILEPOSITION_SCALE> m_tile_to_base;
 
 	DEFINE_DEBUGGING_INTERFACE( Default );
 };

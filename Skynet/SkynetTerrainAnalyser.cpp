@@ -21,11 +21,11 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 
 void SkynetTerrainAnalyser::update()
 {
-	/*if( !m_processed_data.m_analysed )
+	if( !m_processed_data.m_analysed )
 	{
 		process( m_processed_data, getResources() );
 		postMessage<TerrainAnalysed>();
-	}*/
+	}
 
 	if( isDebugging( Debug::Default ) && BWAPI::Broodwar->getKeyState( BWAPI::Key( '6' ) ) )
 		++m_reprocess_request;

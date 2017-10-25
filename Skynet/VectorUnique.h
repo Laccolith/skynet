@@ -41,6 +41,11 @@ public:
 		}
 	}
 
+	T operator[]( SizeType i ) const
+	{
+		return m_values[i];
+	}
+
 	void reserve( SizeType size ) { m_values.reserve( size ); }
 
 	ConstIterator begin() const { return m_values.begin(); }

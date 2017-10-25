@@ -9,6 +9,7 @@
 #include "SkynetUnitManager.h"
 #include "SkynetTerrainAnalyser.h"
 #include "SkynetBaseTracker.h"
+#include "SkynetBaseManager.h"
 #include "SkynetResourceManager.h"
 #include "SkynetTaskManager.h"
 #include "SkynetControlTaskFactory.h"
@@ -23,6 +24,7 @@ SkynetCore::SkynetCore()
 	m_unit_manager = std::make_unique<SkynetUnitManager>( *this );
 	m_terrain_analyser = std::make_unique<SkynetTerrainAnalyser>( *this );
 	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
+	m_base_manager = std::make_unique<SkynetBaseManager>( *this );
 	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
 	m_control_task_factory = std::make_unique<SkynetControlTaskFactory>( *this );
@@ -40,7 +42,15 @@ SkynetCore::~SkynetCore() = default;
 
 void SkynetCore::update()
 {
-	static auto train_task = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task1 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task2 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task3 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task4 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task5 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task6 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task7 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task8 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
+	static auto train_task9 = getControlTaskFactory().createTrainControlTask( UnitTypes::Protoss_Probe );
 
 	for( auto & e : BWAPI::Broodwar->getEvents() )
 	{

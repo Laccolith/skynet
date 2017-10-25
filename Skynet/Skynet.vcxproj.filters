@@ -58,10 +58,16 @@
     <Filter Include="ControlTaskFactory">
       <UniqueIdentifier>{b3d11e07-245e-4bcc-b764-2b7a17f4795a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ControlTaskFactory\SkynetControlTaskFactory">
+    <Filter Include="BaseManager">
+      <UniqueIdentifier>{ed9c9a50-734c-4135-bfce-f4c03d606752}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BaseManager\Skynet">
+      <UniqueIdentifier>{3d883ccc-9214-4bce-bd74-878ae0e9caf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ControlTaskFactory\Skynet">
       <UniqueIdentifier>{1b44c4b2-9c82-49f2-91de-efd669600031}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ControlTaskFactory\SkynetControlTaskFactory\Tasks">
+    <Filter Include="ControlTaskFactory\Skynet\Tasks">
       <UniqueIdentifier>{ba6a58ad-1001-4f77-8ab9-fccc38ff2f43}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -142,13 +148,16 @@
       <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClCompile>
     <ClCompile Include="SkynetControlTaskFactory.cpp">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory</Filter>
+      <Filter>ControlTaskFactory\Skynet</Filter>
     </ClCompile>
     <ClCompile Include="SkynetControlTaskTrain.cpp">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClCompile>
     <ClCompile Include="SkynetControlTask.cpp">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBaseManager.cpp">
+      <Filter>BaseManager\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,16 +309,22 @@
       <Filter>ControlTaskFactory</Filter>
     </ClInclude>
     <ClInclude Include="SkynetControlTaskFactory.h">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory</Filter>
+      <Filter>ControlTaskFactory\Skynet</Filter>
     </ClInclude>
     <ClInclude Include="SkynetControlTaskTrain.h">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="ControlTask.h">
       <Filter>ControlTaskFactory</Filter>
     </ClInclude>
     <ClInclude Include="SkynetControlTask.h">
-      <Filter>ControlTaskFactory\SkynetControlTaskFactory\Tasks</Filter>
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseManager.h">
+      <Filter>BaseManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBaseManager.h">
+      <Filter>BaseManager\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -185,6 +185,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SkynetBaseManager.cpp" />
     <ClCompile Include="SkynetControlTask.cpp" />
     <ClCompile Include="SkynetControlTaskFactory.cpp" />
     <ClCompile Include="SkynetControlTaskTrain.cpp" />
@@ -217,12 +218,14 @@ copy "bwapi.ini" "%25BWAPIData%25"
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="BaseLocation.h" />
+    <ClInclude Include="BaseManager.h" />
     <ClInclude Include="BaseTracker.h" />
     <ClInclude Include="Chokepoint.h" />
     <ClInclude Include="ControlTask.h" />
     <ClInclude Include="ControlTaskFactory.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreAccess.h" />
+    <ClInclude Include="SkynetBaseManager.h" />
     <ClInclude Include="SkynetControlTask.h" />
     <ClInclude Include="SkynetControlTaskFactory.h" />
     <ClInclude Include="SkynetControlTaskTrain.h" />

@@ -21,6 +21,8 @@ public:
 	int remainingReservedTaskTime( Unit unit ) const override;
 	void modifyReservedTaskTime( Unit unit, int time ) override;
 
+	int getFreeTime( Unit unit ) const override;
+
 private:
 	struct UnitTimePoint
 	{

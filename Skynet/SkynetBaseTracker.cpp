@@ -22,7 +22,10 @@ void SkynetBaseTracker::update()
 
 void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 {
-	std::map<Region, std::vector<Base>> region_to_base;
+	m_bases.clear();
+	m_base_storage.clear();
+
+	std::map<Region, std::vector<SkynetBase*>> region_to_base;
 
 	for( auto base_location : getTerrainAnalyser().getBaseLocations() )
 	{
@@ -70,10 +73,10 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 			if( !region )
 				continue;
 
-			std::vector<Base> & region_bases = region_to_base[region];
+			std::vector<SkynetBase*> & region_bases = region_to_base[region];
 			if( region_bases.size() > 1 ) // Multiple possible bases, use closest
 			{
-				Base base_to_use = nullptr;
+				SkynetBase* base_to_use = nullptr;
 				int distance = std::numeric_limits<int>::max();
 
 				for( auto base : region_bases )
@@ -107,5 +110,5 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 	}
 
 	for( TilePosition start_location : BWAPI::Broodwar->getStartLocations() )
-		static_cast<SkynetBase*>(m_tile_to_base[start_location])->m_is_start_location = true;
+		m_tile_to_base[start_location]->m_is_start_location = true;
 }
