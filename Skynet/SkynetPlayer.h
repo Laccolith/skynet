@@ -17,6 +17,8 @@ public:
 	bool isEnemy( Player player ) const override;
 	bool isNeutral() const override;
 
+	Race getRace() const override;
+
 	Color getColor() const override;
 
 	int getUpgradeLevel( UpgradeType upgrade ) const override;

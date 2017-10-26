@@ -22,6 +22,8 @@ public:
 	const UnitGroup & getAllUnits( UnitType type, Player player ) const override;
 	const UnitGroup & getAllUnits( Player player ) const override;
 
+	const UnitGroup & getSupplyUnits( Player player ) const override;
+
 	UnitGroup getAllEnemyUnits( Player player ) const override;
 	UnitGroup getAllEnemyUnits( UnitType type, Player player ) const override;
 
@@ -32,6 +34,7 @@ private:
 
 	std::vector<std::array<UnitGroup, (int) UnitTypes::Enum::Unknown>> m_player_to_type_to_units;
 	std::vector<UnitGroup> m_player_to_units;
+	std::vector<UnitGroup> m_player_to_supply_units;
 
 	UnitGroup m_all_units;
 

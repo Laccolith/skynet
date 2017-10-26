@@ -15,6 +15,8 @@ public:
 	virtual bool isEnemy( Player player ) const = 0;
 	virtual bool isNeutral() const = 0;
 
+	virtual Race getRace() const = 0;
+
 	virtual Color getColor() const = 0;
 
 	virtual int getUpgradeLevel( UpgradeType upgrade ) const = 0;

@@ -32,6 +32,11 @@ bool SkynetPlayer::isNeutral() const
 	return m_player->isNeutral();
 }
 
+Race SkynetPlayer::getRace() const
+{
+	return m_player->getRace();
+}
+
 Color SkynetPlayer::getColor() const
 {
 	return m_player->getColor();

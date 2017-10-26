@@ -2,17 +2,35 @@
 
 #include "SkynetTaskRequirement.h"
 #include "Types.h"
+#include "PlayerTracker.h"
+#include "UnitTracker.h"
 
 SkynetResourceManager::SkynetResourceManager( Core & core )
 	: ResourceManagerInterface( core )
 {
 	core.registerUpdateProcess( 2.0f, [this]() { update(); } );
+
+	// Assume all workers start mining on the first frame
+	m_mineral_rate = 4 * (8 / 180.0);
 }
 
 void SkynetResourceManager::update()
 {
 	m_task_reserved_minerals.clear();
 	m_task_reserved_gas.clear();
+	m_task_reserved_supply.clear();
+
+	int time_now = BWAPI::Broodwar->getFrameCount();
+
+	auto player = getPlayerTracker().getLocalPlayer();
+
+	for( auto unit : getUnitTracker().getSupplyUnits( player ) )
+	{
+		if( unit->exists() && !unit->isCompleted() )
+		{
+			reserveTaskResource( unit->getCompletedTime() - time_now, -unit->getType().supplyProvided(), m_task_reserved_supply );
+		}
+	}
 }
 
 void SkynetResourceManager::reserveTaskResource( int time, int amount, std::vector<ResourceTiming> & m_reserved_timings )
@@ -42,6 +60,10 @@ void SkynetResourceManager::reserveTaskGas( int time, int amount )
 
 void SkynetResourceManager::reserveTaskSupply( int time, int amount )
 {
+	if( time <= 0 )
+		m_reserved_supply += amount;
+	else
+		reserveTaskResource( time, amount, m_task_reserved_supply );
 }
 
 void SkynetResourceManager::freeTaskMinerals( int amount )
@@ -83,13 +105,18 @@ int SkynetResourceManager::earliestAvailability( int required_amount, double fre
 		{
 			if( free_amount >= required_amount )
 			{
-				if( resource_rate <= 0 )
-					return max_time;
-
 				free_amount -= required_amount;
-				previous_free_amount -= required_amount;
 				currently_available = true;
-				earliest_time = last_time + int( std::ceil( -previous_free_amount / resource_rate ) );
+
+				if( resource_rate > 0 )
+				{
+					previous_free_amount -= required_amount;
+					earliest_time = std::min( last_time + int( std::ceil( -previous_free_amount / resource_rate ) ), time_point.time );
+				}
+				else
+				{
+					earliest_time = time_point.time;
+				}
 			}
 		}
 		else
@@ -128,5 +155,5 @@ int SkynetResourceManager::earliestGasAvailability( int amount ) const
 
 int SkynetResourceManager::earliestSupplyAvailability( int amount ) const
 {
-	return 0;
+	return earliestAvailability( amount, BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed() - m_reserved_supply, 0.0, m_task_reserved_supply );
 }

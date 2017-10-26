@@ -41,6 +41,8 @@ public:
 	virtual const UnitGroup & getAllUnits( UnitType type, Player player ) const = 0;
 	virtual const UnitGroup & getAllUnits( Player player ) const = 0;
 
+	virtual const UnitGroup & getSupplyUnits( Player player ) const = 0;
+
 	virtual UnitGroup getAllEnemyUnits( Player player ) const = 0;
 	virtual UnitGroup getAllEnemyUnits( UnitType type, Player player ) const = 0;
 };

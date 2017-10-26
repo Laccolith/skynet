@@ -31,6 +31,7 @@ private:
 	};
 	std::vector<ResourceTiming> m_task_reserved_minerals;
 	std::vector<ResourceTiming> m_task_reserved_gas;
+	std::vector<ResourceTiming> m_task_reserved_supply;
 
 	int m_reserved_minerals = 0;
 	int m_reserved_gas = 0;

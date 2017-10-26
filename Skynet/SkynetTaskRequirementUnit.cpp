@@ -106,7 +106,7 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 		m_chosen_unit = nullptr;
 	}
 
-	return current_earliest_time;
+	return best_time;
 }
 
 SkynetTaskRequirementUnitSpecific::SkynetTaskRequirementUnitSpecific( Unit unit, int duration, Position starting_position, Position ending_position )
@@ -150,7 +150,7 @@ int SkynetTaskRequirementUnitSpecific::getReserveEarliestTime( CoreAccess & acce
 		m_is_reserved = true;
 	}
 
-	return current_earliest_time;
+	return earliest_time;
 }
 
 void SkynetTaskRequirementUnitSpecific::freeReserved( CoreAccess & access )

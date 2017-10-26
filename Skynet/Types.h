@@ -13,6 +13,8 @@ typedef BWAPI::Point<float, BWAPI::TILEPOSITION_SCALE> TilePositionFloat;
 typedef BWAPI::Point<float, BWAPI::WALKPOSITION_SCALE> WalkPositionFloat;
 typedef BWAPI::Point<float, BWAPI::POSITION_SCALE> PositionFloat;
 
+using BWAPI::Race;
+namespace Races = BWAPI::Races;
 using BWAPI::UnitType;
 namespace UnitTypes = BWAPI::UnitTypes;
 using BWAPI::UpgradeType;

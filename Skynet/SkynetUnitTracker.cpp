@@ -7,6 +7,7 @@ SkynetUnitTracker::SkynetUnitTracker( Core & core )
 {
 	m_player_to_type_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
 	m_player_to_units.resize( BWAPI::Broodwar->getPlayers().size() );
+	m_player_to_supply_units.resize( BWAPI::Broodwar->getPlayers().size() );
 
 	core.registerUpdateProcess( 0.0f, [this]() { update(); } );
 }
@@ -47,6 +48,11 @@ const UnitGroup & SkynetUnitTracker::getAllUnits( UnitType type, Player player )
 const UnitGroup & SkynetUnitTracker::getAllUnits( Player player ) const
 {
 	return m_player_to_units[player->getID()];
+}
+
+const UnitGroup & SkynetUnitTracker::getSupplyUnits( Player player ) const
+{
+	return m_player_to_supply_units[player->getID()];
 }
 
 UnitGroup SkynetUnitTracker::getAllEnemyUnits( Player player ) const
@@ -137,6 +143,9 @@ void SkynetUnitTracker::onDiscover( Unit unit )
 	m_player_to_units[unit->getPlayer()->getID()].insert( unit );
 	m_all_units.insert( unit );
 
+	if( unit->getType().supplyProvided() > 0 )
+		m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit );
+
 	postMessage( UnitDiscover{ unit } );
 }
 
@@ -152,12 +161,21 @@ void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType
 
 		m_player_to_type_to_units[last_player->getID()][last_type].remove( unit );
 		m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit );
+
+		if( last_type.supplyProvided() > 0 )
+			m_player_to_supply_units[last_player->getID()].remove( unit );
+
+		if( unit->getType().supplyProvided() > 0 )
+			m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit );
 	}
 	else
 	{
 		auto & player_units = m_player_to_type_to_units[unit->getPlayer()->getID()];
 		player_units[last_type].remove( unit );
 		player_units[unit->getType()].insert( unit );
+
+		if( last_type.supplyProvided() > 0 && unit->getType().supplyProvided() <= 0 )
+			m_player_to_supply_units[unit->getPlayer()->getID()].remove( unit );
 	}
 
 	postMessage( UnitMorphRenegade{ unit, passed_last_player, passed_last_type } );
