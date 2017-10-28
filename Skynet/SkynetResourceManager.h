@@ -23,6 +23,9 @@ public:
 	int earliestGasAvailability( int amount ) const override;
 	int earliestSupplyAvailability( int amount ) const override;
 
+	void setMineralRate( double mineral_rate ) override { m_mineral_rate = mineral_rate; }
+	void setGasRate( double gas_rate ) override { m_gas_rate = gas_rate; }
+
 private:
 	struct ResourceTiming
 	{

@@ -18,4 +18,7 @@ public:
 	virtual int earliestMineralAvailability( int amount ) const = 0;
 	virtual int earliestGasAvailability( int amount ) const = 0;
 	virtual int earliestSupplyAvailability( int amount ) const = 0;
+
+	virtual void setMineralRate( double mineral_rate ) = 0;
+	virtual void setGasRate( double gas_rate ) = 0;
 };

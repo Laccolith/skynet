@@ -11,6 +11,8 @@
 #include <atomic>
 #include <queue>
 #include <array>
+#include <fstream>
+#include <filesystem>
 
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	: TerrainAnalyserInterface( core )
@@ -23,7 +25,12 @@ void SkynetTerrainAnalyser::update()
 {
 	if( !m_processed_data.m_analysed )
 	{
-		process( m_processed_data, getResources() );
+		if( !tryLoadData() )
+		{
+			process( m_processed_data, getResources() );
+			saveData();
+		}
+		
 		postMessage<TerrainAnalysed>();
 	}
 
@@ -754,4 +761,211 @@ void SkynetTerrainAnalyser::checkData()
 			return new_data;
 		} );
 	}
+}
+
+const unsigned int data_version_number = 1;
+
+template <typename T>
+void writeData( std::ofstream & file, T value )
+{
+	file.write( (const char *) &value, sizeof( T ) );
+}
+
+template <typename T>
+T readData( std::ifstream & file )
+{
+	T value;
+	file.read( (char *) &value, sizeof( T ) );
+	return value;
+}
+
+bool SkynetTerrainAnalyser::tryLoadData()
+{
+#if defined(_DEBUG)
+	std::string map_hash = BWAPI::Broodwar->mapHash();
+	std::string directory = "bwapi-data/Skynet/TerrainAnalysis/";
+
+	std::ifstream file( directory + map_hash + ".dat", std::ios_base::binary );
+
+	if( !file.good() )
+		return false;
+
+	unsigned int version_number = readData<unsigned int>( file );
+
+	if( data_version_number != version_number )
+		return false;
+
+	WalkPosition map_size = readData<WalkPosition>( file );
+
+	if( map_size != m_map_size )
+		return false;
+
+	unsigned int num_regions = readData<unsigned int>( file );
+	for( unsigned int i = 0; i < num_regions; ++i )
+	{
+		WalkPosition pos = readData<WalkPosition>( file );
+		int clearance = readData<int>( file );
+		int connectivity = readData<int>( file );
+		int size = readData<int>( file );
+
+		m_processed_data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( pos, clearance, connectivity ) );
+		m_processed_data.m_region_storage.back()->setSize( size );
+		m_processed_data.m_regions.push_back( m_processed_data.m_region_storage.back().get() );
+	}
+
+	unsigned int num_chokepoints = readData<unsigned int>( file );
+	for( unsigned int i = 0; i < num_chokepoints; ++i )
+	{
+		WalkPosition center = readData<WalkPosition>( file );
+		WalkPosition side1 = readData<WalkPosition>( file );
+		WalkPosition side2 = readData<WalkPosition>( file );
+		int clearance = readData<int>( file );
+		unsigned int region_id_1 = readData<unsigned int>( file );
+		unsigned int region_id_2 = readData<unsigned int>( file );
+
+		m_processed_data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( center, side1, side2, clearance ) );
+		m_processed_data.m_chokepoints.push_back( m_processed_data.m_chokepoint_storage.back().get() );
+
+		m_processed_data.m_chokepoint_storage.back()->setRegion1( m_processed_data.m_regions[region_id_1] );
+		m_processed_data.m_region_storage[region_id_1]->addChokepoint( m_processed_data.m_chokepoints.back() );
+
+		m_processed_data.m_chokepoint_storage.back()->setRegion2( m_processed_data.m_regions[region_id_2] );
+		m_processed_data.m_region_storage[region_id_2]->addChokepoint( m_processed_data.m_chokepoints.back() );
+	}
+
+	unsigned int num_base_locations = readData<unsigned int>( file );
+	for( unsigned int i = 0; i < num_base_locations; ++i )
+	{
+		TilePosition build_location = readData<TilePosition>( file );
+		unsigned int region_id = readData<unsigned int>( file );
+
+		UnitGroup resouces;
+
+		unsigned int num_resources = readData<unsigned int>( file );
+		for( unsigned int j = 0; j < num_resources; ++j )
+		{
+			resouces.insert( getUnitTracker().getUnit( BWAPI::Broodwar->getUnit( readData<int>( file ) ) ) );
+		}
+
+		m_processed_data.m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( build_location, m_processed_data.m_regions[region_id], resouces ) );
+		m_processed_data.m_base_locations.push_back( m_processed_data.m_base_location_storage.back().get() );
+		m_processed_data.m_region_storage[region_id]->addBase( m_processed_data.m_base_locations.back() );
+	}
+
+	unsigned int connectivity_count = readData<unsigned int>( file );
+	m_processed_data.m_connectivity_to_small_obstacles.resize( connectivity_count );
+	for( unsigned int i = 0; i < connectivity_count; ++i )
+	{
+		m_processed_data.m_connectivity_to_small_obstacles[i] = readData<bool>( file );
+	}
+
+	m_processed_data.m_tile_to_region.resize( m_map_size.x, m_map_size.y, nullptr );
+	m_processed_data.m_tile_clearance.resize( m_map_size.x, m_map_size.y, m_map_size.x + m_map_size.y );
+	m_processed_data.m_tile_connectivity.resize( m_map_size.x, m_map_size.y, -1 );
+	m_processed_data.m_tile_to_closest_obstacle.resize( m_map_size.x, m_map_size.y );
+
+	for( int x = 0; x < m_map_size.x; ++x )
+	{
+		for( int y = 0; y < m_map_size.y; ++y )
+		{
+			WalkPosition pos( x, y );
+
+			m_processed_data.m_tile_to_region[pos] = m_processed_data.m_region_storage[readData<unsigned int>( file )].get();
+			m_processed_data.m_tile_clearance[pos] = readData<int>( file );
+			m_processed_data.m_tile_connectivity[pos] = readData<int>( file );
+			m_processed_data.m_tile_to_closest_obstacle[pos] = readData<WalkPosition>( file );
+		}
+	}
+
+	m_processed_data.m_analysed = true;
+
+	return true;
+#else
+	return false;
+#endif
+	
+}
+
+void SkynetTerrainAnalyser::saveData()
+{
+#if defined(_DEBUG)
+	std::string map_hash = BWAPI::Broodwar->mapHash();
+	std::string directory = "bwapi-data/Skynet/TerrainAnalysis/";
+
+	std::experimental::filesystem::path fs_dir( directory );
+	if( !std::experimental::filesystem::exists( fs_dir ) )
+	{
+		std::experimental::filesystem::create_directories( fs_dir );
+	}
+
+	std::map<Region, unsigned int> region_ids;
+	unsigned int region_id_counter = 0;
+	for( auto & region : m_processed_data.m_region_storage )
+	{
+		region_ids[region.get()] = region_id_counter;
+		++region_id_counter;
+	}
+
+	std::ofstream file( directory + map_hash + ".dat", std::ios_base::trunc | std::ios_base::binary );
+
+	writeData( file, data_version_number );
+	writeData( file, m_map_size );
+
+	writeData( file, (unsigned int) m_processed_data.m_region_storage.size() );
+	for( auto & region : m_processed_data.m_region_storage )
+	{
+		writeData( file, region->getCenter() );
+		writeData( file, region->getClearance() );
+		writeData( file, region->getConnectivity() );
+		writeData( file, region->getSize() );
+	}
+
+	writeData( file, (unsigned int) m_processed_data.m_chokepoint_storage.size() );
+	for( auto & chokepoint : m_processed_data.m_chokepoint_storage )
+	{
+		writeData( file, chokepoint->getCenter() );
+		writeData( file, chokepoint->getSides().first );
+		writeData( file, chokepoint->getSides().second );
+		writeData( file, chokepoint->getClearance() );
+		writeData( file, region_ids[chokepoint->getRegions().first] );
+		writeData( file, region_ids[chokepoint->getRegions().second] );
+	}
+
+	writeData( file, (unsigned int) m_processed_data.m_base_location_storage.size() );
+	for( auto & base_location : m_processed_data.m_base_location_storage )
+	{
+		writeData( file, base_location->getBuildLocation() );
+		writeData( file, region_ids[base_location->getRegion()] );
+
+		writeData( file, (unsigned int) base_location->getStaticMinerals().size() + (unsigned int) base_location->getStaticGeysers().size() );
+		for( auto mineral : base_location->getStaticMinerals() )
+		{
+			writeData( file, mineral->getBWAPIUnit()->getID() );
+		}
+
+		for( auto geyser : base_location->getStaticGeysers() )
+		{
+			writeData( file, geyser->getBWAPIUnit()->getID() );
+		}
+	}
+
+	writeData( file, (unsigned int) m_processed_data.m_connectivity_to_small_obstacles.size() );
+	for( bool small_obstacle : m_processed_data.m_connectivity_to_small_obstacles )
+	{
+		writeData( file, small_obstacle );
+	}
+
+	for( int x = 0; x < m_map_size.x; ++x )
+	{
+		for( int y = 0; y < m_map_size.y; ++y )
+		{
+			WalkPosition pos( x, y );
+
+			writeData( file, region_ids[m_processed_data.m_tile_to_region[pos]] );
+			writeData( file, m_processed_data.m_tile_clearance[pos] );
+			writeData( file, m_processed_data.m_tile_connectivity[pos] );
+			writeData( file, m_processed_data.m_tile_to_closest_obstacle[pos] );
+		}
+	}
+#endif
 }

@@ -3,6 +3,7 @@
 #include "UnitTracker.h"
 #include "UnitManager.h"
 #include "PlayerTracker.h"
+#include "ResourceManager.h"
 
 SkynetBaseManager::SkynetBaseManager( Core & core )
 	: BaseManagerInterface( core )
@@ -21,7 +22,7 @@ void SkynetBaseManager::update()
 
 	auto player = getPlayerTracker().getLocalPlayer();
 
-	int probe_index = 0;
+	int num_mining = 0;
 	for( auto probe : getUnitTracker().getAllUnits( UnitTypes::Protoss_Probe, player ) )
 	{
 		if( getUnitManager().getFreeTime( probe ) < current_latency )
@@ -32,17 +33,17 @@ void SkynetBaseManager::update()
 			continue;
 
 		auto minerals = base->getMinerals();
-		size_t garther_index = probe_index % minerals.size();
+		size_t garther_index = num_mining % minerals.size();
 
 		auto mineral = minerals[garther_index];
 
 		if( probe->isCarryingGas() || probe->isCarryingMinerals() )
-		{
 			probe->returnCargo();
-		}
 		else
 			probe->gather( mineral );
 
-		++probe_index;
+		++num_mining;
 	}
+
+	getResourceManager().setMineralRate( double(num_mining) * (8.0 / 180.0) );
 }

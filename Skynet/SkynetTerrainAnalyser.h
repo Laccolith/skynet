@@ -109,6 +109,9 @@ private:
 	UnitGroup getResources();
 	void checkData();
 
+	bool tryLoadData();
+	void saveData();
+
 	std::vector<std::unique_ptr<SkynetRegion>> m_old_regions;
 	std::vector<std::unique_ptr<SkynetChokepoint>> m_old_chokepoints;
 	std::vector<std::unique_ptr<SkynetBaseLocation>> m_old_base_locations;

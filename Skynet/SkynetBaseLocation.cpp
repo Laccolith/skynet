@@ -14,7 +14,7 @@ void SkynetBaseLocation::addResources( const UnitGroup & resources )
 {
 	for( Unit resource : resources )
 	{
-		if( resource->getType() == UnitTypes::Resource_Mineral_Field )
+		if( resource->getType().isMineralField() )
 			m_minerals.insert( resource );
 		else
 			m_geysers.insert( resource );
