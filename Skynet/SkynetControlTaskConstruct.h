@@ -22,7 +22,6 @@ public:
 
 private:
 	UnitType m_unit_type;
-	bool m_has_started = false;
 	bool m_has_finished = false;
 	Unit m_build_unit = nullptr;
 

@@ -17,6 +17,10 @@ public:
 private:
 	struct BaseData
 	{
+		UnitGroup sorted_minerals;
+		UnitGroup available_workers;
+		std::map<Unit, Unit> worker_to_mineral;
+		std::map<Unit, UnitGroup> mineral_to_workers;
 	};
 	std::map<Base, BaseData> m_base_data;
 };

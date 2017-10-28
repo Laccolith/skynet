@@ -1408,4 +1408,5 @@ void SkynetUnit::update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterfac
 void SkynetUnit::markDead()
 {
 	m_access_type = UnitAccessType::Dead;
+	m_unit = nullptr;
 }

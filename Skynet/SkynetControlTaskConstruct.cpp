@@ -13,7 +13,7 @@ SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory
 
 bool SkynetControlTaskConstruct::isInProgress() const
 {
-	return m_has_started || m_has_finished;
+	return m_build_unit || m_has_finished;
 }
 
 bool SkynetControlTaskConstruct::isFinished() const
@@ -25,7 +25,7 @@ void SkynetControlTaskConstruct::preUpdate()
 {
 	if( m_build_unit )
 	{
-		if( !m_has_started )
+		if( m_unit_discover_listener )
 		{
 			m_unit_discover_listener.reset();
 
@@ -42,13 +42,15 @@ void SkynetControlTaskConstruct::preUpdate()
 			{
 				m_task.reset();
 			}
-			
-			m_has_started = true;
 		}
 
 		if( m_build_unit->isCompleted() )
 		{
 			m_has_finished = true;
+			m_build_unit = nullptr;
+		}
+		else if( !m_build_unit->exists() )
+		{
 			m_build_unit = nullptr;
 		}
 	}
@@ -59,14 +61,23 @@ void SkynetControlTaskConstruct::preUpdate()
 		return;
 	}
 
-	if( m_unit_type.getRace() == Races::Terran && m_build_unit )
+	if( m_task )
 	{
-		int remaining_construct_time = m_build_unit->getTimeTillCompleted();
-		int remaining_unit_time = m_task->getRemainingUnitTime();
-		if( remaining_construct_time != remaining_unit_time )
+		auto producer = m_task->getAssignedUnit();
+		if( producer && !producer->exists() )
 		{
-			int time_change_required = remaining_construct_time - remaining_unit_time;
-			m_task->requestUnitTimeChange( time_change_required );
+			createTask();
+		}
+
+		if( m_unit_type.getRace() == Races::Terran && m_build_unit )
+		{
+			int remaining_construct_time = m_build_unit->getTimeTillCompleted();
+			int remaining_unit_time = m_task->getRemainingUnitTime();
+			if( remaining_construct_time != remaining_unit_time )
+			{
+				int time_change_required = remaining_construct_time - remaining_unit_time;
+				m_task->requestUnitTimeChange( time_change_required );
+			}
 		}
 	}
 }
@@ -83,10 +94,9 @@ void SkynetControlTaskConstruct::postUpdate()
 	{
 		if( !producer->isConstructing() )
 		{
-			if( m_has_started )
+			if( m_build_unit )
 			{
-				createTask();
-				m_has_started = false;
+				producer->build( m_build_unit );
 			}
 			else
 			{
@@ -111,12 +121,15 @@ void SkynetControlTaskConstruct::createTask()
 {
 	m_task = getAccess().getTaskManager().createTask();
 
-	if( m_unit_type.mineralPrice() > 0 )
-		m_reserved_resources.push_back( m_task->addRequirementMineral( m_unit_type.mineralPrice() ) );
-	if( m_unit_type.gasPrice() > 0 )
-		m_reserved_resources.push_back( m_task->addRequirementGas( m_unit_type.gasPrice() ) );
-	if( m_unit_type.supplyRequired() > 0 )
-		m_reserved_resources.push_back( m_task->addRequirementSupply( m_unit_type.supplyRequired() ) );
+	if( !m_build_unit )
+	{
+		if( m_unit_type.mineralPrice() > 0 )
+			m_reserved_resources.push_back( m_task->addRequirementMineral( m_unit_type.mineralPrice() ) );
+		if( m_unit_type.gasPrice() > 0 )
+			m_reserved_resources.push_back( m_task->addRequirementGas( m_unit_type.gasPrice() ) );
+		if( m_unit_type.supplyRequired() > 0 )
+			m_reserved_resources.push_back( m_task->addRequirementSupply( m_unit_type.supplyRequired() ) );
+	}
 
 	int required_duration = m_unit_type.getRace() == Races::Zerg ? max_time : m_unit_type.getRace() == Races::Protoss ? BWAPI::Broodwar->getLatencyFrames() : m_unit_type.buildTime();
 

@@ -113,6 +113,8 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 
 	for( Unit unit : getUnitTracker().getAllUnits() )
 		notify( UnitDiscover{ unit } );
+
+	postMessage( BasesRecreated{} );
 }
 
 void SkynetBaseTracker::notify( const UnitDiscover & message )

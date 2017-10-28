@@ -41,6 +41,12 @@ public:
 		}
 	}
 
+	template <typename Pred>
+	void removeIf( Pred pred )
+	{
+		m_values.erase( std::remove_if( m_values.begin(), m_values.end(), pred ), m_values.end() );
+	}
+
 	T operator[]( SizeType i ) const
 	{
 		return m_values[i];
@@ -56,6 +62,11 @@ public:
 
 	void clear() { m_values.clear(); }
 	void swap( VectorUnique &other ) { m_values.swap( other.m_values ); }
+
+	bool contains( T val )
+	{
+		return std::find( m_values.begin(), m_values.end(), val ) != m_values.end();
+	}
 
 	template<typename Compare>
 	void sort( Compare compare )
