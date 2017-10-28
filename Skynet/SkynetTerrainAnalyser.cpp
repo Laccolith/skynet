@@ -841,11 +841,11 @@ bool SkynetTerrainAnalyser::tryLoadData()
 
 		UnitGroup resouces;
 
-		unsigned int num_resources = readData<unsigned int>( file );
+		/*unsigned int num_resources = readData<unsigned int>( file );
 		for( unsigned int j = 0; j < num_resources; ++j )
 		{
 			resouces.insert( getUnitTracker().getUnit( BWAPI::Broodwar->getUnit( readData<int>( file ) ) ) );
-		}
+		}*/
 
 		m_processed_data.m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( build_location, m_processed_data.m_regions[region_id], resouces ) );
 		m_processed_data.m_base_locations.push_back( m_processed_data.m_base_location_storage.back().get() );
@@ -874,6 +874,29 @@ bool SkynetTerrainAnalyser::tryLoadData()
 			m_processed_data.m_tile_clearance[pos] = readData<int>( file );
 			m_processed_data.m_tile_connectivity[pos] = readData<int>( file );
 			m_processed_data.m_tile_to_closest_obstacle[pos] = readData<WalkPosition>( file );
+		}
+	}
+
+	for( const UnitGroup &resource_cluster : getResources().getClusters( 260, 3 ) )
+	{
+		TilePosition resouce_tile_position( resource_cluster.getCenter() );
+
+		SkynetBaseLocation* best_base_location = nullptr;
+		int best_distance = m_map_size.x * m_map_size.y;
+
+		for( auto & base_location : m_processed_data.m_base_location_storage )
+		{
+			int distance = base_location->getBuildLocation().getApproxDistance( resouce_tile_position );
+			if( distance < best_distance )
+			{
+				best_distance = distance;
+				best_base_location = base_location.get();
+			}
+		}
+
+		if( best_base_location )
+		{
+			best_base_location->addResources( resource_cluster );
 		}
 	}
 
@@ -937,7 +960,7 @@ void SkynetTerrainAnalyser::saveData()
 		writeData( file, base_location->getBuildLocation() );
 		writeData( file, region_ids[base_location->getRegion()] );
 
-		writeData( file, (unsigned int) base_location->getStaticMinerals().size() + (unsigned int) base_location->getStaticGeysers().size() );
+		/*writeData( file, (unsigned int) base_location->getStaticMinerals().size() + (unsigned int) base_location->getStaticGeysers().size() );
 		for( auto mineral : base_location->getStaticMinerals() )
 		{
 			writeData( file, mineral->getBWAPIUnit()->getID() );
@@ -946,7 +969,7 @@ void SkynetTerrainAnalyser::saveData()
 		for( auto geyser : base_location->getStaticGeysers() )
 		{
 			writeData( file, geyser->getBWAPIUnit()->getID() );
-		}
+		}*/
 	}
 
 	writeData( file, (unsigned int) m_processed_data.m_connectivity_to_small_obstacles.size() );
