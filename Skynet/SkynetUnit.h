@@ -7,8 +7,8 @@ class SkynetUnitTracker;
 class SkynetUnit : public UnitInterface
 {
 public:
-	SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker );
-	SkynetUnit( int id, Player player, Position pos, UnitType type, int startTime );
+	SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker );
+	SkynetUnit( int id, Player player, Position pos, UnitType type, int time_till_start );
 
 	int getID() const override { return m_id; }
 
@@ -31,11 +31,11 @@ public:
 
 	BWAPI::Unit getBWAPIUnit() const override;
 	bool exists() const override;
-	int getExistTime() const override;
+	int getTimeTillExists() const override;
 
 	bool isMorphing() const override;
 	bool isCompleted() const override;
-	int getCompletedTime() const override;
+	int getTimeTillCompleted() const override;
 
 	bool isConstructing() const override;
 	bool isBeingConstructed() const override;
@@ -153,10 +153,10 @@ public:
 	void useTech( TechType tech, Unit target ) override;
 
 	void promote( BWAPI::Unit unit );
-	void setBuildTime( int time );
+	void setBuildTime( int time_till_start );
 	void setPosition( Position position );
 
-	void update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker );
+	void update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker );
 	void markDead();
 
 private:
@@ -182,7 +182,7 @@ private:
 
 	bool m_completed = false;
 	bool m_morphing = false;
-	int m_completed_time = 0;
+	int m_time_till_completed = 0;
 
 	int m_exists_time = 0;
 	int m_delete_timer = 0;

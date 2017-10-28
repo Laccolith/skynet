@@ -6,7 +6,7 @@
 #include "MapUtil.h"
 #include "DrawingUtil.h"
 
-SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker )
+SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker )
 	: m_unit( unit )
 	, m_id( id )
 {
@@ -17,18 +17,18 @@ SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unitTracke
 		m_morphing = unit->isMorphing();
 	}
 
-	update( unitTracker, playerTracker );
+	update( unit_tracker, player_tracker );
 
 	if( useable )
 	{
 		if( !isCompleted() )
-			m_completed_time = BWAPI::Broodwar->getFrameCount() + unit->getType().buildTime();
+			m_time_till_completed = unit->getType().buildTime();
 		else if( isMorphing() )
-			m_completed_time = BWAPI::Broodwar->getFrameCount() + unit->getBuildType().buildTime();
+			m_time_till_completed = unit->getBuildType().buildTime();
 	}
 }
 
-SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int startTime )
+SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int time_till_start )
 	: m_id( id )
 	, m_position( pos )
 	, m_target_position( pos )
@@ -36,8 +36,8 @@ SkynetUnit::SkynetUnit( int id, Player player, Position pos, UnitType type, int 
 	, m_player( player )
 	, m_last_player( player )
 	, m_updated_time( BWAPI::Broodwar->getFrameCount() )
-	, m_completed_time( startTime + type.buildTime() )
-	, m_exists_time( startTime )
+	, m_time_till_completed( time_till_start + type.buildTime() )
+	, m_exists_time( time_till_start )
 {
 }
 
@@ -215,12 +215,12 @@ bool SkynetUnit::exists() const
 	return m_unit && m_unit->exists();
 }
 
-int SkynetUnit::getExistTime() const
+int SkynetUnit::getTimeTillExists() const
 {
 	if( m_unit && m_unit->exists() )
-		return BWAPI::Broodwar->getFrameCount();
+		return 0;
 
-	return std::max( m_exists_time, BWAPI::Broodwar->getFrameCount() + 1 );
+	return m_exists_time;
 }
 
 bool SkynetUnit::isMorphing() const
@@ -239,7 +239,7 @@ bool SkynetUnit::isMorphing() const
 	if( !m_morphing )
 		return false;
 
-	return m_completed_time > BWAPI::Broodwar->getFrameCount();
+	return m_time_till_completed > 0;
 }
 
 bool SkynetUnit::isCompleted() const
@@ -261,31 +261,31 @@ bool SkynetUnit::isCompleted() const
 	if( m_completed )
 		return true;
 
-	return m_completed_time <= BWAPI::Broodwar->getFrameCount();
+	return m_time_till_completed <= 0;
 }
 
-int SkynetUnit::getCompletedTime() const
+int SkynetUnit::getTimeTillCompleted() const
 {
 	if( isCompleted() )
-		return BWAPI::Broodwar->getFrameCount();
+		return 0;
 
 	if( exists() )
 	{
 		if( m_unit->getPlayer() == BWAPI::Broodwar->self() )
-			return BWAPI::Broodwar->getFrameCount() + m_unit->getRemainingBuildTime();
+			return m_unit->getRemainingBuildTime();
 	}
 	else
 	{
-		const int existsTime = getExistTime();
+		const int existsTime = getTimeTillExists();
 		const int completeTime = existsTime + getType().buildTime();
 
 		if( completeTime < existsTime )
-			return std::numeric_limits<int>::max();
+			return max_time;
 		else
 			return completeTime;
 	}
 
-	return std::max( m_completed_time, BWAPI::Broodwar->getFrameCount() + 1 );
+	return std::max( m_time_till_completed, 1 );
 }
 
 bool SkynetUnit::isConstructing() const
@@ -439,7 +439,7 @@ void SkynetUnit::drawUnitPosition() const
 
 	if( (!isCompleted() || isMorphing()) && accessibility() != UnitAccessType::Prediction )
 	{
-		float progress = static_cast<float>(getCompletedTime() - BWAPI::Broodwar->getFrameCount());
+		float progress = static_cast<float>(getTimeTillCompleted());
 
 		if( isMorphing() )
 			progress /= getBuildType().buildTime();
@@ -483,8 +483,8 @@ void SkynetUnit::drawUnitPosition() const
 	UnitAccessType access = accessibility();
 	BWAPI::Broodwar->drawTextMap( pos.x + type.dimensionRight(), pos.y + 10, "%s", toString( access ).c_str() );
 
-	int existTime = getExistTime() - BWAPI::Broodwar->getFrameCount();
-	int completeTime = getCompletedTime() - BWAPI::Broodwar->getFrameCount() - existTime;
+	int existTime = getTimeTillExists();
+	int completeTime = getTimeTillCompleted() - existTime;
 	BWAPI::Broodwar->drawTextMap( pos.x + type.dimensionRight(), pos.y + 20, "%d : %d", existTime, completeTime );
 
 	if( isMorphing() )
@@ -1347,13 +1347,10 @@ void SkynetUnit::promote( BWAPI::Unit unit )
 	m_access_type = UnitAccessType::Full;
 }
 
-void SkynetUnit::setBuildTime( int time )
+void SkynetUnit::setBuildTime( int time_till_start )
 {
-	m_exists_time = time;
-
-	m_completed_time = time + getType().buildTime();
-	if( m_completed_time < time )
-		m_completed_time = std::numeric_limits<int>::max();
+	m_exists_time = time_till_start;
+	m_time_till_completed = time_till_start + getType().buildTime();
 }
 
 void SkynetUnit::setPosition( Position position )
@@ -1362,9 +1359,14 @@ void SkynetUnit::setPosition( Position position )
 	m_target_position = position;
 }
 
-void SkynetUnit::update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface & playerTracker )
+void SkynetUnit::update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker )
 {
-	m_player = m_unit ? playerTracker.getPlayer( m_unit->getPlayer() ) : m_last_player;
+	if( m_exists_time > 1 )
+		--m_exists_time;
+	if( m_time_till_completed > 0 )
+		--m_time_till_completed;
+
+	m_player = m_unit ? player_tracker.getPlayer( m_unit->getPlayer() ) : m_last_player;
 
 	if( !exists() )
 		return;
@@ -1376,7 +1378,7 @@ void SkynetUnit::update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface
 	m_position = m_unit->getPosition();
 	m_target_position = m_unit->getTargetPosition();
 	m_type = m_unit->getType();
-	m_last_player = playerTracker.getPlayer( m_unit->getPlayer() );
+	m_last_player = player_tracker.getPlayer( m_unit->getPlayer() );
 
 	m_resources = m_unit->getResources();
 	m_health = m_unit->getHitPoints();
@@ -1386,21 +1388,21 @@ void SkynetUnit::update( SkynetUnitTracker & unitTracker, PlayerTrackerInterface
 	m_is_sieged = m_unit->isSieged();
 
 	if( m_completed && !m_unit->isCompleted() )
-		m_completed_time = BWAPI::Broodwar->getFrameCount() + m_unit->getType().buildTime();
+		m_time_till_completed = m_unit->getType().buildTime();
 	m_completed = m_unit->isCompleted();
 
 	if( !m_morphing && m_unit->isMorphing() )
-		m_completed_time = BWAPI::Broodwar->getFrameCount() + m_unit->getBuildType().buildTime();
+		m_time_till_completed = m_unit->getBuildType().buildTime();
 	m_morphing = m_unit->isMorphing();
 
 	if( m_unit->getPlayer() == BWAPI::Broodwar->self() )
-		m_completed_time = BWAPI::Broodwar->getFrameCount() + m_unit->getRemainingBuildTime();
+		m_time_till_completed = m_unit->getRemainingBuildTime();
 	else if( m_unit->isCompleted() && !m_unit->isMorphing() )
-		m_completed_time = BWAPI::Broodwar->getFrameCount();
+		m_time_till_completed = 0;
 
-	if( m_unit->getOrderTarget() ) m_order_target = unitTracker.getUnit( m_unit->getOrderTarget() );
-	if( m_unit->getTarget() )m_target = unitTracker.getUnit( m_unit->getTarget() );
-	if( m_unit->getBuildUnit() )m_build_unit = unitTracker.getUnit( m_unit->getBuildUnit() );
+	m_order_target = m_unit->getOrderTarget() ? unit_tracker.getUnit( m_unit->getOrderTarget() ) : nullptr;
+	m_target = m_unit->getTarget() ? unit_tracker.getUnit( m_unit->getTarget() ) : nullptr;
+	m_build_unit = m_unit->getBuildUnit() ? unit_tracker.getUnit( m_unit->getBuildUnit() ) : nullptr;
 }
 
 void SkynetUnit::markDead()

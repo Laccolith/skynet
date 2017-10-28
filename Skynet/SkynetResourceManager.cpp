@@ -20,15 +20,13 @@ void SkynetResourceManager::update()
 	m_task_reserved_gas.clear();
 	m_task_reserved_supply.clear();
 
-	int time_now = BWAPI::Broodwar->getFrameCount();
-
 	auto player = getPlayerTracker().getLocalPlayer();
 
 	for( auto unit : getUnitTracker().getSupplyUnits( player ) )
 	{
 		if( unit->exists() && !unit->isCompleted() )
 		{
-			reserveTaskResource( unit->getCompletedTime() - time_now, -unit->getType().supplyProvided(), m_task_reserved_supply );
+			reserveTaskResource( unit->getTimeTillCompleted(), -unit->getType().supplyProvided(), m_task_reserved_supply );
 		}
 	}
 }

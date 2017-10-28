@@ -47,6 +47,9 @@ public:
 	ControlTaskFactoryInterface & getControlTaskFactory() override { return *m_control_task_factory; }
 	const ControlTaskFactoryInterface & getControlTaskFactory() const override { return *m_control_task_factory; }
 
+	BuildLocationManagerInterface & getBuildLocationManager() override { return *m_build_location_manager; }
+	const BuildLocationManagerInterface & getBuildLocationManager() const override { return *m_build_location_manager; }
+
 private:
 	bool m_in_startup = true;
 
@@ -63,4 +66,5 @@ private:
 	std::unique_ptr<ResourceManagerInterface> m_resource_tracker;
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
 	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
+	std::unique_ptr<BuildLocationManagerInterface> m_build_location_manager;
 };

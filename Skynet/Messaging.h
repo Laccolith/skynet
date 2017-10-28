@@ -8,35 +8,35 @@ template <typename T>
 class MessageReporterBase;
 
 template <typename T>
-class MessageListener
+class MessageListenerBase
 {
 public:
-	MessageListener( MessageReporterBase<T> &handler )
+	MessageListenerBase( MessageReporterBase<T> &handler )
 		: m_handler( &handler )
 	{
 		m_handler->registerForMessage( this );
 	}
 
-	virtual ~MessageListener()
+	virtual ~MessageListenerBase()
 	{
 		m_handler->unRegisterForMessage( this );
 	}
 
 	virtual void notify( const T & message ) = 0;
 
-	MessageListener( const MessageListener & ) = delete;
-	MessageListener & operator=( const MessageListener & ) = delete;
+	MessageListenerBase( const MessageListenerBase & ) = delete;
+	MessageListenerBase & operator=( const MessageListenerBase & ) = delete;
 
 private:
 	MessageReporterBase<T> *m_handler;
 };
 
 template <typename T>
-class MessageListenerFunction : MessageListener<T>
+class MessageListenerFunction : MessageListenerBase<T>
 {
 public:
 	MessageListenerFunction( MessageReporterBase<T> &handler, std::function<void( const T & )> function )
-		: MessageListener( handler )
+		: MessageListenerBase<T>( handler )
 		, m_function( std::move( function ) )
 	{
 	}
@@ -65,16 +65,16 @@ public:
 	}
 
 private:
-	friend class MessageListener<T>;
+	friend class MessageListenerBase<T>;
 
-	std::vector<MessageListener<T>*> m_listeners;
+	std::vector<MessageListenerBase<T>*> m_listeners;
 
-	void registerForMessage( MessageListener<T>* listener )
+	void registerForMessage( MessageListenerBase<T>* listener )
 	{
 		m_listeners.emplace_back( listener );
 	}
 
-	void unRegisterForMessage( MessageListener<T>* listener )
+	void unRegisterForMessage( MessageListenerBase<T>* listener )
 	{
 		auto it = std::find( m_listeners.begin(), m_listeners.end(), listener );
 		if( it != m_listeners.end() )
@@ -100,5 +100,15 @@ public:
 	{
 		static_assert(std::is_base_of<MessageReporterBase<T>, MessageReporter>::value, "Message cannot handle that message type");
 		static_cast<MessageReporterBase<T>*>(this)->basePostMessage( T() );
+	}
+};
+
+template <typename... MESSSAGES>
+class MessageListener : public MessageListenerBase<MESSSAGES>...
+{
+public:
+	MessageListener( MessageReporter<MESSSAGES...> &handler )
+		: MessageListenerBase<MESSSAGES>(handler)...
+	{
 	}
 };

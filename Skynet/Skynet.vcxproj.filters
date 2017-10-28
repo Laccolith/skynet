@@ -70,6 +70,12 @@
     <Filter Include="ControlTaskFactory\Skynet\Tasks">
       <UniqueIdentifier>{ba6a58ad-1001-4f77-8ab9-fccc38ff2f43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BuildLocationManager">
+      <UniqueIdentifier>{91c2f4e6-4219-426c-aa80-03a96950a6af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BuildLocationManager\Skynet">
+      <UniqueIdentifier>{8550c6f6-67e8-4278-b2a6-062bcaf52591}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -158,6 +164,15 @@
     </ClCompile>
     <ClCompile Include="SkynetBaseManager.cpp">
       <Filter>BaseManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBuildLocation.cpp">
+      <Filter>BuildLocationManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBuildLocationManager.cpp">
+      <Filter>BuildLocationManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetControlTaskConstruct.cpp">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -325,6 +340,21 @@
     </ClInclude>
     <ClInclude Include="SkynetBaseManager.h">
       <Filter>BaseManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBuildLocation.h">
+      <Filter>BuildLocationManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBuildLocationManager.h">
+      <Filter>BuildLocationManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildLocation.h">
+      <Filter>BuildLocationManager</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildLocationManager.h">
+      <Filter>BuildLocationManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTaskConstruct.h">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

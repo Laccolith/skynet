@@ -35,6 +35,12 @@ public:
 	TaskManagerInterface & getTaskManager() { return m_core.getTaskManager(); }
 	const TaskManagerInterface & getTaskManager() const { return m_core.getTaskManager(); }
 
+	virtual ControlTaskFactoryInterface & getControlTaskFactory() { return m_core.getControlTaskFactory(); }
+	virtual const ControlTaskFactoryInterface & getControlTaskFactory() const { return m_core.getControlTaskFactory(); }
+
+	virtual BuildLocationManagerInterface & getBuildLocationManager() { return m_core.getBuildLocationManager(); }
+	virtual const BuildLocationManagerInterface & getBuildLocationManager() const { return m_core.getBuildLocationManager(); }
+
 private:
 	Core & m_core;
 };

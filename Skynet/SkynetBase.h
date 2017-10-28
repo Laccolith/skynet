@@ -2,13 +2,17 @@
 
 #include "Base.h"
 
+#include "CoreAccess.h"
+
 class SkynetBaseTracker;
-class SkynetBase : public BaseInterface
+class SkynetBase : public BaseInterface, public CoreAccess
 {
 public:
-	SkynetBase() {}
+	SkynetBase( CoreAccess & core_access, Position center_position, Region region, BaseLocation base_location );
+	SkynetBase( CoreAccess & core_access, Region region );
 
 	Position getCenterPosition() const override { return m_center_position; }
+	TilePosition getBuildPosition() const override { return m_build_position; }
 	BaseLocation getLocation() const override { return m_base_location; }
 	Region getRegion() const override { return m_region; }
 
@@ -32,12 +36,18 @@ public:
 
 	void draw() const override;
 
-protected:
-	friend SkynetBaseTracker;
+	void update();
 
-	Position m_center_position = Positions::None;
+	void mark_as_start_location() { m_is_start_location = true; }
+
+	void add_building( Unit building );
+	void remove_building( Unit building );
+
+private:
+	Position m_center_position;
+	TilePosition m_build_position;
+	Region m_region;
 	BaseLocation m_base_location = nullptr;
-	Region m_region = nullptr;
 
 	UnitGroup m_minerals;
 	UnitGroup m_geysers;

@@ -187,6 +187,7 @@ void SkynetUnitTracker::onDestroy( std::unique_ptr<SkynetUnit> & unit )
 
 	m_player_to_units[unit->getLastPlayer()->getID()].remove( unit.get() );
 	m_player_to_type_to_units[unit->getLastPlayer()->getID()][unit->getLastType()].remove( unit.get() );
+	m_player_to_supply_units[unit->getLastPlayer()->getID()].remove( unit );
 	m_all_units.remove( unit.get() );
 
 	postMessage( UnitDestroy{ unit.get() } );

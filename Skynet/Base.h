@@ -8,6 +8,7 @@ class BaseInterface
 {
 public:
 	virtual Position getCenterPosition() const = 0;
+	virtual TilePosition getBuildPosition() const = 0;
 	virtual BaseLocation getLocation() const = 0;
 	virtual Region getRegion() const = 0;
 

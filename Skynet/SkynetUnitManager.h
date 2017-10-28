@@ -10,7 +10,8 @@ class SkynetUnitManager : public UnitManagerInterface
 public:
 	SkynetUnitManager( Core & core );
 
-	void update();
+	void preUpdate();
+	void postUpdate();
 
 	int getAvailableTime( Unit unit, int ideal_time, int required_duration ) const override;
 	int getAvailableTime( Unit unit, int ideal_time, int required_duration, Position starting_position, Position ending_position = Positions::None ) const override;

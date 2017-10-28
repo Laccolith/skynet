@@ -22,6 +22,7 @@ public:
 	virtual void freeReserved( CoreAccess & access ) = 0;
 
 	virtual Unit getChosenUnit() const = 0;
+	virtual TilePosition getBuildPosition() const = 0;
 
 	virtual int getRemainingUnitTime( CoreAccess & access ) const = 0;
 	virtual void requestUnitTimeChange( CoreAccess & access, int time ) = 0;

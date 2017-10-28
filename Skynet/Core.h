@@ -13,6 +13,7 @@ class BaseManagerInterface;
 class ResourceManagerInterface;
 class TaskManagerInterface;
 class ControlTaskFactoryInterface;
+class BuildLocationManagerInterface;
 
 class Core
 {
@@ -50,6 +51,9 @@ public:
 
 	virtual ControlTaskFactoryInterface & getControlTaskFactory() = 0;
 	virtual const ControlTaskFactoryInterface & getControlTaskFactory() const = 0;
+
+	virtual BuildLocationManagerInterface & getBuildLocationManager() = 0;
+	virtual const BuildLocationManagerInterface & getBuildLocationManager() const = 0;
 
 	~Core() {}
 };

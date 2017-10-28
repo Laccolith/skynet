@@ -7,7 +7,7 @@
 class UnitGroup : public VectorUnique<Unit>
 {
 public:
-	SizeType countCompletedBy( int time ) const;
+	SizeType countCompletedIn( int time ) const;
 
 	Position getCenter() const;
 

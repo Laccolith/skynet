@@ -2,6 +2,7 @@
 
 #include "SkynetControlTask.h"
 #include "SkynetControlTaskTrain.h"
+#include "SkynetControlTaskConstruct.h"
 
 SkynetControlTaskFactory::SkynetControlTaskFactory( Core & core )
 	: ControlTaskFactoryInterface( core )
@@ -26,10 +27,30 @@ void SkynetControlTaskFactory::postUpdate()
 	}
 }
 
-std::unique_ptr<ControlTask> SkynetControlTaskFactory::createTrainControlTask( UnitType unit_type )
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( UnitType unit_type )
 {
-	auto control_task = std::make_unique<SkynetControlTaskTrain>( *this, unit_type );
-	m_control_tasks.push_back( control_task.get() );
+	std::unique_ptr<SkynetControlTask> control_task;
+
+	if( unit_type.getRace() == BWAPI::Races::Zerg && unit_type.isBuilding() == unit_type.whatBuilds().first.isBuilding() )
+	{
+		// TODO: Morph
+	}
+	else if( unit_type.isAddon() )
+	{
+		// TODO: Addon
+	}
+	else if( unit_type.isBuilding() )
+	{
+		control_task = std::make_unique<SkynetControlTaskConstruct>( *this, unit_type );
+	}
+	else
+	{
+		control_task = std::make_unique<SkynetControlTaskTrain>( *this, unit_type );
+	}
+
+	if( control_task )
+		m_control_tasks.push_back( control_task.get() );
+
 	return control_task;
 }
 

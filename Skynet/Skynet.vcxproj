@@ -186,7 +186,10 @@ copy "bwapi.ini" "%25BWAPIData%25"
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SkynetBaseManager.cpp" />
+    <ClCompile Include="SkynetBuildLocation.cpp" />
+    <ClCompile Include="SkynetBuildLocationManager.cpp" />
     <ClCompile Include="SkynetControlTask.cpp" />
+    <ClCompile Include="SkynetControlTaskConstruct.cpp" />
     <ClCompile Include="SkynetControlTaskFactory.cpp" />
     <ClCompile Include="SkynetControlTaskTrain.cpp" />
     <ClCompile Include="SkynetCore.cpp" />
@@ -220,13 +223,18 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="BaseLocation.h" />
     <ClInclude Include="BaseManager.h" />
     <ClInclude Include="BaseTracker.h" />
+    <ClInclude Include="BuildLocation.h" />
+    <ClInclude Include="BuildLocationManager.h" />
     <ClInclude Include="Chokepoint.h" />
     <ClInclude Include="ControlTask.h" />
     <ClInclude Include="ControlTaskFactory.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreAccess.h" />
     <ClInclude Include="SkynetBaseManager.h" />
+    <ClInclude Include="SkynetBuildLocation.h" />
+    <ClInclude Include="SkynetBuildLocationManager.h" />
     <ClInclude Include="SkynetControlTask.h" />
+    <ClInclude Include="SkynetControlTaskConstruct.h" />
     <ClInclude Include="SkynetControlTaskFactory.h" />
     <ClInclude Include="SkynetControlTaskTrain.h" />
     <ClInclude Include="SkynetCore.h" />

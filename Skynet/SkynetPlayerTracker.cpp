@@ -36,6 +36,11 @@ SkynetPlayerTracker::SkynetPlayerTracker( Core & core )
 	}
 }
 
+Player SkynetPlayerTracker::getPlayer( int player_id ) const
+{
+	return m_bwapi_players[player_id].get();
+}
+
 Player SkynetPlayerTracker::getPlayer( BWAPI::Player player ) const
 {
 	int player_id = player->getID();

@@ -37,11 +37,11 @@ public:
 
 	virtual BWAPI::Unit getBWAPIUnit() const = 0;
 	virtual bool exists() const = 0;
-	virtual int getExistTime() const = 0;
+	virtual int getTimeTillExists() const = 0;
 
 	virtual bool isMorphing() const = 0;
 	virtual bool isCompleted() const = 0;
-	virtual int getCompletedTime() const = 0;
+	virtual int getTimeTillCompleted() const = 0;
 
 	virtual bool isConstructing() const = 0;
 	virtual bool isBeingConstructed() const = 0;

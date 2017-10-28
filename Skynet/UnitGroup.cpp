@@ -2,14 +2,12 @@
 
 #include "Unit.h"
 
-UnitGroup::SizeType UnitGroup::countCompletedBy( int time ) const
+UnitGroup::SizeType UnitGroup::countCompletedIn( int time ) const
 {
-	const int &timeNow = BWAPI::Broodwar->getFrameCount();
-
 	int total = 0;
 	for( auto unit : *this )
 	{
-		if( unit->isCompleted() || unit->getCompletedTime() <= time )
+		if( unit->isCompleted() || unit->getTimeTillCompleted() <= time )
 			++total;
 	}
 	return total;

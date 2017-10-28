@@ -13,6 +13,7 @@ public:
 
 	Player getLocalPlayer() const override { return m_local_player; }
 	Player getNeutralPlayer() const override { return m_neutral_player; }
+	Player getPlayer( int player_id ) const override;
 	Player getPlayer( BWAPI::Player player ) const override;
 
 	const std::vector<Player> & getAllPlayers() const override { return m_all_players; }

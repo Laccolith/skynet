@@ -3,12 +3,47 @@
 #include "BaseLocation.h"
 #include "Unit.h"
 #include "Player.h"
+#include "Region.h"
+#include "PlayerTracker.h"
 
 template <typename ...ARGS>
 inline void drawLabel( Position pos, int &yOffset, const ARGS &... args )
 {
 	BWAPI::Broodwar->drawTextMap( pos.x + 60, pos.y - yOffset, args... );
 	yOffset -= 10;
+}
+
+SkynetBase::SkynetBase( CoreAccess & core_access, Position center_position, Region region, BaseLocation base_location )
+	: CoreAccess( core_access )
+	, m_center_position( center_position )
+	, m_build_position( base_location->getBuildLocation() )
+	, m_region( region )
+	, m_base_location( base_location )
+{
+	for( auto mineral : base_location->getStaticMinerals() )
+	{
+		if( mineral->accessibility() != UnitAccessType::Dead )
+			m_minerals.insert( mineral );
+	}
+
+	for( auto geyser : base_location->getStaticGeysers() )
+	{
+		if( geyser->getResources() <= 0 )
+			continue;
+
+		if( geyser->getType() == UnitTypes::Resource_Vespene_Geyser )
+			m_geysers.insert( geyser );
+		else
+			m_refineries.insert( geyser );
+	}
+}
+
+SkynetBase::SkynetBase( CoreAccess & core_access, Region region )
+	: CoreAccess( core_access )
+	, m_center_position( region->getCenter() )
+	, m_build_position( region->getCenter() )
+	, m_region( region )
+{
 }
 
 bool SkynetBase::isEnemyBase() const
@@ -78,4 +113,53 @@ void SkynetBase::draw() const
 		BWAPI::Broodwar->drawCircleMap( refinery->getPosition(), 32, BWAPI::Colors::Orange );
 		BWAPI::Broodwar->drawLineMap( refinery->getPosition(), m_center_position, BWAPI::Colors::Green );
 	}
+}
+
+void SkynetBase::update()
+{
+	static std::vector<int> player_building_counter;
+	if( player_building_counter.empty() )
+		player_building_counter.resize( BWAPI::Broodwar->getPlayers().size() );
+	else
+	{
+		for( auto & count : player_building_counter )
+			count = 0;
+	}
+
+	for( Unit building : m_buildings )
+	{
+		++player_building_counter[building->getPlayer()->getID()];
+	}
+
+	int invested_players = 0;
+	int highest_building_count = 0;
+	Player player = nullptr;
+
+	int player_id = 0;
+	for( auto count : player_building_counter )
+	{
+		if( count > 0 )
+			++invested_players;
+
+		if( count > highest_building_count )
+		{
+			highest_building_count = count;
+			player = getPlayerTracker().getPlayer( player_id );
+		}
+
+		++player_id;
+	}
+
+	m_player = player;
+	m_is_contested = invested_players > 1;
+}
+
+void SkynetBase::add_building( Unit building )
+{
+	m_buildings.insert( building );
+}
+
+void SkynetBase::remove_building( Unit building )
+{
+	m_buildings.remove( building );
 }
