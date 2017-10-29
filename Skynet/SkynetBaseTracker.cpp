@@ -22,7 +22,7 @@ const std::vector<Base> &SkynetBaseTracker::getAllBases( Player player ) const
 
 void SkynetBaseTracker::update()
 {
-	for( auto bases : m_player_bases )
+	for( auto & bases : m_player_bases )
 		bases.clear();
 
 	for( auto& base : m_base_storage )
