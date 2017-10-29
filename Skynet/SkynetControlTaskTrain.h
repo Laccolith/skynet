@@ -20,8 +20,7 @@ public:
 
 private:
 	UnitType m_unit_type;
-	bool m_has_started = false;
-	bool m_will_complete_next_frame = false;
+	Unit m_build_unit = nullptr;
 
 	std::vector<int> m_reserved_resources;
 	std::unique_ptr<TaskInterface> m_task;

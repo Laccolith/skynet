@@ -12,7 +12,7 @@ SkynetControlTaskTrain::SkynetControlTaskTrain( SkynetControlTaskFactory & skyne
 
 bool SkynetControlTaskTrain::isInProgress() const
 {
-	return !m_task || m_task->requirementsFulfilled();
+	return !m_task || m_build_unit;
 }
 
 bool SkynetControlTaskTrain::isFinished() const
@@ -22,9 +22,14 @@ bool SkynetControlTaskTrain::isFinished() const
 
 void SkynetControlTaskTrain::preUpdate()
 {
-	if( m_will_complete_next_frame )
+	if( m_build_unit && m_build_unit->isCompleted() )
 	{
 		m_task.reset();
+		m_build_unit = nullptr;
+	}
+
+	if( !m_task )
+	{
 		return;
 	}
 
@@ -33,7 +38,7 @@ void SkynetControlTaskTrain::preUpdate()
 	{
 		if( producer->isTraining() && producer->getTrainingQueue().front() == m_unit_type )
 		{
-			if( !m_has_started )
+			if( !m_build_unit )
 			{
 				for( auto id : m_reserved_resources )
 				{
@@ -41,8 +46,9 @@ void SkynetControlTaskTrain::preUpdate()
 				}
 
 				m_reserved_resources.clear();
-				m_has_started = true;
 			}
+
+			m_build_unit = producer->getBuildUnit();
 
 			int remaining_train_time = producer->getRemainingTrainTime();
 			int remaining_unit_time = m_task->getRemainingUnitTime();
@@ -51,11 +57,11 @@ void SkynetControlTaskTrain::preUpdate()
 				int time_change_required = remaining_train_time - remaining_unit_time;
 				m_task->requestUnitTimeChange( time_change_required );
 			}
-
-			if( remaining_train_time == 1 )
-			{
-				m_will_complete_next_frame = true;
-			}
+		}
+		else if( m_build_unit )
+		{
+			createTask();
+			m_build_unit = nullptr;
 		}
 	}
 }
@@ -72,15 +78,7 @@ void SkynetControlTaskTrain::postUpdate()
 	{
 		if( !producer->isTraining() )
 		{
-			if( m_has_started )
-			{
-				createTask();
-				m_has_started = false;
-			}
-			else
-			{
-				producer->train( m_unit_type );
-			}
+			producer->train( m_unit_type );
 		}
 		else if( producer->getTrainingQueue().front() != m_unit_type )
 		{
