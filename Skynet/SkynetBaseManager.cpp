@@ -86,7 +86,7 @@ void SkynetBaseManager::update()
 			continue;
 
 		auto base = getBaseTracker().getBase( worker->getTilePosition() );
-		if( !base || base->getResourceDepot() )
+		if( !base || !base->getResourceDepot() )
 			continue;
 
 		m_base_data[base].available_workers.insert( worker );

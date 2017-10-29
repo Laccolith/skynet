@@ -55,12 +55,12 @@ void SkynetCore::update()
 			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
 
 		for( int i = 0; i < 160; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot ) );
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
 
 		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
 
 		for( int i = 0; i < 4; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Gateway ) );
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
 
 		for( int i = 0; i < 25; ++i )
 			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
@@ -101,6 +101,15 @@ void SkynetCore::update()
 
 	for( auto & update : m_update_processes )
 		update.second();
+
+	if( BWAPI::Broodwar->getMouseState( BWAPI::MouseButton::M_MIDDLE ) )
+	{
+		Position mouse_position = BWAPI::Broodwar->getMousePosition() + BWAPI::Broodwar->getScreenPosition();
+		for( Unit unit : getUnitTracker().getAllUnits( UnitTypes::Protoss_Zealot, getPlayerTracker().getLocalPlayer() ) )
+		{
+			unit->attack( mouse_position );
+		}
+	}
 }
 
 void SkynetCore::registerModule( CoreModule & inter )
