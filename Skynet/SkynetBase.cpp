@@ -156,10 +156,16 @@ void SkynetBase::update()
 
 void SkynetBase::add_building( Unit building )
 {
+	if( m_base_location && building->getTilePosition() == m_base_location->getBuildLocation() )
+		m_resource_depot = building;
+
 	m_buildings.insert( building, true );
 }
 
 void SkynetBase::remove_building( Unit building )
 {
+	if( m_resource_depot == building )
+		m_resource_depot = nullptr;
+
 	m_buildings.remove( building );
 }

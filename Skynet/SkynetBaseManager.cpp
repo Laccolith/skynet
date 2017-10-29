@@ -9,6 +9,7 @@
 SkynetBaseManager::SkynetBaseManager( Core & core )
 	: BaseManagerInterface( core )
 	, MessageListener<BasesRecreated>( getBaseTracker() )
+	, MessageListener<UnitDestroy>( getUnitTracker() )
 {
 	core.registerUpdateProcess( 5.0f, [this]() { update(); } );
 }
@@ -32,6 +33,33 @@ void SkynetBaseManager::notify( const BasesRecreated & message )
 	}
 }
 
+void SkynetBaseManager::notify( const UnitDestroy & message )
+{
+	if( !message.unit->getType().isMineralField() )
+		return;
+
+	for( auto & base_data : m_base_data )
+	{
+		if( base_data.second.sorted_minerals.contains( message.unit ) )
+		{
+			base_data.second.sorted_minerals.remove( message.unit );
+
+			auto it = base_data.second.mineral_to_workers.find( message.unit );
+			if( it != base_data.second.mineral_to_workers.end() )
+			{
+				for( auto unit : it->second )
+				{
+					base_data.second.worker_to_mineral.erase( unit );
+				}
+
+				base_data.second.mineral_to_workers.erase( it );
+			}
+
+			break;
+		}
+	}
+}
+
 void SkynetBaseManager::update()
 {
 	if( isDebugging( Debug::Default ) )
@@ -51,7 +79,6 @@ void SkynetBaseManager::update()
 
 	auto player = getPlayerTracker().getLocalPlayer();
 
-	int num_mining = 0;
 	UnitGroup current_workers;
 	for( auto worker : getUnitTracker().getAllUnits( player->getRace().getWorker(), player ) )
 	{
@@ -59,15 +86,14 @@ void SkynetBaseManager::update()
 			continue;
 
 		auto base = getBaseTracker().getBase( worker->getTilePosition() );
-		if( !base )
+		if( !base || base->getResourceDepot() )
 			continue;
 
 		m_base_data[base].available_workers.insert( worker );
 		current_workers.insert( worker, true );
-		++num_mining;
 	}
 
-	getResourceManager().setMineralRate( double( num_mining ) * (8.0 / 180.0) );
+	double mineral_rate = 0.0;
 
 	for( auto & base_data : m_base_data )
 	{
@@ -87,6 +113,8 @@ void SkynetBaseManager::update()
 
 			return false;
 		} );
+
+		mineral_rate += double( std::min( base_data.second.available_workers.size(), base_data.second.sorted_minerals.size() * 3 ) ) * (8.0 / 180.0);
 
 		for( auto worker : base_data.second.available_workers )
 		{
@@ -117,4 +145,6 @@ void SkynetBaseManager::update()
 			}
 		}
 	}
+
+	getResourceManager().setMineralRate( mineral_rate );
 }

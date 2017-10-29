@@ -35,7 +35,7 @@ void SkynetResourceManager::reserveTaskResource( int time, int amount, std::vect
 {
 	auto it = std::upper_bound( m_reserved_timings.begin(), m_reserved_timings.end(), time, []( int time, auto & item ) { return item.time >= time; } );
 	if( it != m_reserved_timings.end() && it->time == time )
-		it->amount -= amount;
+		it->amount += amount;
 	else
 		m_reserved_timings.insert( it, ResourceTiming{ time, amount } );
 }

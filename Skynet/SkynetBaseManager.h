@@ -2,15 +2,17 @@
 
 #include "BaseManager.h"
 #include "BaseTracker.h"
+#include "UnitTracker.h"
 
 #include <vector>
 
-class SkynetBaseManager : public BaseManagerInterface, public MessageListener<BasesRecreated>
+class SkynetBaseManager : public BaseManagerInterface, public MessageListener<BasesRecreated>, public MessageListener<UnitDestroy>
 {
 public:
 	SkynetBaseManager( Core & core );
 
 	void notify( const BasesRecreated & message ) override;
+	void notify( const UnitDestroy & message ) override;
 
 	void update();
 
