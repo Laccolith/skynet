@@ -136,9 +136,12 @@ void SkynetBuildLocationManager::preUpdate()
 
 void SkynetBuildLocationManager::postUpdate()
 {
-	for( auto build_location : m_build_locations )
+	if( isDebugging( Debug::Default ) )
 	{
-		build_location->drawInfo();
+		for( auto build_location : m_build_locations )
+		{
+			build_location->drawInfo();
+		}
 	}
 }
 

@@ -58,4 +58,6 @@ private:
 	VectorUnique<SkynetBuildLocation*> m_build_locations;
 
 	void addToPowerTime( TilePosition tile_position, int time );
+
+	DEFINE_DEBUGGING_INTERFACE( Default );
 };

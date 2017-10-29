@@ -45,67 +45,26 @@ SkynetCore::~SkynetCore() = default;
 void SkynetCore::update()
 {
 	auto worker_type = getPlayerTracker().getLocalPlayer()->getRace().getWorker();
-	static auto worker_task_1 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_2 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_3 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_4 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_5 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_6 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_7 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_8 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_9 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_10 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_11 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_12 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_13 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_14 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_15 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_16 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_17 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_18 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_19 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_20 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_21 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_22 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_23 = getControlTaskFactory().createBuildControlTask( worker_type );
-	static auto worker_task_24 = getControlTaskFactory().createBuildControlTask( worker_type );
+	auto supply_type = getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider();
 
-	static auto zealot_task_1 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_2 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_3 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_4 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_5 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_6 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_7 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_8 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_9 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_10 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_11 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_12 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_13 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_14 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_15 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_16 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_17 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_18 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_19 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_20 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_21 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_22 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_23 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
-	static auto zealot_task_24 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot );
+	static std::vector<std::unique_ptr<ControlTask>> tasks;
 
-	static auto supply_task_1 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
+	if( tasks.empty() )
+	{
+		for( int i = 0; i < 16; ++i )
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
 
-	static auto gateway_task_1 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Gateway );
-	static auto gateway_task_2 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Gateway );
-	static auto gateway_task_3 = getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Gateway );
+		for( int i = 0; i < 160; ++i )
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Zealot ) );
 
-	static auto supply_task_2 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
-	static auto supply_task_3 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
-	static auto supply_task_4 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
-	static auto supply_task_5 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
-	static auto supply_task_6 = getControlTaskFactory().createBuildControlTask( getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider() );
+		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+		for( int i = 0; i < 4; ++i )
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( BWAPI::UnitTypes::Protoss_Gateway ) );
+
+		for( int i = 0; i < 25; ++i )
+			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+	}
 
 	for( auto & e : BWAPI::Broodwar->getEvents() )
 	{

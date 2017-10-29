@@ -34,15 +34,18 @@ void SkynetBaseManager::notify( const BasesRecreated & message )
 
 void SkynetBaseManager::update()
 {
-	/*for( auto & base_data : m_base_data )
+	if( isDebugging( Debug::Default ) )
 	{
-		int i = 0;
-		for( auto mineral : base_data.second.sorted_minerals )
+		for( auto & base_data : m_base_data )
 		{
-			BWAPI::Broodwar->drawTextMap( mineral->getPosition(), "%d", i );
-			++i;
+			int i = 0;
+			for( auto mineral : base_data.second.sorted_minerals )
+			{
+				BWAPI::Broodwar->drawTextMap( mineral->getPosition(), "%d", i );
+				++i;
+			}
 		}
-	}*/
+	}
 
 	int current_latency = BWAPI::Broodwar->getRemainingLatencyFrames();
 

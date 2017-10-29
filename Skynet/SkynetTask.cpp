@@ -58,7 +58,7 @@ void SkynetTask::updateTime()
 
 void SkynetTask::drawInfo( int & y_pos )
 {
-	if( m_earliest_time > 1400 )
+	if( m_earliest_time > 2000 )
 		return;
 
 	if( m_earliest_time == max_time )

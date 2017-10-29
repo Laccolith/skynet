@@ -23,4 +23,6 @@ private:
 		std::map<Unit, UnitGroup> mineral_to_workers;
 	};
 	std::map<Base, BaseData> m_base_data;
+
+	DEFINE_DEBUGGING_INTERFACE( Default );
 };
