@@ -12,17 +12,19 @@
 SkynetBuildLocationManager::SkynetBuildLocationManager( Core & core )
 	: BuildLocationManagerInterface( core )
 	, MessageListener<BasesRecreated>( getBaseTracker() )
+	, MessageListener<UnitDestroy>( getUnitTracker() )
 {
 	core.registerUpdateProcess( 3.0f, [this]() { preUpdate(); } );
 	core.registerUpdateProcess( 5.0f, [this]() { postUpdate(); } );
 
 	m_build_power_times.resize( BWAPI::Broodwar->mapWidth(), BWAPI::Broodwar->mapHeight() );
-	m_build_planned.resize( BWAPI::Broodwar->mapWidth(), BWAPI::Broodwar->mapHeight() );
+	m_tile_info.resize( BWAPI::Broodwar->mapWidth(), BWAPI::Broodwar->mapHeight() );
 }
 
 void SkynetBuildLocationManager::notify( const BasesRecreated & message )
 {
 	m_base_to_build_positions.clear();
+	m_tile_info.fill();
 
 	for( Base base : getBaseTracker().getAllBases() )
 	{
@@ -39,7 +41,60 @@ void SkynetBuildLocationManager::notify( const BasesRecreated & message )
 			build_positions.push_back( tile_position );
 			return false;
 		} );
+
+		if( base->getLocation() )
+		{
+			UnitType depot_type = getPlayerTracker().getLocalPlayer()->getRace().getResourceDepot();
+			TilePosition tile_position = base->getLocation()->getBuildLocation();
+			Position center_position = base->getLocation()->getCenterPosition();
+
+			for( int x = tile_position.x; x < tile_position.x + depot_type.tileWidth(); ++x )
+				for( int y = tile_position.y; y < tile_position.y + depot_type.tileHeight(); ++y )
+					m_tile_info[TilePosition( x, y )].is_permanently_reserved = true;
+
+			auto reserve_resouce_area = [this, base, center_position]( const UnitGroup & resources )
+			{
+				for( Unit resource : resources )
+				{
+					int distance_between = (resource->getPosition().getApproxDistance( center_position ) / 32) + 1;
+
+					for( int x = resource->getTilePosition().x - distance_between; x < resource->getTilePosition().x + distance_between + 4; ++x )
+					{
+						for( int y = resource->getTilePosition().y - distance_between; y < resource->getTilePosition().y + distance_between + 3; ++y )
+						{
+							if( m_tile_info[TilePosition( x, y )].is_permanently_reserved )
+								continue;
+
+							int distance_to_resource = Position( x * 32 + 16, y * 32 + 16 ).getApproxDistance( resource->getPosition() ) / 32;
+							int distance_to_base = Position( x * 32 + 16, y * 32 + 16 ).getApproxDistance( center_position ) / 32;
+
+							if( distance_to_resource + distance_to_base < distance_between )
+							{
+								++m_tile_info[TilePosition( x, y )].m_resouce_reserved;
+
+								if( resource->getType().isMineralField() )
+									m_resources[resource].push_back( TilePosition( x, y ) );
+							}
+						}
+					}
+				}
+			};
+
+			reserve_resouce_area( base->getMinerals() );
+			reserve_resouce_area( base->getGeysers() );
+		}
 	}
+}
+
+void SkynetBuildLocationManager::notify( const UnitDestroy & message )
+{
+	if( !message.unit->getType().isMineralField() )
+		return;
+
+	for( TilePosition resource_position : m_resources[message.unit] )
+		--m_tile_info[resource_position].m_resouce_reserved;
+
+	m_resources.erase( message.unit );
 }
 
 void SkynetBuildLocationManager::preUpdate()
@@ -47,7 +102,10 @@ void SkynetBuildLocationManager::preUpdate()
 	m_build_power_times.fill();
 	m_earliest_power_time = max_time;
 
-	m_build_planned.fill( false );
+	for( auto & tile_info : m_tile_info )
+	{
+		tile_info.is_build_planned = false;
+	}
 
 	for( Unit pylon : getUnitTracker().getAllUnits( UnitTypes::Protoss_Pylon, getPlayerTracker().getLocalPlayer() ) )
 	{
@@ -63,7 +121,7 @@ void SkynetBuildLocationManager::preUpdate()
 		{
 			for( int y = reserved_position.position.y; y < reserved_position.position.y + reserved_position.unit_type.tileHeight(); ++y )
 			{
-				m_build_planned[TilePosition( x, y )] = true;
+				m_tile_info[TilePosition( x, y )].is_build_planned = true;
 			}
 		}
 	}
@@ -94,7 +152,7 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 				if( geyser->getType() != UnitTypes::Resource_Vespene_Geyser )
 					continue;
 
-				if( m_build_planned[geyser->getTilePosition()] )
+				if( m_tile_info[geyser->getTilePosition()].is_build_planned )
 					continue;
 
 				return std::make_pair( time, geyser->getTilePosition() );
@@ -128,7 +186,9 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 					if( !BWAPI::Broodwar->isBuildable( x, y, true ) )
 						is_buildable = false;
 
-					if( m_build_planned[TilePosition( x, y )] )
+					auto tile_info = m_tile_info[TilePosition( x, y )];
+
+					if( tile_info.is_build_planned || tile_info.is_permanently_reserved || tile_info.m_resouce_reserved > 0 )
 						is_buildable = false;
 				}
 			}
@@ -188,7 +248,7 @@ void SkynetBuildLocationManager::reservePosition( int time, TilePosition positio
 	{
 		for( int y = position.y; y < position.y + unit_type.tileHeight(); ++y )
 		{
-			m_build_planned[TilePosition(x, y)] = true;
+			m_tile_info[TilePosition(x, y)].is_build_planned = true;
 		}
 	}
 

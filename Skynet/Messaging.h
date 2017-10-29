@@ -107,7 +107,8 @@ template <typename... MESSSAGES>
 class MessageListener : public MessageListenerBase<MESSSAGES>...
 {
 public:
-	MessageListener( MessageReporter<MESSSAGES...> &handler )
+	template <typename T>
+	MessageListener( T &handler )
 		: MessageListenerBase<MESSSAGES>(handler)...
 	{
 	}

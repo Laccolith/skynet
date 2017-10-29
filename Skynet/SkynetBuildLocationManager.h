@@ -2,16 +2,18 @@
 
 #include "BuildLocationManager.h"
 #include "BaseTracker.h"
+#include "UnitTracker.h"
 #include "Messaging.h"
 #include "RectangleArray.h"
 
 class SkynetBuildLocation;
-class SkynetBuildLocationManager : public BuildLocationManagerInterface, public MessageListener<BasesRecreated>
+class SkynetBuildLocationManager : public BuildLocationManagerInterface, public MessageListener<BasesRecreated>, public MessageListener<UnitDestroy>
 {
 public:
 	SkynetBuildLocationManager( Core & core );
 
 	void notify( const BasesRecreated & message );
+	void notify( const UnitDestroy & message );
 
 	void preUpdate();
 	void postUpdate();
@@ -34,7 +36,15 @@ private:
 	std::map<Base, std::vector<TilePosition>> m_base_to_build_positions;
 	std::vector<Base> m_base_order_normal;
 
-	RectangleArray<bool, TILEPOSITION_SCALE> m_build_planned;
+	struct TileInfo
+	{
+		bool is_permanently_reserved = false;
+		int m_resouce_reserved = 0;
+		bool is_build_planned = false;
+	};
+	RectangleArray<TileInfo, TILEPOSITION_SCALE> m_tile_info;
+
+	std::map<Unit, std::vector<TilePosition>> m_resources;
 
 	struct PowerTimes
 	{

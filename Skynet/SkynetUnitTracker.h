@@ -38,6 +38,10 @@ private:
 
 	UnitGroup m_all_units;
 
+	std::vector<UnitDiscover> m_delayed_messages_discover;
+	std::vector<UnitMorphRenegade> m_delayed_messages_morph_renegade;
+	std::vector<UnitDestroy> m_delayed_messages_destroy;
+
 	std::vector<std::unique_ptr<SkynetUnit>> m_dead_units;
 
 	std::vector<int> m_free_ids;

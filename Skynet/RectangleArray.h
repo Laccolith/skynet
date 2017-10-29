@@ -105,6 +105,9 @@ public:
 		m_data[pos.x + (pos.y * m_width)] = val;
 	}
 
+	T* begin() { return m_data; }
+	T* end() { return m_data + (m_width * m_height); }
+
 private:
 	size_t m_width;
 	size_t m_height;

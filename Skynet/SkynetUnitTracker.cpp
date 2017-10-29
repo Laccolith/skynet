@@ -102,6 +102,18 @@ void SkynetUnitTracker::update()
 			updateUnit( unit.get() );
 	}
 
+	for( auto message : m_delayed_messages_discover )
+		postMessage( message );
+	m_delayed_messages_discover.clear();
+
+	for( auto message : m_delayed_messages_morph_renegade )
+		postMessage( message );
+	m_delayed_messages_morph_renegade.clear();
+
+	for( auto message : m_delayed_messages_destroy )
+		postMessage( message );
+	m_delayed_messages_destroy.clear();
+	
 	if( isDebugging( Debug::Default ) )
 	{
 		for( auto unit : m_all_units )
@@ -146,7 +158,7 @@ void SkynetUnitTracker::onDiscover( Unit unit )
 	if( unit->getType().supplyProvided() > 0 )
 		m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit, true );
 
-	postMessage( UnitDiscover{ unit } );
+	m_delayed_messages_discover.emplace_back( UnitDiscover{ unit } );
 }
 
 void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType last_type )
@@ -178,7 +190,7 @@ void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType
 			m_player_to_supply_units[unit->getPlayer()->getID()].remove( unit );
 	}
 
-	postMessage( UnitMorphRenegade{ unit, passed_last_player, passed_last_type } );
+	m_delayed_messages_morph_renegade.emplace_back( UnitMorphRenegade{ unit, passed_last_player, passed_last_type } );
 }
 
 void SkynetUnitTracker::onDestroy( std::unique_ptr<SkynetUnit> & unit )
@@ -190,7 +202,7 @@ void SkynetUnitTracker::onDestroy( std::unique_ptr<SkynetUnit> & unit )
 	m_player_to_supply_units[unit->getLastPlayer()->getID()].remove( unit.get() );
 	m_all_units.remove( unit.get() );
 
-	postMessage( UnitDestroy{ unit.get() } );
+	m_delayed_messages_destroy.emplace_back( UnitDestroy{ unit.get() } );
 
 	m_dead_units.push_back( std::move( unit ) );
 }
