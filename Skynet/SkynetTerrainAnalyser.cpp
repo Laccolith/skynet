@@ -717,7 +717,7 @@ UnitGroup SkynetTerrainAnalyser::getResources()
 	for( Unit mineral : getUnitTracker().getMinerals() )
 	{
 		if( mineral->getResources() > 200 )
-			resources.insert( mineral );
+			resources.insert( mineral, true );
 	}
 
 	return resources;
@@ -844,7 +844,7 @@ bool SkynetTerrainAnalyser::tryLoadData()
 		/*unsigned int num_resources = readData<unsigned int>( file );
 		for( unsigned int j = 0; j < num_resources; ++j )
 		{
-			resouces.insert( getUnitTracker().getUnit( BWAPI::Broodwar->getUnit( readData<int>( file ) ) ) );
+			resouces.insert( getUnitTracker().getUnit( BWAPI::Broodwar->getUnit( readData<int>( file ) ) ), true );
 		}*/
 
 		m_processed_data.m_base_location_storage.emplace_back( std::make_unique<SkynetBaseLocation>( build_location, m_processed_data.m_regions[region_id], resouces ) );

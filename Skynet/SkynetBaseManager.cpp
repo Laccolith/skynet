@@ -34,7 +34,7 @@ void SkynetBaseManager::notify( const BasesRecreated & message )
 
 void SkynetBaseManager::update()
 {
-	for( auto & base_data : m_base_data )
+	/*for( auto & base_data : m_base_data )
 	{
 		int i = 0;
 		for( auto mineral : base_data.second.sorted_minerals )
@@ -42,7 +42,7 @@ void SkynetBaseManager::update()
 			BWAPI::Broodwar->drawTextMap( mineral->getPosition(), "%d", i );
 			++i;
 		}
-	}
+	}*/
 
 	int current_latency = BWAPI::Broodwar->getRemainingLatencyFrames();
 
@@ -60,7 +60,7 @@ void SkynetBaseManager::update()
 			continue;
 
 		m_base_data[base].available_workers.insert( worker );
-		current_workers.insert( worker );
+		current_workers.insert( worker, true );
 		++num_mining;
 	}
 
@@ -98,7 +98,7 @@ void SkynetBaseManager::update()
 						if( workers.size() < i )
 						{
 							mineral_assignment = mineral;
-							workers.insert( worker );
+							workers.insert( worker, true );
 							break;
 						}
 					}

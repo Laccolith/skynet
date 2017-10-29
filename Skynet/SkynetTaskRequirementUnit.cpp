@@ -38,7 +38,10 @@ int SkynetTaskRequirementUnitType::getReserveEarliestTime( CoreAccess & access, 
 void SkynetTaskRequirementUnitType::freeReserved( CoreAccess & access )
 {
 	if( m_chosen_unit )
+	{
 		access.getUnitManager().freeTaskUnit( m_chosen_unit );
+		m_position->freeReservation();
+	}
 }
 
 Unit SkynetTaskRequirementUnitType::getChosenUnit() const
@@ -168,7 +171,10 @@ int SkynetTaskRequirementUnitSpecific::getReserveEarliestTime( CoreAccess & acce
 void SkynetTaskRequirementUnitSpecific::freeReserved( CoreAccess & access )
 {
 	if( m_is_reserved )
+	{
 		access.getUnitManager().freeTaskUnit( m_unit );
+		m_position->freeReservation();
+	}
 }
 
 Unit SkynetTaskRequirementUnitSpecific::getChosenUnit() const
@@ -210,6 +216,10 @@ void SkynetTaskRequirementUnitPosition::reserve( int time )
 {
 }
 
+void SkynetTaskRequirementUnitPosition::freeReservation()
+{
+}
+
 TilePosition SkynetTaskRequirementUnitPosition::getBuildPosition() const
 {
 	return TilePositions::Invalid;
@@ -230,6 +240,11 @@ void SkynetTaskRequirementUnitPositionBuildLocation::get( int & time, Position &
 void SkynetTaskRequirementUnitPositionBuildLocation::reserve( int time )
 {
 	m_build_location->reservePosition( time );
+}
+
+void SkynetTaskRequirementUnitPositionBuildLocation::freeReservation()
+{
+	m_build_location->freeReservation();
 }
 
 TilePosition SkynetTaskRequirementUnitPositionBuildLocation::getBuildPosition() const

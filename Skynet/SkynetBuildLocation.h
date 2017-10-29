@@ -7,12 +7,16 @@ class SkynetBuildLocation : public BuildLocation
 {
 public:
 	SkynetBuildLocation( SkynetBuildLocationManager & manager, UnitType unit_type );
+	~SkynetBuildLocation();
 
 	int calculatePosition( int earliest_time ) override;
 	void reservePosition( int time ) override;
+	void freeReservation() override;
 
 	Position getPosition() const override;
 	TilePosition getTilePosition() const override;
+
+	void drawInfo();
 
 private:
 	SkynetBuildLocationManager & m_manager;

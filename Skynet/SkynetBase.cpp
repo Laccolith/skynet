@@ -23,7 +23,7 @@ SkynetBase::SkynetBase( CoreAccess & core_access, Position center_position, Regi
 	for( auto mineral : base_location->getStaticMinerals() )
 	{
 		if( mineral->accessibility() != UnitAccessType::Dead )
-			m_minerals.insert( mineral );
+			m_minerals.insert( mineral, true );
 	}
 
 	for( auto geyser : base_location->getStaticGeysers() )
@@ -32,9 +32,9 @@ SkynetBase::SkynetBase( CoreAccess & core_access, Position center_position, Regi
 			continue;
 
 		if( geyser->getType() == UnitTypes::Resource_Vespene_Geyser )
-			m_geysers.insert( geyser );
+			m_geysers.insert( geyser, true );
 		else
-			m_refineries.insert( geyser );
+			m_refineries.insert( geyser, true );
 	}
 }
 
@@ -156,7 +156,7 @@ void SkynetBase::update()
 
 void SkynetBase::add_building( Unit building )
 {
-	m_buildings.insert( building );
+	m_buildings.insert( building, true );
 }
 
 void SkynetBase::remove_building( Unit building )

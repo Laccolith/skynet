@@ -14,6 +14,7 @@ public:
 
 	virtual void get( int & time, Position & starting_position, Position & ending_position ) = 0;
 	virtual void reserve( int time ) = 0;
+	virtual void freeReservation() = 0;
 
 	virtual TilePosition getBuildPosition() const = 0;
 };
@@ -73,6 +74,7 @@ public:
 
 	void get( int & time, Position & starting_position, Position & ending_position ) override;
 	void reserve( int time ) override;
+	void freeReservation() override;
 
 	TilePosition getBuildPosition() const override;
 
@@ -88,6 +90,7 @@ public:
 
 	void get( int & time, Position & starting_position, Position & ending_position ) override;
 	void reserve( int time ) override;
+	void freeReservation() override;
 
 	TilePosition getBuildPosition() const override;
 

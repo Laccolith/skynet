@@ -66,7 +66,7 @@ UnitGroup UnitGroup::inRadius( int radius, Position position ) const
 	for( auto group_unit : *this )
 	{
 		if( group_unit->getDistance( position ) < radius )
-			result.insert( group_unit );
+			result.insert( group_unit, true );
 	}
 	return result;
 }
@@ -278,16 +278,16 @@ std::vector<UnitGroup> UnitGroup::getClusters( int distance, int min_size ) cons
 		if( clusters_in_range.empty() )
 		{
 			clusters.emplace_back();
-			clusters.back().insert( unit );
+			clusters.back().insert( unit, true );
 		}
 		else
 		{
-			clusters[clusters_in_range[0]].insert( unit );
+			clusters[clusters_in_range[0]].insert( unit, true );
 
 			for( size_t i = 1; i < clusters_in_range.size(); ++i )
 			{
 				for( Unit cluster_unit : clusters[clusters_in_range[i]] )
-					clusters[clusters_in_range[0]].insert( cluster_unit );
+					clusters[clusters_in_range[0]].insert( cluster_unit, true );
 
 				clusters[clusters_in_range[i]].clear();
 			}

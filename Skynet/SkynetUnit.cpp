@@ -17,7 +17,7 @@ SkynetUnit::SkynetUnit( BWAPI::Unit unit, int id, SkynetUnitTracker & unit_track
 		m_morphing = unit->isMorphing();
 	}
 
-	update( unit_tracker, player_tracker );
+	update( unit_tracker, player_tracker, true );
 
 	if( useable )
 	{
@@ -1359,7 +1359,7 @@ void SkynetUnit::setPosition( Position position )
 	m_target_position = position;
 }
 
-void SkynetUnit::update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker )
+void SkynetUnit::update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker, bool first_update )
 {
 	if( m_exists_time > 1 )
 		--m_exists_time;
@@ -1400,9 +1400,12 @@ void SkynetUnit::update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterfac
 	else if( m_unit->isCompleted() && !m_unit->isMorphing() )
 		m_time_till_completed = 0;
 
-	m_order_target = m_unit->getOrderTarget() ? unit_tracker.getUnit( m_unit->getOrderTarget() ) : nullptr;
-	m_target = m_unit->getTarget() ? unit_tracker.getUnit( m_unit->getTarget() ) : nullptr;
-	m_build_unit = m_unit->getBuildUnit() ? unit_tracker.getUnit( m_unit->getBuildUnit() ) : nullptr;
+	if( !first_update )
+	{
+		m_order_target = m_unit->getOrderTarget() ? unit_tracker.getUnit( m_unit->getOrderTarget() ) : nullptr;
+		m_target = m_unit->getTarget() ? unit_tracker.getUnit( m_unit->getTarget() ) : nullptr;
+		m_build_unit = m_unit->getBuildUnit() ? unit_tracker.getUnit( m_unit->getBuildUnit() ) : nullptr;
+	}
 }
 
 void SkynetUnit::markDead()

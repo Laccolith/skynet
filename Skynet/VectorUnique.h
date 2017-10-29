@@ -25,9 +25,9 @@ public:
 	SizeType size() const { return m_values.size(); }
 	bool empty() const { return m_values.empty(); }
 
-	void insert( T val )
+	void insert( T val, bool cannot_be_duplicate = false )
 	{
-		if( std::find( m_values.begin(), m_values.end(), val ) == m_values.end() )
+		if( cannot_be_duplicate || std::find( m_values.begin(), m_values.end(), val ) == m_values.end() )
 			m_values.push_back( val );
 	}
 

@@ -24,7 +24,7 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 	for( BWAPI::Unit unit : units )
 	{
 		if( m_bwapi_units[unit->getID()] )
-			return_units.insert( m_bwapi_units[unit->getID()].get() );
+			return_units.insert( m_bwapi_units[unit->getID()].get(), true );
 	}
 
 	return return_units;
@@ -139,12 +139,12 @@ void SkynetUnitTracker::onUnitDestroy( BWAPI::Unit unit )
 
 void SkynetUnitTracker::onDiscover( Unit unit )
 {
-	m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit );
-	m_player_to_units[unit->getPlayer()->getID()].insert( unit );
-	m_all_units.insert( unit );
+	m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit, true );
+	m_player_to_units[unit->getPlayer()->getID()].insert( unit, true );
+	m_all_units.insert( unit, true );
 
 	if( unit->getType().supplyProvided() > 0 )
-		m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit );
+		m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit, true );
 
 	postMessage( UnitDiscover{ unit } );
 }
@@ -157,22 +157,22 @@ void SkynetUnitTracker::onMorphRenegade( Unit unit, Player last_player, UnitType
 	if( passed_last_player )
 	{
 		m_player_to_units[last_player->getID()].remove( unit );
-		m_player_to_units[unit->getPlayer()->getID()].insert( unit );
+		m_player_to_units[unit->getPlayer()->getID()].insert( unit, true );
 
 		m_player_to_type_to_units[last_player->getID()][last_type].remove( unit );
-		m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit );
+		m_player_to_type_to_units[unit->getPlayer()->getID()][unit->getType()].insert( unit, true );
 
 		if( last_type.supplyProvided() > 0 )
 			m_player_to_supply_units[last_player->getID()].remove( unit );
 
 		if( unit->getType().supplyProvided() > 0 )
-			m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit );
+			m_player_to_supply_units[unit->getPlayer()->getID()].insert( unit, true );
 	}
 	else
 	{
 		auto & player_units = m_player_to_type_to_units[unit->getPlayer()->getID()];
 		player_units[last_type].remove( unit );
-		player_units[unit->getType()].insert( unit );
+		player_units[unit->getType()].insert( unit, true );
 
 		if( last_type.supplyProvided() > 0 && unit->getType().supplyProvided() <= 0 )
 			m_player_to_supply_units[unit->getPlayer()->getID()].remove( unit );
@@ -200,7 +200,7 @@ void SkynetUnitTracker::updateUnit( SkynetUnit * unit )
 	Player last_player = unit->getLastPlayer();
 	UnitType last_type = unit->getLastType();
 
-	unit->update( *this, getPlayerTracker() );
+	unit->update( *this, getPlayerTracker(), false );
 
 	if( last_player != unit->getPlayer() || last_type != unit->getType() )
 		onMorphRenegade( unit, last_player, last_type );
