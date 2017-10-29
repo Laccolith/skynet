@@ -11,5 +11,5 @@ class TaskManagerInterface : public CoreModule
 public:
 	TaskManagerInterface( Core & core ) : CoreModule( core, "TaskManager" ) {}
 
-	virtual std::unique_ptr<TaskInterface> createTask() = 0;
+	virtual std::unique_ptr<TaskInterface> createTask( std::string name ) = 0;
 };

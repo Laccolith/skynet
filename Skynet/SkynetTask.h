@@ -11,10 +11,12 @@ class SkynetTaskManager;
 class SkynetTask : public TaskInterface
 {
 public:
-	SkynetTask( SkynetTaskManager & task_manager );
+	SkynetTask( SkynetTaskManager & task_manager, std::string name );
 	~SkynetTask();
 
 	void updateTime();
+
+	void drawInfo( int & y_pos );
 
 	bool requirementsFulfilled() const override { return m_earliest_time <= 0; }
 	int getPlannedTime() const override { return m_earliest_time; }
@@ -45,6 +47,7 @@ public:
 
 private:
 	SkynetTaskManager & m_task_manager;
+	std::string m_name;
 
 	int m_earliest_time = max_time;
 	Unit m_assigned_unit = nullptr;

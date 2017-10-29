@@ -6,8 +6,9 @@
 
 #include "Types.h"
 
-SkynetTask::SkynetTask( SkynetTaskManager & task_manager )
+SkynetTask::SkynetTask( SkynetTaskManager & task_manager, std::string name )
 	: m_task_manager( task_manager )
+	, m_name( std::move( name ) )
 {
 }
 
@@ -53,6 +54,19 @@ void SkynetTask::updateTime()
 			requirement.first->reserveTime( m_task_manager, m_earliest_time );
 		}
 	}
+}
+
+void SkynetTask::drawInfo( int & y_pos )
+{
+	if( m_earliest_time > 1400 )
+		return;
+
+	if( m_earliest_time == max_time )
+		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "NA - %s", m_name.c_str() );
+	else
+		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "%d - %s", m_earliest_time, m_name.c_str() );
+
+	y_pos += 8;
 }
 
 TilePosition SkynetTask::getBuildPosition() const

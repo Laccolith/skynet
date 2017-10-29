@@ -13,7 +13,7 @@ public:
 
 	void update();
 
-	std::unique_ptr<TaskInterface> createTask() override;
+	std::unique_ptr<TaskInterface> createTask( std::string name ) override;
 	void onTaskDestroyed( SkynetTask & task );
 
 private:

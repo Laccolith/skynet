@@ -93,7 +93,7 @@ void SkynetControlTaskTrain::postUpdate()
 
 void SkynetControlTaskTrain::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask();
+	m_task = getAccess().getTaskManager().createTask( "Training - " + m_unit_type.getName() );
 
 	if( m_unit_type.mineralPrice() > 0 )
 		m_reserved_resources.push_back( m_task->addRequirementMineral( m_unit_type.mineralPrice() ) );

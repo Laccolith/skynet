@@ -119,7 +119,7 @@ void SkynetControlTaskConstruct::postUpdate()
 
 void SkynetControlTaskConstruct::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask();
+	m_task = getAccess().getTaskManager().createTask( "Building - " + m_unit_type.getName() );
 
 	if( !m_build_unit )
 	{

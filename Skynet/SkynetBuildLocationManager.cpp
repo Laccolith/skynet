@@ -62,6 +62,9 @@ void SkynetBuildLocationManager::notify( const BasesRecreated & message )
 					{
 						for( int y = resource->getTilePosition().y - distance_between; y < resource->getTilePosition().y + distance_between + 3; ++y )
 						{
+							if( x < 0 || y < 0 || x >= BWAPI::Broodwar->mapWidth() || y >= BWAPI::Broodwar->mapWidth() )
+								continue;
+
 							if( m_tile_info[TilePosition( x, y )].is_permanently_reserved )
 								continue;
 
@@ -167,7 +170,7 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 		if( m_earliest_power_time == max_time )
 			return best_position;
 
-		time = m_earliest_power_time;
+		time = std::max( m_earliest_power_time, time );
 	}
 
 	for( Base base : m_base_order_normal )
