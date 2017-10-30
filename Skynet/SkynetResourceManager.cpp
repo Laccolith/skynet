@@ -20,6 +20,8 @@ void SkynetResourceManager::update()
 	m_task_reserved_gas.clear();
 	m_task_reserved_supply.clear();
 
+	m_task_reserved_supply.insert( m_task_reserved_supply.end(), m_task_output_supply.begin(), m_task_output_supply.end() );
+
 	auto player = getPlayerTracker().getLocalPlayer();
 
 	for( auto unit : getUnitTracker().getSupplyUnits( player ) )
@@ -154,4 +156,27 @@ int SkynetResourceManager::earliestGasAvailability( int amount ) const
 int SkynetResourceManager::earliestSupplyAvailability( int amount ) const
 {
 	return earliestAvailability( amount, BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed() - m_reserved_supply, 0.0, m_task_reserved_supply );
+}
+
+void SkynetResourceManager::addTaskSupplyOutput( int time, int amount, bool temporary )
+{
+	reserveTaskResource( time, -amount, m_task_reserved_supply );
+
+	if( !temporary )
+		reserveTaskResource( time, -amount, m_task_output_supply );
+}
+
+void SkynetResourceManager::removeTaskSupplyOutput( int time, int amount )
+{
+	auto it = std::find_if( m_task_output_supply.begin(), m_task_output_supply.end(), [time]( ResourceTiming timing )
+	{
+		return time == timing.time;
+	} );
+
+	it->amount += amount;
+
+	if( it->amount == 0 )
+	{
+		m_task_output_supply.erase( it );
+	}
 }

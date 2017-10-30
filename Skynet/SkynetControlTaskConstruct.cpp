@@ -135,6 +135,10 @@ void SkynetControlTaskConstruct::createTask()
 
 	m_task->addRequirementUnit( m_unit_type.whatBuilds().first, required_duration, getAccess().getBuildLocationManager().createBuildLocation( m_unit_type ) );
 
-	// TODO: Add supply produced
+	if( m_unit_type.supplyProvided() > 0 )
+		m_task->addOutputSupply( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type.supplyProvided() );
+
+	m_task->addOutputUnit( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type.whatBuilds().first );
+
 	// TODO: Add required tech
 }

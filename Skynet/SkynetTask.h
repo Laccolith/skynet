@@ -45,6 +45,10 @@ public:
 	int addRequirementUnit( Unit unit, int duration, Position starting_position, Position ending_position ) override;
 	int addRequirementUnit( Unit unit, int duration, std::unique_ptr<BuildLocation> build_location ) override;
 
+	void addOutputSupply( int time, int amount ) override;
+
+	void addOutputUnit( int time, UnitType unit_type ) override;
+
 private:
 	SkynetTaskManager & m_task_manager;
 	std::string m_name;
@@ -55,4 +59,7 @@ private:
 	int m_current_requirement_index = 0;
 	std::vector<std::pair<std::unique_ptr<SkynetTaskRequirement>, int>> m_requirements;
 	std::unique_ptr<SkynetTaskRequirementUnit> m_unit_requirement;
+
+	int m_supply_output = 0;
+	int m_supply_output_time = 0;
 };

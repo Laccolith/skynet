@@ -3,6 +3,7 @@
 #include "SkynetTaskManager.h"
 #include "SkynetTaskRequirementResource.h"
 #include "SkynetTaskRequirementUnit.h"
+#include "ResourceManager.h"
 
 #include "Types.h"
 
@@ -27,6 +28,10 @@ SkynetTask::~SkynetTask()
 	if( m_earliest_time > 0 )
 	{
 		m_task_manager.onTaskDestroyed( *this );
+	}
+	else if( m_supply_output > 0 )
+	{
+		m_task_manager.getResourceManager().removeTaskSupplyOutput( m_earliest_time + m_supply_output_time, m_supply_output );
 	}
 }
 
@@ -53,6 +58,11 @@ void SkynetTask::updateTime()
 		{
 			requirement.first->reserveTime( m_task_manager, m_earliest_time );
 		}
+
+		if( m_supply_output > 0 )
+		{
+			m_task_manager.getResourceManager().addTaskSupplyOutput( m_earliest_time + m_supply_output_time, m_supply_output, m_earliest_time > 0 );
+		}
 	}
 }
 
@@ -62,9 +72,11 @@ void SkynetTask::drawInfo( int & y_pos )
 		return;
 
 	if( m_earliest_time == max_time )
-		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "NA - %s", m_name.c_str() );
+		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "NA" );
 	else
-		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "%d - %s", m_earliest_time, m_name.c_str() );
+		BWAPI::Broodwar->drawTextScreen( 10, y_pos, "%d", m_earliest_time );
+
+	BWAPI::Broodwar->drawTextScreen( 40, y_pos, "- %s", m_name.c_str() );
 
 	y_pos += 8;
 }
@@ -207,4 +219,14 @@ int SkynetTask::addRequirementUnit( Unit unit, int duration, std::unique_ptr<Bui
 	// TODO: Log if there is already a unit requirement
 	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitSpecific>( unit, duration, std::make_unique<SkynetTaskRequirementUnitPositionBuildLocation>( std::move( build_location ) ) );
 	return -1;
+}
+
+void SkynetTask::addOutputSupply( int time, int amount )
+{
+	m_supply_output = amount;
+	m_supply_output_time = time;
+}
+
+void SkynetTask::addOutputUnit( int time, UnitType unit_type )
+{
 }

@@ -35,5 +35,9 @@ public:
 	virtual int addRequirementUnit( Unit unit, int duration, Position starting_position, Position ending_position ) = 0;
 	virtual int addRequirementUnit( Unit unit, int duration, std::unique_ptr<BuildLocation> build_location ) = 0;
 
+	virtual void addOutputSupply( int time, int amount ) = 0;
+
+	virtual void addOutputUnit( int time, UnitType unit_type ) = 0;
+
 	virtual ~TaskInterface() {}
 };

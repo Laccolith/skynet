@@ -19,6 +19,9 @@ public:
 	virtual int earliestGasAvailability( int amount ) const = 0;
 	virtual int earliestSupplyAvailability( int amount ) const = 0;
 
+	virtual void addTaskSupplyOutput( int time, int amount, bool temporary ) = 0;
+	virtual void removeTaskSupplyOutput( int time, int amount ) = 0;
+
 	virtual void setMineralRate( double mineral_rate ) = 0;
 	virtual void setGasRate( double gas_rate ) = 0;
 };
