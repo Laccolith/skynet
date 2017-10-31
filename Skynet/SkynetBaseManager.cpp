@@ -6,6 +6,8 @@
 #include "ResourceManager.h"
 #include "MapUtil.h"
 
+#include <array>
+
 SkynetBaseManager::SkynetBaseManager( Core & core )
 	: BaseManagerInterface( core )
 	, MessageListener<BasesRecreated>( getBaseTracker() )
@@ -35,27 +37,27 @@ void SkynetBaseManager::notify( const BasesRecreated & message )
 
 void SkynetBaseManager::notify( const UnitDestroy & message )
 {
-	if( !message.unit->getType().isMineralField() )
-		return;
-
-	for( auto & base_data : m_base_data )
+	if( message.unit->getType().isMineralField() )
 	{
-		if( base_data.second.sorted_minerals.contains( message.unit ) )
+		for( auto & base_data : m_base_data )
 		{
-			base_data.second.sorted_minerals.remove( message.unit );
-
-			auto it = base_data.second.mineral_to_workers.find( message.unit );
-			if( it != base_data.second.mineral_to_workers.end() )
+			if( base_data.second.sorted_minerals.contains( message.unit ) )
 			{
-				for( auto unit : it->second )
+				base_data.second.sorted_minerals.remove( message.unit );
+
+				auto it = base_data.second.resource_to_workers.find( message.unit );
+				if( it != base_data.second.resource_to_workers.end() )
 				{
-					base_data.second.worker_to_mineral.erase( unit );
+					for( auto unit : it->second )
+					{
+						base_data.second.worker_to_resource.erase( unit );
+					}
+
+					base_data.second.resource_to_workers.erase( it );
 				}
 
-				base_data.second.mineral_to_workers.erase( it );
+				break;
 			}
-
-			break;
 		}
 	}
 }
@@ -79,7 +81,7 @@ void SkynetBaseManager::update()
 
 	auto player = getPlayerTracker().getLocalPlayer();
 
-	UnitGroup current_workers;
+	std::map<Base, UnitGroup> current_base_workers;
 	for( auto worker : getUnitTracker().getAllUnits( player->getRace().getWorker(), player ) )
 	{
 		if( getUnitManager().getFreeTime( worker ) < current_latency )
@@ -90,22 +92,26 @@ void SkynetBaseManager::update()
 			continue;
 
 		m_base_data[base].available_workers.insert( worker );
-		current_workers.insert( worker, true );
+		current_base_workers[base].insert( worker, true );
 	}
 
 	double mineral_rate = 0.0;
+	double gas_rate = 0.0;
 
 	for( auto & base_data : m_base_data )
 	{
+		const UnitGroup & current_workers = current_base_workers[base_data.first];
+
 		base_data.second.available_workers.removeIf( [&current_workers, &base_data]( Unit worker )
 		{
 			if( !current_workers.contains( worker ) )
 			{
-				auto it = base_data.second.worker_to_mineral.find( worker );
-				if( it != base_data.second.worker_to_mineral.end() )
+				auto it = base_data.second.worker_to_resource.find( worker );
+				if( it != base_data.second.worker_to_resource.end() )
 				{
-					base_data.second.mineral_to_workers[it->second].remove( worker );
-					base_data.second.worker_to_mineral.erase( it );
+					if( it->second )
+						base_data.second.resource_to_workers[it->second].remove( worker );
+					base_data.second.worker_to_resource.erase( it );
 				}
 
 				return true;
@@ -114,21 +120,82 @@ void SkynetBaseManager::update()
 			return false;
 		} );
 
-		mineral_rate += double( std::min( base_data.second.available_workers.size(), base_data.second.sorted_minerals.size() * 3 ) ) * (8.0 / 180.0);
+		UnitGroup refineries;
+		for( auto gas : base_data.first->getGeysers() )
+		{
+			if( !gas->getType().isRefinery() || !gas->isCompleted() || gas->getPlayer() != getPlayerTracker().getLocalPlayer() || gas->getResources() > 0 )
+				continue;
+
+			refineries.insert( gas );
+		}
+
+		int num_gas = std::min( refineries.size() * 3, base_data.second.available_workers.size() );
+		int num_mining = std::min( base_data.second.sorted_minerals.size() * 3, base_data.second.available_workers.size() - num_gas );
+
+		std::array<int, 3> mineral_assignments = { 0, 0, 0 };
+		mineral_assignments[0] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining );
+		mineral_assignments[1] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining - mineral_assignments[0] );
+		mineral_assignments[2] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining - mineral_assignments[0] - mineral_assignments[1] );
+
+		for( auto & pair : base_data.second.resource_to_workers )
+		{
+			if( pair.first->getType().isRefinery() )
+			{
+				if( !refineries.contains( pair.first ) )
+				{
+					for( auto unit : pair.second )
+					{
+						base_data.second.worker_to_resource.erase( unit );
+					}
+
+					pair.second.clear();
+				}
+			}
+			else if( pair.first->getType().isMineralField() )
+			{
+				int num_to_remove = 0;
+				for( size_t i = 0; i < pair.second.size(); ++i )
+				{
+					if( mineral_assignments[i] == 0 )
+						++num_to_remove;
+					else
+						--mineral_assignments[i];
+				}
+
+				for( int i = 0; i < num_to_remove; ++i )
+				{
+					base_data.second.worker_to_resource.erase( pair.second.back() );
+					pair.second.pop_back();
+				}
+			}
+		}
 
 		for( auto worker : base_data.second.available_workers )
 		{
-			Unit & mineral_assignment = base_data.second.worker_to_mineral[worker];
-			if( !mineral_assignment )
+			Unit & resource_assignment = base_data.second.worker_to_resource[worker];
+			if( !resource_assignment )
 			{
-				for( unsigned int i = 1; i <= 3 && !mineral_assignment; ++i )
+				// TODO: Room for improvement - Collect all workers without assignments first then choose the assignements for them all based on distance
+
+				for( auto refinery : refineries )
+				{
+					auto & workers = base_data.second.resource_to_workers[refinery];
+					if( workers.size() < 3 )
+					{
+						resource_assignment = refinery;
+						workers.insert( worker, true );
+						break;
+					}
+				}
+
+				for( unsigned int i = 1; i <= 3 && !resource_assignment; ++i )
 				{
 					for( Unit mineral : base_data.second.sorted_minerals )
 					{
-						auto & workers = base_data.second.mineral_to_workers[mineral];
+						auto & workers = base_data.second.resource_to_workers[mineral];
 						if( workers.size() < i )
 						{
-							mineral_assignment = mineral;
+							resource_assignment = mineral;
 							workers.insert( worker, true );
 							break;
 						}
@@ -136,15 +203,19 @@ void SkynetBaseManager::update()
 				}
 			}
 
-			if( mineral_assignment )
+			if( resource_assignment )
 			{
 				if( worker->isCarryingGas() || worker->isCarryingMinerals() )
 					worker->returnCargo();
 				else
-					worker->gather( mineral_assignment );
+					worker->gather( resource_assignment );
 			}
 		}
+
+		mineral_rate += double( num_mining ) * (8.0 / 180.0);
+		gas_rate += double( num_gas ) * (8.0 / 180.0);
 	}
 
 	getResourceManager().setMineralRate( mineral_rate );
+	getResourceManager().setGasRate( gas_rate );
 }

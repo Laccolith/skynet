@@ -52,6 +52,16 @@ public:
 		return m_values[i];
 	}
 
+	T back() const
+	{
+		return m_values.back();
+	}
+
+	void pop_back()
+	{
+		m_values.pop_back();
+	}
+
 	void reserve( SizeType size ) { m_values.reserve( size ); }
 
 	ConstIterator begin() const { return m_values.begin(); }
@@ -63,7 +73,7 @@ public:
 	void clear() { m_values.clear(); }
 	void swap( VectorUnique &other ) { m_values.swap( other.m_values ); }
 
-	bool contains( T val )
+	bool contains( T val ) const
 	{
 		return std::find( m_values.begin(), m_values.end(), val ) != m_values.end();
 	}
