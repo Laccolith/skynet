@@ -123,7 +123,10 @@ void SkynetUnitManager::postUpdate()
 		if( required_position.index() != 0 )
 		{
 			Position target_position = getTravelPosition( unit->getPosition(), required_position, true );
-			BWAPI::Broodwar->drawLineMap( unit->getPosition(), target_position, Colors::Orange );
+
+			if( isDebugging( Debug::Default ) )
+				BWAPI::Broodwar->drawLineMap( unit->getPosition(), target_position, Colors::Orange );
+
 			unit->move( target_position );
 		}
 	}
