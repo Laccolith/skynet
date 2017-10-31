@@ -22,7 +22,7 @@ void SkynetUnitManager::preUpdate()
 	}
 }
 
-Position getTravelPosition( Position previous_pos, UnitPosition next_pos )
+Position getTravelPosition( Position previous_pos, UnitPosition next_pos, bool safe_move_position )
 {
 	switch( next_pos.index() )
 	{
@@ -31,15 +31,18 @@ Position getTravelPosition( Position previous_pos, UnitPosition next_pos )
 
 	case 2:
 	{
+		const BuildPosition & build_pos = std::get<2>( next_pos );
+
+		if( safe_move_position )
+			return Position( build_pos.tile_position ) + Position( build_pos.unit_type.tileSize() ) / 2;
+
 		// TODO: based on the unit type it may need to get to a different position
 		// Zerg units go to the middle for example, refineries always go to the edge
 
-		const BuildPosition & build_pos = std::get<2>( next_pos );
-
 		int top = build_pos.tile_position.y * 32;
-		int bottom = top + (build_pos.unit_type.height() * 32);
+		int bottom = top + (build_pos.unit_type.tileHeight() * 32);
 		int left = build_pos.tile_position.x * 32;
-		int right = left + (build_pos.unit_type.width() * 32);
+		int right = left + (build_pos.unit_type.tileWidth() * 32);
 
 		if( previous_pos.x < left )
 		{
@@ -76,14 +79,14 @@ Position getTravelPosition( Position previous_pos, UnitPosition next_pos )
 
 int getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position, Position * out_actual_ending_position = nullptr )
 {
-	Position actual_ending_position = getTravelPosition( starting_position, ending_position );
+	Position actual_ending_position = getTravelPosition( starting_position, ending_position, false );
 	if( out_actual_ending_position )
 		*out_actual_ending_position = actual_ending_position;
 
 	int distance = starting_position.getApproxDistance( actual_ending_position );
 
 	// If we are close enough, assume we are there, to counteract errors from movement
-	if( distance < 16 )
+	if( distance < 24 )
 		return 0;
 
 	// TODO: Create a better estimate using terrain analysis
@@ -119,14 +122,16 @@ void SkynetUnitManager::postUpdate()
 
 		if( required_position.index() != 0 )
 		{
-			unit->move( getTravelPosition( unit->getPosition(), required_position ) );
+			Position target_position = getTravelPosition( unit->getPosition(), required_position, true );
+			BWAPI::Broodwar->drawLineMap( unit->getPosition(), target_position, Colors::Orange );
+			unit->move( target_position );
 		}
 	}
 }
 
 bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const
 {
-	Position actual_ending_position = getTravelPosition( starting_position, ending_position );
+	Position actual_ending_position = getTravelPosition( starting_position, ending_position, true );
 
 	if( !unit->getType().isFlyer() && !BWAPI::Broodwar->hasPath( starting_position, actual_ending_position ) )
 		return false;
