@@ -156,7 +156,7 @@ public:
 	void setBuildTime( int time_till_start );
 	void setPosition( Position position );
 
-	void update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker, bool first_update );
+	void update( SkynetUnitTracker & unit_tracker, PlayerTrackerInterface & player_tracker );
 	void markDead();
 
 private:

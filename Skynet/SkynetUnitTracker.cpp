@@ -84,6 +84,20 @@ void SkynetUnitTracker::update()
 		m_free_ids.push_back( dead_unit->getID() );
 	m_dead_units.clear();
 
+	int highest_id = 0;
+	for( auto unit : BWAPI::Broodwar->getAllUnits() )
+	{
+		if( unit->getID() > highest_id )
+		{
+			highest_id = unit->getID();
+		}
+	}
+
+	if( highest_id >= (int) m_bwapi_units.size() )
+	{
+		m_bwapi_units.resize( highest_id + 1 );
+	}
+
 	for( const Event &event : BWAPI::Broodwar->getEvents() )
 	{
 		if( event.getType() == Events::UnitDestroy )
@@ -123,9 +137,6 @@ void SkynetUnitTracker::update()
 
 void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 {
-	if( unit->getID() >= (int) m_bwapi_units.size() )
-		m_bwapi_units.resize( std::max( unit->getID() + 1, (int) BWAPI::Broodwar->getAllUnits().size() ) );
-
 	auto & new_unit = m_bwapi_units[unit->getID()];
 
 	if( new_unit )
@@ -212,7 +223,7 @@ void SkynetUnitTracker::updateUnit( SkynetUnit * unit )
 	Player last_player = unit->getLastPlayer();
 	UnitType last_type = unit->getLastType();
 
-	unit->update( *this, getPlayerTracker(), false );
+	unit->update( *this, getPlayerTracker() );
 
 	if( last_player != unit->getPlayer() || last_type != unit->getType() )
 		onMorphRenegade( unit, last_player, last_type );
