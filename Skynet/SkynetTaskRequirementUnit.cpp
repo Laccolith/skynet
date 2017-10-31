@@ -18,19 +18,36 @@ SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type
 {
 }
 
+Position getCenterPosition( UnitPosition pos )
+{
+	switch( pos.index() )
+	{
+	case 1:
+		return std::get<1>( pos );
+
+	case 2:
+	{
+		const BuildPosition & build_pos = std::get<2>( pos );
+		return Position( build_pos.tile_position ) + Position( build_pos.unit_type.tileWidth() * 16, build_pos.unit_type.tileHeight() * 16 );
+	}
+	}
+
+	return Positions::None;
+}
+
 int SkynetTaskRequirementUnitType::getReserveEarliestTime( CoreAccess & access, int current_earliest_time )
 {
-	Position starting_position;
+	UnitPosition starting_position;
 	Position ending_position;
 	m_position->get( current_earliest_time, starting_position, ending_position );
 
 	const UnitGroup & applicable_units = access.getUnitTracker().getAllUnits( m_unit_type, access.getPlayerTracker().getLocalPlayer() );
 
-	if( starting_position == Positions::None )
+	if( starting_position.index() == 0 )
 		return chooseUnit( access, current_earliest_time, applicable_units, starting_position, ending_position );
 
 	UnitGroup sorted_units = applicable_units;
-	sorted_units.sortByDistance( starting_position );
+	sorted_units.sortByDistance( getCenterPosition( starting_position ) );
 
 	return chooseUnit( access, current_earliest_time, sorted_units, starting_position, ending_position );
 }
@@ -67,7 +84,7 @@ void SkynetTaskRequirementUnitType::requestUnitTimeChange( CoreAccess & access, 
 	}
 }
 
-int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, Position starting_position, Position ending_position )
+int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, UnitPosition starting_position, Position ending_position )
 {
 	m_chosen_unit = nullptr;
 
@@ -83,7 +100,7 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 
 		int unit_available_time = std::max( unit->getTimeTillCompleted(), current_earliest_time );
 
-		if( starting_position != Positions::None )
+		if( starting_position.index() != 0 )
 		{
 			int earliest_time = access.getUnitManager().getAvailableTime( unit, unit_available_time, m_duration, starting_position, ending_position );
 			if( earliest_time < best_time )
@@ -138,12 +155,12 @@ SkynetTaskRequirementUnitSpecific::SkynetTaskRequirementUnitSpecific( Unit unit,
 
 int SkynetTaskRequirementUnitSpecific::getReserveEarliestTime( CoreAccess & access, int current_earliest_time )
 {
-	Position starting_position;
+	UnitPosition starting_position;
 	Position ending_position;
 	m_position->get( current_earliest_time, starting_position, ending_position );
 
 	int earliest_time = max_time;
-	if( starting_position != Positions::None )
+	if( starting_position.index() != 0 )
 	{
 		earliest_time = access.getUnitManager().getAvailableTime( m_unit, current_earliest_time, m_duration, starting_position, ending_position );
 	}
@@ -200,13 +217,13 @@ void SkynetTaskRequirementUnitSpecific::requestUnitTimeChange( CoreAccess & acce
 	}
 }
 
-SkynetTaskRequirementUnitPosition::SkynetTaskRequirementUnitPosition( Position starting_position, Position ending_position )
+SkynetTaskRequirementUnitPosition::SkynetTaskRequirementUnitPosition( UnitPosition starting_position, Position ending_position )
 	: m_starting_position( starting_position )
 	, m_ending_position( ending_position )
 {
 }
 
-void SkynetTaskRequirementUnitPosition::get( int & time, Position & starting_position, Position & ending_position )
+void SkynetTaskRequirementUnitPosition::get( int & time, UnitPosition & starting_position, Position & ending_position )
 {
 	starting_position = m_starting_position;
 	ending_position = m_ending_position;
@@ -230,11 +247,12 @@ SkynetTaskRequirementUnitPositionBuildLocation::SkynetTaskRequirementUnitPositio
 {
 }
 
-void SkynetTaskRequirementUnitPositionBuildLocation::get( int & time, Position & starting_position, Position & ending_position )
+void SkynetTaskRequirementUnitPositionBuildLocation::get( int & time, UnitPosition & starting_position, Position & ending_position )
 {
 	time = m_build_location->calculatePosition( time );
 
-	starting_position = ending_position = m_build_location->getPosition();
+	starting_position = BuildPosition{ m_build_location->getTilePosition(), m_build_location->getUnitType() };
+	ending_position = Positions::None;
 }
 
 void SkynetTaskRequirementUnitPositionBuildLocation::reserve( int time )

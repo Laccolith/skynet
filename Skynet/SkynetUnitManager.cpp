@@ -22,10 +22,67 @@ void SkynetUnitManager::preUpdate()
 	}
 }
 
-int getTravelTime( Unit unit, Position starting_position, Position ending_position )
+Position getTravelPosition( Position previous_pos, UnitPosition next_pos )
 {
+	switch( next_pos.index() )
+	{
+	case 1:
+		return std::get<1>( next_pos );
+
+	case 2:
+	{
+		// TODO: based on the unit type it may need to get to a different position
+		// Zerg units go to the middle for example, refineries always go to the edge
+
+		const BuildPosition & build_pos = std::get<2>( next_pos );
+
+		int top = build_pos.tile_position.y * 32;
+		int bottom = top + (build_pos.unit_type.height() * 32);
+		int left = build_pos.tile_position.x * 32;
+		int right = left + (build_pos.unit_type.width() * 32);
+
+		if( previous_pos.x < left )
+		{
+			if( previous_pos.y < top )
+				return Position( left, top );
+			else if( previous_pos.y > bottom )
+				return Position( left, bottom );
+			else
+				return Position( left, previous_pos.y );
+		}
+		else if( previous_pos.x > right )
+		{
+			if( previous_pos.y < top )
+				return Position( right, top );
+			else if( previous_pos.y > bottom )
+				return Position( right, bottom );
+			else
+				return Position( right, previous_pos.y );
+		}
+		else
+		{
+			if( previous_pos.y < top )
+				return Position( previous_pos.y, top );
+			else if( previous_pos.y > bottom )
+				return Position( previous_pos.y, bottom );
+		}
+
+		return previous_pos;
+	}
+	}
+
+	return Positions::None;
+}
+
+int getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position, Position * out_actual_ending_position = nullptr )
+{
+	Position actual_ending_position = getTravelPosition( starting_position, ending_position );
+	if( out_actual_ending_position )
+		*out_actual_ending_position = actual_ending_position;
+
+	int distance = starting_position.getApproxDistance( actual_ending_position );
+
 	// If we are close enough, assume we are there, to counteract errors from movement
-	int distance = starting_position.getApproxDistance( ending_position );
 	if( distance < 16 )
 		return 0;
 
@@ -49,32 +106,34 @@ void SkynetUnitManager::postUpdate()
 		if( free_time > current_latency )
 			continue;
 
-		Position required_position = Positions::None;
+		UnitPosition required_position;
 
 		for( auto & time_point : timings.second.time_points )
 		{
-			if( time_point.starting_position != Positions::None )
+			if( time_point.starting_position.index() != 0 )
 			{
 				required_position = time_point.starting_position;
 				break;
 			}
 		}
 
-		if( required_position != Positions::None )
+		if( required_position.index() != 0 )
 		{
-			unit->move( required_position );
+			unit->move( getTravelPosition( unit->getPosition(), required_position ) );
 		}
 	}
 }
 
-bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, Position ending_position ) const
+bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const
 {
-	if( !unit->getType().isFlyer() && !BWAPI::Broodwar->hasPath( starting_position, ending_position ) )
+	Position actual_ending_position = getTravelPosition( starting_position, ending_position );
+
+	if( !unit->getType().isFlyer() && !BWAPI::Broodwar->hasPath( starting_position, actual_ending_position ) )
 		return false;
 
 	// Don't allow units to move across long distances as they could encounter harm
 	// If a unit needs to be at a further location, another manager will take care of this
-	if( getTerrainAnalyser().getRegion( WalkPosition( starting_position ) ) != getTerrainAnalyser().getRegion( WalkPosition( ending_position ) ) )
+	if( getTerrainAnalyser().getRegion( WalkPosition( starting_position ) ) != getTerrainAnalyser().getRegion( WalkPosition( actual_ending_position ) ) )
 		return false;
 
 	return true;
@@ -89,7 +148,7 @@ bool SkynetUnitManager::canFitInTravelTime( const std::vector<UnitTimePoint> & t
 
 		available_idle_time += time_point.start_time - from_time;
 
-		if( time_point.starting_position != Positions::None )
+		if( time_point.starting_position.index() != 0 )
 		{
 			if( !canTravel( unit, previous_pos, time_point.starting_position ) )
 				return false;
@@ -118,12 +177,13 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 
 	for( auto & time_point : unit_timing.time_points )
 	{
+		Position actual_ending_position = Positions::None;
 		if( ideal_time + required_duration < time_point.start_time )
 		{
-			int travel_time = time_point.starting_position != Positions::None ? getTravelTime( unit, previous_pos, time_point.starting_position ) : 0;
+			int travel_time = time_point.starting_position.index() != 0 ? getTravelTime( unit, previous_pos, time_point.starting_position, &actual_ending_position ) : 0;
 			if( previous_time + required_duration + travel_time < time_point.start_time )
 			{
-				if( time_point.starting_position != Positions::None || canFitInTravelTime( unit_timing.time_points, unit, ideal_time + required_duration, idle_time, previous_pos ) )
+				if( time_point.starting_position.index() != 0 || canFitInTravelTime( unit_timing.time_points, unit, ideal_time + required_duration, idle_time, previous_pos ) )
 				{
 					return ideal_time;
 				}
@@ -139,13 +199,13 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 			idle_time += time_point.start_time - previous_time;
 
 		previous_time = time_point.end_time;
-		previous_pos = time_point.ending_position != Positions::None ? time_point.ending_position : previous_pos;
+		previous_pos = actual_ending_position != Positions::None ? actual_ending_position : previous_pos;
 	}
 
 	return std::max( previous_time, ideal_time );
 }
 
-int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required_duration, Position starting_position, Position ending_position ) const
+int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required_duration, UnitPosition starting_position, Position ending_position ) const
 {
 	auto unit_it = m_unit_timings.find( unit );
 	if( unit_it == m_unit_timings.end() )
@@ -159,17 +219,18 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 
 	for( auto & time_point : unit_timing.time_points )
 	{
+		Position actual_ending_position = Positions::None;
 		if( ideal_time + required_duration < time_point.start_time && canTravel( unit, previous_pos, starting_position ) )
 		{
-			int current_travel_time = getTravelTime( unit, previous_pos, starting_position ) - idle_time;
+			int current_travel_time = getTravelTime( unit, previous_pos, starting_position, &actual_ending_position ) - idle_time;
 			int earliest_start_time = std::max( ideal_time, previous_time + current_travel_time );
 
 			if( earliest_start_time + required_duration < time_point.start_time )
 			{
-				int next_travel_time = time_point.starting_position != Positions::None ? getTravelTime( unit, ending_position, time_point.starting_position ) : 0;
+				int next_travel_time = time_point.starting_position.index() != 0 ? getTravelTime( unit, ending_position, time_point.starting_position ) : 0;
 				if( earliest_start_time + required_duration + next_travel_time < time_point.start_time )
 				{
-					if( time_point.starting_position != Positions::None || canFitInTravelTime( unit_timing.time_points, unit, earliest_start_time + required_duration, 0, ending_position ) )
+					if( time_point.starting_position.index() != 0 || canFitInTravelTime( unit_timing.time_points, unit, earliest_start_time + required_duration, 0, ending_position ) )
 					{
 						return earliest_start_time;
 					}
@@ -186,7 +247,7 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 			idle_time += time_point.start_time - previous_time;
 
 		previous_time = time_point.end_time;
-		previous_pos = time_point.ending_position != Positions::None ? time_point.ending_position : previous_pos;
+		previous_pos = actual_ending_position != Positions::None ? actual_ending_position : previous_pos;
 	}
 
 	int travel_time = getTravelTime( unit, previous_pos, starting_position ) - idle_time;
@@ -194,14 +255,14 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 	return std::max( previous_time + std::max( travel_time, 0 ), ideal_time );
 }
 
-void SkynetUnitManager::reserveTaskUnit( Unit unit, int start_time, int end_time, Position starting_position, Position ending_position )
+void SkynetUnitManager::reserveTaskUnit( Unit unit, int start_time, int end_time, UnitPosition starting_position, Position ending_position )
 {
 	auto & unit_timing = m_unit_timings[unit];
 
 	if( start_time <= 0 )
 	{
 		unit_timing.available_time = end_time;
-		unit_timing.available_position = ending_position;
+		unit_timing.available_position = ending_position != Positions::None ? ending_position : unit->getPosition();
 		return;
 	}
 
@@ -255,7 +316,7 @@ int SkynetUnitManager::getFreeTime( Unit unit ) const
 	{
 		idle_time += time_point.start_time - previous_time;
 
-		if( time_point.starting_position != Positions::None )
+		if( time_point.starting_position.index() != 0 )
 		{
 			int travel_time = getTravelTime( unit, unit->getPosition(), time_point.starting_position );
 			idle_time -= travel_time;

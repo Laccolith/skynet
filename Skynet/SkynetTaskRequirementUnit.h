@@ -4,6 +4,7 @@
 
 #include "UnitGroup.h"
 #include "BuildLocation.h"
+#include "UnitManager.h"
 
 #include <memory>
 
@@ -12,7 +13,7 @@ class SkynetTaskRequirementUnitPositionBase
 public:
 	virtual ~SkynetTaskRequirementUnitPositionBase() {}
 
-	virtual void get( int & time, Position & starting_position, Position & ending_position ) = 0;
+	virtual void get( int & time, UnitPosition & starting_position, Position & ending_position ) = 0;
 	virtual void reserve( int time ) = 0;
 	virtual void freeReservation() = 0;
 
@@ -41,7 +42,7 @@ private:
 
 	Unit m_chosen_unit = nullptr;
 
-	int chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, Position starting_position, Position ending_position );
+	int chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, UnitPosition starting_position, Position ending_position );
 };
 
 class SkynetTaskRequirementUnitSpecific : public SkynetTaskRequirementUnit
@@ -70,16 +71,16 @@ private:
 class SkynetTaskRequirementUnitPosition : public SkynetTaskRequirementUnitPositionBase
 {
 public:
-	SkynetTaskRequirementUnitPosition( Position starting_position = Positions::None, Position ending_position = Positions::None );
+	SkynetTaskRequirementUnitPosition( UnitPosition starting_position = UnitPosition(), Position ending_position = Positions::None );
 
-	void get( int & time, Position & starting_position, Position & ending_position ) override;
+	void get( int & time, UnitPosition & starting_position, Position & ending_position ) override;
 	void reserve( int time ) override;
 	void freeReservation() override;
 
 	TilePosition getBuildPosition() const override;
 
 private:
-	Position m_starting_position;
+	UnitPosition m_starting_position;
 	Position m_ending_position;
 };
 
@@ -88,7 +89,7 @@ class SkynetTaskRequirementUnitPositionBuildLocation : public SkynetTaskRequirem
 public:
 	SkynetTaskRequirementUnitPositionBuildLocation( std::unique_ptr<BuildLocation> build_location );
 
-	void get( int & time, Position & starting_position, Position & ending_position ) override;
+	void get( int & time, UnitPosition & starting_position, Position & ending_position ) override;
 	void reserve( int time ) override;
 	void freeReservation() override;
 

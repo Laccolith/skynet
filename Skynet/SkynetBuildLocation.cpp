@@ -29,14 +29,14 @@ void SkynetBuildLocation::freeReservation()
 	m_manager.freeReservation( m_chosen_position, m_unit_type );
 }
 
-Position SkynetBuildLocation::getPosition() const
-{
-	return m_chosen_position != TilePositions::None ? Position( m_chosen_position ) + Position( m_unit_type.tileWidth() * 16, m_unit_type.tileHeight() * 16 ) : Positions::None;
-}
-
 TilePosition SkynetBuildLocation::getTilePosition() const
 {
 	return m_chosen_position;
+}
+
+UnitType SkynetBuildLocation::getUnitType() const
+{
+	return m_unit_type;
 }
 
 void SkynetBuildLocation::drawInfo()

@@ -29,6 +29,7 @@ private:
 	std::unique_ptr<TaskInterface> m_task;
 
 	std::unique_ptr<MessageListenerFunction<UnitDiscover>> m_unit_discover_listener;
+	std::unique_ptr<MessageListenerFunction<UnitMorphRenegade>> m_unit_morph_listener;
 
 	void createTask();
 };

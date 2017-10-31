@@ -13,8 +13,8 @@ public:
 	void reservePosition( int time ) override;
 	void freeReservation() override;
 
-	Position getPosition() const override;
 	TilePosition getTilePosition() const override;
+	UnitType getUnitType() const override;
 
 	void drawInfo();
 

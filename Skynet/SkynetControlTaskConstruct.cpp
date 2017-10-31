@@ -25,9 +25,10 @@ void SkynetControlTaskConstruct::preUpdate()
 {
 	if( m_build_unit )
 	{
-		if( m_unit_discover_listener )
+		if( m_unit_discover_listener || m_unit_morph_listener )
 		{
 			m_unit_discover_listener.reset();
+			m_unit_morph_listener.reset();
 
 			if( m_unit_type.getRace() == Races::Terran )
 			{
@@ -102,15 +103,31 @@ void SkynetControlTaskConstruct::postUpdate()
 			{
 				producer->build( m_unit_type, m_task->getBuildPosition() );
 
-				if( !m_unit_discover_listener )
+				if( m_unit_type.isRefinery() )
 				{
-					m_unit_discover_listener = std::make_unique<MessageListenerFunction<UnitDiscover>>( getAccess().getUnitTracker(), [this]( const UnitDiscover & message )
+					if( !m_unit_morph_listener )
 					{
-						if( !m_build_unit && message.unit->getType() == m_unit_type && message.unit->getTilePosition() == m_task->getBuildPosition() )
+						m_unit_morph_listener = std::make_unique<MessageListenerFunction<UnitMorphRenegade>>( getAccess().getUnitTracker(), [this]( const UnitMorphRenegade & message )
 						{
-							m_build_unit = message.unit;
-						}
-					} );
+							if( !m_build_unit && message.unit->getType() == m_unit_type && message.unit->getTilePosition() == m_task->getBuildPosition() )
+							{
+								m_build_unit = message.unit;
+							}
+						} );
+					}
+				}
+				else
+				{
+					if( !m_unit_discover_listener )
+					{
+						m_unit_discover_listener = std::make_unique<MessageListenerFunction<UnitDiscover>>( getAccess().getUnitTracker(), [this]( const UnitDiscover & message )
+						{
+							if( !m_build_unit && message.unit->getType() == m_unit_type && message.unit->getTilePosition() == m_task->getBuildPosition() )
+							{
+								m_build_unit = message.unit;
+							}
+						} );
+					}
 				}
 			}
 		}
