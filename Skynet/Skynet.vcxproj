@@ -189,6 +189,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="SkynetBaseManager.cpp" />
     <ClCompile Include="SkynetBuildLocation.cpp" />
     <ClCompile Include="SkynetBuildLocationManager.cpp" />
@@ -234,6 +235,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="ControlTaskFactory.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreAccess.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="SkynetBaseManager.h" />
     <ClInclude Include="SkynetBuildLocation.h" />
     <ClInclude Include="SkynetBuildLocationManager.h" />
