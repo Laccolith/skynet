@@ -38,96 +38,93 @@ SkynetCore::SkynetCore()
 
 	m_in_startup = false;
 	BWAPI::Broodwar->printf( "Skynet is online." );
+
+	auto worker_type = getPlayerTracker().getLocalPlayer()->getRace().getWorker();
+	auto supply_type = getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider();
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Nexus, BuildLocationType::Expansion ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Assimilator ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	for( int i = 0; i < 160; ++i )
+		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+
+	for( int i = 0; i < 10; ++i )
+		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+
+	/*for( int i = 0; i < 16; ++i )
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+
+	for( int i = 0; i < 160; ++i )
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
+
+	for( int i = 0; i < 4; ++i )
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+
+	for( int i = 0; i < 25; ++i )
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );*/
 }
 
 SkynetCore::~SkynetCore() = default;
 
 void SkynetCore::update()
 {
-	auto worker_type = getPlayerTracker().getLocalPlayer()->getRace().getWorker();
-	auto supply_type = getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider();
-
-	static std::vector<std::unique_ptr<ControlTask>> tasks;
-
-	if( tasks.empty() )
-	{
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Assimilator ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		for( int i = 0; i < 160; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-
-		for( int i = 0; i < 10; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-		tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-
-		/*for( int i = 0; i < 16; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-		for( int i = 0; i < 160; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-		for( int i = 0; i < 4; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-
-		for( int i = 0; i < 25; ++i )
-			tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );*/
-	}
-
 	for( auto & e : BWAPI::Broodwar->getEvents() )
 	{
 		if( e.getType() == BWAPI::EventType::SendText )

@@ -5,6 +5,7 @@
 #include "Types.h"
 #include "Messaging.h"
 #include "UnitTracker.h"
+#include "BuildLocation.h"
 
 #include <memory>
 
@@ -12,7 +13,7 @@ class TaskInterface;
 class SkynetControlTaskConstruct : public SkynetControlTask
 {
 public:
-	SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type );
+	SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type, BuildLocationType build_location_type );
 
 	bool isInProgress() const override;
 	bool isFinished() const override;
@@ -22,6 +23,7 @@ public:
 
 private:
 	UnitType m_unit_type;
+	BuildLocationType m_build_location_type;
 	bool m_has_finished = false;
 	Unit m_build_unit = nullptr;
 

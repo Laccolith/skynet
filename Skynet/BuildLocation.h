@@ -2,6 +2,12 @@
 
 #include "Types.h"
 
+enum class BuildLocationType
+{
+	Base,
+	Expansion
+};
+
 class BuildLocation
 {
 public:

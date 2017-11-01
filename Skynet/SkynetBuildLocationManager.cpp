@@ -145,7 +145,7 @@ void SkynetBuildLocationManager::postUpdate()
 	}
 }
 
-std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int time, UnitType unit_type ) const
+std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int time, UnitType unit_type, BuildLocationType build_location_type ) const
 {
 	std::pair<int, TilePosition> best_position( max_time, TilePositions::None );
 
@@ -176,25 +176,97 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 		time = std::max( m_earliest_power_time, time );
 	}
 
-	for( Base base : m_base_order_normal )
+	switch( build_location_type )
 	{
-		auto build_positions_it = m_base_to_build_positions.find( base );
-		if( build_positions_it == m_base_to_build_positions.end() )
-			continue;
-
-		for( TilePosition tile_position : build_positions_it->second )
+	case BuildLocationType::Base:
+		for( Base base : m_base_order_normal )
 		{
+			auto build_positions_it = m_base_to_build_positions.find( base );
+			if( build_positions_it == m_base_to_build_positions.end() )
+				continue;
+
+			for( TilePosition tile_position : build_positions_it->second )
+			{
+				bool is_buildable = true;
+				for( int x = tile_position.x; x < tile_position.x + unit_type.tileWidth() && is_buildable; ++x )
+				{
+					for( int y = tile_position.y; y < tile_position.y + unit_type.tileHeight() && is_buildable; ++y )
+					{
+						if( !BWAPI::Broodwar->isBuildable( x, y, true ) )
+							is_buildable = false;
+
+						auto tile_info = m_tile_info[TilePosition( x, y )];
+
+						if( tile_info.is_build_planned || tile_info.is_permanently_reserved || tile_info.m_resouce_reserved > 0 )
+							is_buildable = false;
+					}
+				}
+
+				if( !is_buildable )
+					continue;
+
+				int ready_time = 0;
+
+				if( unit_type.requiresPsi() )
+				{
+					if( unit_type.tileHeight() == 2 && unit_type.tileWidth() == 2 )
+					{
+						int power_available_time = m_build_power_times[tile_position].small_building_time;
+						if( power_available_time > ready_time )
+							ready_time = power_available_time;
+					}
+					else if( unit_type.tileHeight() == 2 && unit_type.tileWidth() == 3 )
+					{
+						int power_available_time = m_build_power_times[tile_position].medium_building_time;
+						if( power_available_time > ready_time )
+							ready_time = power_available_time;
+					}
+					else if( unit_type.tileHeight() == 3 && unit_type.tileWidth() == 4 )
+					{
+						int power_available_time = m_build_power_times[tile_position].large_building_time;
+						if( power_available_time > ready_time )
+							ready_time = power_available_time;
+					}
+				}
+
+				int earliest_time = std::max( ready_time, time );
+				if( earliest_time < best_position.first )
+				{
+					best_position.first = earliest_time;
+					best_position.second = tile_position;
+
+					if( best_position.first <= time )
+					{
+						return best_position;
+					}
+				}
+			}
+		}
+
+		break;
+
+	case BuildLocationType::Expansion:
+	{
+		// TODO: Use map analysis to make this decision
+
+		Base best_base = nullptr;
+		int best_distance = max_distance;
+
+		for( auto base : getBaseTracker().getAllBases() )
+		{
+			if( !base->getLocation() || base->getResourceDepot() )
+				continue;
+
+			TilePosition tile_position = base->getLocation()->getBuildLocation();
+
 			bool is_buildable = true;
 			for( int x = tile_position.x; x < tile_position.x + unit_type.tileWidth() && is_buildable; ++x )
 			{
 				for( int y = tile_position.y; y < tile_position.y + unit_type.tileHeight() && is_buildable; ++y )
 				{
-					if( !BWAPI::Broodwar->isBuildable( x, y, true ) )
-						is_buildable = false;
-
 					auto tile_info = m_tile_info[TilePosition( x, y )];
 
-					if( tile_info.is_build_planned || tile_info.is_permanently_reserved || tile_info.m_resouce_reserved > 0 )
+					if( tile_info.is_build_planned )
 						is_buildable = false;
 				}
 			}
@@ -202,42 +274,28 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 			if( !is_buildable )
 				continue;
 
-			int ready_time = 0;
-
-			if( unit_type.requiresPsi() )
+			for( Base my_base : getBaseTracker().getAllBases( getPlayerTracker().getLocalPlayer() ) )
 			{
-				if( unit_type.tileHeight() == 2 && unit_type.tileWidth() == 2 )
-				{
-					int power_available_time = m_build_power_times[tile_position].small_building_time;
-					if( power_available_time > ready_time )
-						ready_time = power_available_time;
-				}
-				else if( unit_type.tileHeight() == 2 && unit_type.tileWidth() == 3 )
-				{
-					int power_available_time = m_build_power_times[tile_position].medium_building_time;
-					if( power_available_time > ready_time )
-						ready_time = power_available_time;
-				}
-				else if( unit_type.tileHeight() == 3 && unit_type.tileWidth() == 4 )
-				{
-					int power_available_time = m_build_power_times[tile_position].large_building_time;
-					if( power_available_time > ready_time )
-						ready_time = power_available_time;
-				}
-			}
+				if( !base->getRegion()->isConnected( my_base->getRegion() ) )
+					continue;
 
-			int earliest_time = std::max( ready_time, time );
-			if( earliest_time < best_position.first )
-			{
-				best_position.first = earliest_time;
-				best_position.second = tile_position;
-
-				if( best_position.first <= time )
+				int distance = base->getCenterPosition().getApproxDistance( my_base->getCenterPosition() );
+				if( distance < best_distance )
 				{
-					return best_position;
+					best_base = base;
+					best_distance = distance;
 				}
 			}
 		}
+
+		if( best_base )
+		{
+			best_position.first = time;
+			best_position.second = best_base->getLocation()->getBuildLocation();
+		}
+
+		break;
+	}
 	}
 
 	return best_position;
@@ -276,9 +334,9 @@ void SkynetBuildLocationManager::freeReservation( TilePosition position, UnitTyp
 	m_reserved_positions.pop_back();
 }
 
-std::unique_ptr<BuildLocation> SkynetBuildLocationManager::createBuildLocation( UnitType unit_type )
+std::unique_ptr<BuildLocation> SkynetBuildLocationManager::createBuildLocation( UnitType unit_type, BuildLocationType build_location_type )
 {
-	auto build_location = std::make_unique<SkynetBuildLocation>( *this, unit_type );
+	auto build_location = std::make_unique<SkynetBuildLocation>( *this, unit_type, build_location_type );
 	m_build_locations.insert( build_location.get(), true );
 	return build_location;
 }

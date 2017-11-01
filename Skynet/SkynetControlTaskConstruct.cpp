@@ -4,9 +4,10 @@
 #include "Unit.h"
 #include "BuildLocationManager.h"
 
-SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type )
+SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type, BuildLocationType build_location_type )
 	: SkynetControlTask( skynet_control_task_factory )
 	, m_unit_type( unit_type )
+	, m_build_location_type( build_location_type )
 {
 	createTask();
 }
@@ -150,7 +151,7 @@ void SkynetControlTaskConstruct::createTask()
 
 	int required_duration = m_unit_type.getRace() == Races::Zerg ? max_time : m_unit_type.getRace() == Races::Protoss ? BWAPI::Broodwar->getLatencyFrames() : m_unit_type.buildTime();
 
-	m_task->addRequirementUnit( m_unit_type.whatBuilds().first, required_duration, getAccess().getBuildLocationManager().createBuildLocation( m_unit_type ) );
+	m_task->addRequirementUnit( m_unit_type.whatBuilds().first, required_duration, getAccess().getBuildLocationManager().createBuildLocation( m_unit_type, m_build_location_type ) );
 
 	if( m_unit_type.supplyProvided() > 0 )
 		m_task->addOutputSupply( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type.supplyProvided() );

@@ -2,9 +2,10 @@
 
 #include "SkynetBuildLocationManager.h"
 
-SkynetBuildLocation::SkynetBuildLocation( SkynetBuildLocationManager & manager, UnitType unit_type )
+SkynetBuildLocation::SkynetBuildLocation( SkynetBuildLocationManager & manager, UnitType unit_type, BuildLocationType build_location_type )
 	: m_manager( manager )
 	, m_unit_type( unit_type )
+	, m_build_location_type( build_location_type )
 {
 }
 
@@ -15,7 +16,7 @@ SkynetBuildLocation::~SkynetBuildLocation()
 
 int SkynetBuildLocation::calculatePosition( int earliest_time )
 {
-	std::tie( earliest_time, m_chosen_position ) = m_manager.choosePosition( earliest_time, m_unit_type );
+	std::tie( earliest_time, m_chosen_position ) = m_manager.choosePosition( earliest_time, m_unit_type, m_build_location_type );
 	return earliest_time;
 }
 

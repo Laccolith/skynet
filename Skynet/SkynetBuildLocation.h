@@ -6,7 +6,7 @@ class SkynetBuildLocationManager;
 class SkynetBuildLocation : public BuildLocation
 {
 public:
-	SkynetBuildLocation( SkynetBuildLocationManager & manager, UnitType unit_type );
+	SkynetBuildLocation( SkynetBuildLocationManager & manager, UnitType unit_type, BuildLocationType build_location_type );
 	~SkynetBuildLocation();
 
 	int calculatePosition( int earliest_time ) override;
@@ -22,6 +22,7 @@ private:
 	SkynetBuildLocationManager & m_manager;
 
 	UnitType m_unit_type;
+	BuildLocationType m_build_location_type;
 
 	TilePosition m_chosen_position = TilePositions::None;
 };

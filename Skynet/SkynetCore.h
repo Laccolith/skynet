@@ -7,6 +7,7 @@
 #include <functional>
 #include <memory>
 
+class ControlTask;
 class SkynetCore : public Core
 {
 public:
@@ -67,4 +68,6 @@ private:
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
 	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
 	std::unique_ptr<BuildLocationManagerInterface> m_build_location_manager;
+
+	std::vector<std::unique_ptr<ControlTask>> m_tasks;
 };

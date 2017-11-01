@@ -13,7 +13,7 @@ public:
 	void preUpdate();
 	void postUpdate();
 
-	std::unique_ptr<ControlTask> createBuildControlTask( UnitType unit_type ) override;
+	std::unique_ptr<ControlTask> createBuildControlTask( UnitType unit_type, BuildLocationType build_location_type = BuildLocationType::Base ) override;
 
 	void onTaskDestroyed( SkynetControlTask * task );
 

@@ -27,7 +27,7 @@ void SkynetControlTaskFactory::postUpdate()
 	}
 }
 
-std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( UnitType unit_type )
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( UnitType unit_type, BuildLocationType build_location_type )
 {
 	std::unique_ptr<SkynetControlTask> control_task;
 
@@ -41,7 +41,7 @@ std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( U
 	}
 	else if( unit_type.isBuilding() )
 	{
-		control_task = std::make_unique<SkynetControlTaskConstruct>( *this, unit_type );
+		control_task = std::make_unique<SkynetControlTaskConstruct>( *this, unit_type, build_location_type );
 	}
 	else
 	{

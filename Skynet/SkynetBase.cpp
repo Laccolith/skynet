@@ -128,6 +128,9 @@ void SkynetBase::update()
 
 	for( Unit building : m_buildings )
 	{
+		if( building->accessibility() == UnitAccessType::Dead )
+			volatile int i = 0;
+
 		++player_building_counter[building->getPlayer()->getID()];
 	}
 

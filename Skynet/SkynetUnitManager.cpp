@@ -139,10 +139,7 @@ bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, UnitPo
 	if( !unit->getType().isFlyer() && !BWAPI::Broodwar->hasPath( starting_position, actual_ending_position ) )
 		return false;
 
-	// Don't allow units to move across long distances as they could encounter harm
-	// If a unit needs to be at a further location, another manager will take care of this
-	if( getTerrainAnalyser().getRegion( WalkPosition( starting_position ) ) != getTerrainAnalyser().getRegion( WalkPosition( actual_ending_position ) ) )
-		return false;
+	// TODO: Have a manager that knows of map control etc so workers don't travel really far to their deaths
 
 	return true;
 }

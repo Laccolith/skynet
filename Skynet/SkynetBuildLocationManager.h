@@ -18,11 +18,11 @@ public:
 	void preUpdate();
 	void postUpdate();
 
-	std::pair<int, TilePosition> choosePosition( int time, UnitType unit_type ) const;
+	std::pair<int, TilePosition> choosePosition( int time, UnitType unit_type, BuildLocationType build_location_type ) const;
 	void reservePosition( int time, TilePosition position , UnitType unit_type );
 	void freeReservation( TilePosition position, UnitType unit_type );
 
-	std::unique_ptr<BuildLocation> createBuildLocation( UnitType unit_type ) override;
+	std::unique_ptr<BuildLocation> createBuildLocation( UnitType unit_type, BuildLocationType build_location_type ) override;
 	void onBuildLocationDestroyed( SkynetBuildLocation * build_location );
 
 private:
