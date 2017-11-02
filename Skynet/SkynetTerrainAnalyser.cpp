@@ -14,11 +14,16 @@
 #include <fstream>
 #include <filesystem>
 
+// Increment if anything changes in the algorithm, or in the file format
+const unsigned int data_version_number = 3;
+
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	: TerrainAnalyserInterface( core )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	core.registerUpdateProcess( 1.0f, [this]() { update(); } );
+
+	setDebugging( Debug::Default, true );
 }
 
 void SkynetTerrainAnalyser::update()
@@ -34,23 +39,41 @@ void SkynetTerrainAnalyser::update()
 		postMessage<TerrainAnalysed>();
 	}
 
-	if( isDebugging( Debug::Default ) && BWAPI::Broodwar->getKeyState( BWAPI::Key( '6' ) ) )
+	if( isDebugging( Debug::Default ) && BWAPI::Broodwar->getKeyState( BWAPI::Key( '0' ) ) )
 		++m_reprocess_request;
 
 	checkData();
 
 	if( isDebugging( Debug::Default ) )
 	{
-		bool show_connectivity = BWAPI::Broodwar->getKeyState( BWAPI::Key( '1' ) );
-		bool show_clearance = BWAPI::Broodwar->getKeyState( BWAPI::Key( '2' ) );
-		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key( '3' ) );
-		bool show_chokepoints = BWAPI::Broodwar->getKeyState( BWAPI::Key( '4' ) );
-		bool show_base_locations = BWAPI::Broodwar->getKeyState( BWAPI::Key( '5' ) );
+		bool show_region = BWAPI::Broodwar->getKeyState( BWAPI::Key( '1' ) );
+		bool show_connectivity = BWAPI::Broodwar->getKeyState( BWAPI::Key( '2' ) );
+		bool show_clearance = BWAPI::Broodwar->getKeyState( BWAPI::Key( '3' ) );
+		bool show_regions = BWAPI::Broodwar->getKeyState( BWAPI::Key( '4' ) );
+		bool show_chokepoints = BWAPI::Broodwar->getKeyState( BWAPI::Key( '5' ) );
+		bool show_base_locations = BWAPI::Broodwar->getKeyState( BWAPI::Key( '6' ) );
 
 		WalkPosition mouse_tile( BWAPI::Broodwar->getMousePosition() + BWAPI::Broodwar->getScreenPosition() );
 		if( mouse_tile.isValid() )
 		{
-			if( show_connectivity )
+			if( show_region )
+			{
+				Region region = getRegion( mouse_tile );
+				if( region )
+				{
+					WalkPosition top_left( BWAPI::Broodwar->getScreenPosition() );
+					WalkPosition bottom_right( top_left + WalkPosition( Position( 640, 480 ) ) );
+					if( bottom_right.x > m_map_size.x ) bottom_right.x = m_map_size.x;
+					if( bottom_right.y > m_map_size.y ) bottom_right.y = m_map_size.y;
+
+					MapUtil::forEachPosition( top_left, bottom_right, [this, region]( WalkPosition pos )
+					{
+						if( getRegion( pos ) == region )
+							BWAPI::Broodwar->drawBoxMap( pos.x * 8, pos.y * 8, pos.x * 8 + 7, pos.y * 8 + 7, Colors::Red );
+					} );
+				}
+			}
+			else if( show_connectivity )
 			{
 				int current_connectivity = m_processed_data.m_tile_connectivity[mouse_tile];
 
@@ -104,6 +127,26 @@ int SkynetTerrainAnalyser::getGroundDistance( WalkPosition start, WalkPosition e
 {
 	Region start_region = getRegion( start );
 	Region end_region = getRegion( end );
+
+	if( !start_region || !end_region )
+	{
+		BWAPI::Broodwar->setLocalSpeed( -1 );
+
+		if( !start_region )
+		{
+			getDrawBuffer().drawMap<BufferedBox>( max_time, Position( start ), Position( start ) + Position( 7, 7 ), Colors::Red );
+			getDrawBuffer().drawMap<BufferedBox>( max_time, Position( end ), Position( end ) + Position( 7, 7 ), Colors::Green );
+			getDrawBuffer().drawMap<BufferedLine>( max_time, Position( start ), Position( end ), Colors::Red );
+		}
+		else
+		{
+			getDrawBuffer().drawMap<BufferedBox>( max_time, Position( start ), Position( start ) + Position( 7, 7 ), Colors::Green );
+			getDrawBuffer().drawMap<BufferedBox>( max_time, Position( end ), Position( end ) + Position( 7, 7 ), Colors::Red );
+			getDrawBuffer().drawMap<BufferedLine>( max_time, Position( start ), Position( end ), Colors::Red );
+		}
+
+		return start.getApproxDistance( end );
+	}
 
 	if( start_region == end_region )
 		return start.getApproxDistance( end );
@@ -498,12 +541,13 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 				// For every tile between the chokepoint sides
 				std::queue<WalkPosition> choke_children;
-				auto add_choke_children = [this, &region_size, &tile_to_chokepoint, &choke_children, &current_chokepoint, &data]( WalkPosition line_pos )
+				auto add_choke_children = [this, &region_size, &tile_to_chokepoint, &choke_children, &current_region, &current_chokepoint, &data]( WalkPosition line_pos )
 				{
 					if( line_pos.x >= 0 && line_pos.y >= 0 && line_pos.x < m_map_size.x && line_pos.y < m_map_size.y && data.m_tile_clearance[line_pos] != 0 )
 					{
 						++region_size;
 						tile_to_chokepoint[line_pos] = current_chokepoint;
+						data.m_tile_to_region[line_pos] = current_region;
 						choke_children.push( line_pos );
 					}
 
@@ -526,8 +570,11 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 					auto current_tile = choke_children.front();
 					choke_children.pop();
 
-					data.m_tile_to_region[current_tile] = nullptr;
-					tile_data[current_tile].last_minima = WalkPositions::None;
+					if( tile_to_chokepoint[current_tile] != current_chokepoint )
+					{
+						data.m_tile_to_region[current_tile] = nullptr;
+						tile_data[current_tile].last_minima = WalkPositions::None;
+					}
 
 					for( int i = 0; i < 4; ++i )
 					{
@@ -882,8 +929,6 @@ void SkynetTerrainAnalyser::checkData()
 	}
 }
 
-const unsigned int data_version_number = 2;
-
 template <typename T>
 void writeData( std::ofstream & file, T value )
 {
@@ -998,7 +1043,8 @@ bool SkynetTerrainAnalyser::tryLoadData()
 		{
 			WalkPosition pos( x, y );
 
-			m_processed_data.m_tile_to_region[pos] = m_processed_data.m_region_storage[readData<unsigned int>( file )].get();
+			unsigned int region_id = readData<unsigned int>( file );
+			m_processed_data.m_tile_to_region[pos] = region_id < m_processed_data.m_region_storage.size() ? m_processed_data.m_region_storage[region_id].get() : nullptr;
 			m_processed_data.m_tile_clearance[pos] = readData<int>( file );
 			m_processed_data.m_tile_connectivity[pos] = readData<int>( file );
 			m_processed_data.m_tile_to_closest_obstacle[pos] = readData<WalkPosition>( file );
@@ -1114,13 +1160,15 @@ void SkynetTerrainAnalyser::saveData()
 		writeData( file, small_obstacle );
 	}
 
+	unsigned int null_region_id = (unsigned int) m_processed_data.m_region_storage.size();
 	for( int x = 0; x < m_map_size.x; ++x )
 	{
 		for( int y = 0; y < m_map_size.y; ++y )
 		{
 			WalkPosition pos( x, y );
 
-			writeData( file, region_ids[m_processed_data.m_tile_to_region[pos]] );
+			Region region = m_processed_data.m_tile_to_region[pos];
+			writeData( file, region ? region_ids[region] : null_region_id );
 			writeData( file, m_processed_data.m_tile_clearance[pos] );
 			writeData( file, m_processed_data.m_tile_connectivity[pos] );
 			writeData( file, m_processed_data.m_tile_to_closest_obstacle[pos] );

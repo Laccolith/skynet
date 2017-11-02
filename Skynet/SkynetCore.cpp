@@ -18,6 +18,7 @@
 SkynetCore::SkynetCore()
 {
 	BWAPI::Broodwar->enableFlag( BWAPI::Flag::UserInput );
+	BWAPI::Broodwar->setLocalSpeed( 0 );
 
 	m_draw_buffer = std::make_unique<DrawBuffer>( *this );
 	m_player_tracker = std::make_unique<SkynetPlayerTracker>( *this );
