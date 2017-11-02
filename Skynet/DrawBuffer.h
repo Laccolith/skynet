@@ -112,7 +112,6 @@ public:
 	}
 
 private:
-	int m_current_frame = 0;
 	std::vector<std::unique_ptr<BufferedItem>> m_items;
 	std::mutex m_items_mutex;
 
@@ -120,22 +119,26 @@ private:
 	void add( int num_frames, ARGS&&... args )
 	{
 		std::lock_guard<std::mutex> lock( m_items_mutex );
-		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( m_current_frame + num_frames, std::forward<ARGS>( args )... ) );
+		m_items.emplace_back( std::make_unique<BufferedItemImpl<T, ARGS...>>( num_frames, std::forward<ARGS>( args )... ) );
 	}
 };
 
 class BufferedItem
 {
 public:
-	BufferedItem( int removal_frame ) : m_removal_frame( removal_frame ) {}
+	BufferedItem( int num_frames ) : m_remaining_frames( num_frames ) {}
 	virtual ~BufferedItem() {}
 
 	virtual void draw() const = 0;
 
-	bool shouldDelete( int current_frame ) const { return current_frame >= m_removal_frame; }
+	bool update()
+	{
+		--m_remaining_frames;
+		return m_remaining_frames < 0;
+	}
 
 private:
-	int m_removal_frame;
+	int m_remaining_frames;
 };
 
 template<int ...> struct Seq {};
@@ -178,8 +181,8 @@ template <typename T, typename ...ARGS>
 class BufferedItemImpl : public BufferedItem
 {
 public:
-	BufferedItemImpl( int removal_frame, ARGS&&... args )
-		: BufferedItem( removal_frame )
+	BufferedItemImpl( int num_frames, ARGS&&... args )
+		: BufferedItem( num_frames )
 		, m_arguments( std::forward<ARGS>( args )... )
 	{
 	}
