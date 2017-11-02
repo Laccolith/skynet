@@ -19,7 +19,7 @@ public:
 	void registerModule( CoreModule & inter ) override;
 	void registerUpdateProcess( float priority, std::function<void()> update_function ) override;
 
-	DrawBuffer & getDrawBuffer() override { return *m_draw_buffer; }
+	DrawBuffer & getDrawBuffer() const override { return *m_draw_buffer; }
 
 	PlayerTrackerInterface & getPlayerTracker() override { return *m_player_tracker; }
 	const PlayerTrackerInterface & getPlayerTracker() const override { return *m_player_tracker; }

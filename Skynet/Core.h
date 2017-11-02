@@ -23,7 +23,7 @@ public:
 	virtual void registerModule( CoreModule & inter ) = 0;
 	virtual void registerUpdateProcess( float priority, std::function<void()> update_function ) = 0;
 
-	virtual DrawBuffer & getDrawBuffer() = 0;
+	virtual DrawBuffer & getDrawBuffer() const = 0;
 
 	virtual PlayerTrackerInterface & getPlayerTracker() = 0;
 	virtual const PlayerTrackerInterface & getPlayerTracker() const = 0;

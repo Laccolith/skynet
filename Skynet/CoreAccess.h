@@ -12,7 +12,7 @@ public:
 
 	CoreAccess( CoreAccess & core_access ) = default;
 
-	DrawBuffer & getDrawBuffer() { return m_core.getDrawBuffer(); }
+	DrawBuffer & getDrawBuffer() const { return m_core.getDrawBuffer(); }
 
 	PlayerTrackerInterface & getPlayerTracker() { return m_core.getPlayerTracker(); }
 	const PlayerTrackerInterface & getPlayerTracker() const { return m_core.getPlayerTracker(); }
