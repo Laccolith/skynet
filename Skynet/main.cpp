@@ -37,7 +37,8 @@ int main()
 
 		while( BWAPI::BWAPIClient.isConnected() && BWAPI::Broodwar->isInGame() )
 		{
-			skynet.update();
+			if( !BWAPI::Broodwar->isPaused() )
+				skynet.update();
 
 			BWAPI::BWAPIClient.update();
 		}
@@ -68,7 +69,7 @@ public:
 
 	void onFrame() override
 	{
-		if( m_skynet )
+		if( m_skynet && !BWAPI::Broodwar->isPaused() )
 		{
 			m_skynet->update();
 		}
