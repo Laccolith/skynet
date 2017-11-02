@@ -77,22 +77,6 @@ Position getTravelPosition( Position previous_pos, UnitPosition next_pos, bool s
 	return Positions::None;
 }
 
-int getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position, Position * out_actual_ending_position = nullptr )
-{
-	Position actual_ending_position = getTravelPosition( starting_position, ending_position, false );
-	if( out_actual_ending_position )
-		*out_actual_ending_position = actual_ending_position;
-
-	int distance = starting_position.getApproxDistance( actual_ending_position );
-
-	// If we are close enough, assume we are there, to counteract errors from movement
-	if( distance < 24 )
-		return 0;
-
-	// TODO: Create a better estimate using terrain analysis
-	return int( (distance * 1.2) / unit->getType().topSpeed() );
-}
-
 void SkynetUnitManager::postUpdate()
 {
 	int current_latency = BWAPI::Broodwar->getRemainingLatencyFrames();
@@ -130,6 +114,22 @@ void SkynetUnitManager::postUpdate()
 			unit->move( target_position );
 		}
 	}
+}
+
+int SkynetUnitManager::getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position, Position * out_actual_ending_position ) const
+{
+	Position actual_ending_position = getTravelPosition( starting_position, ending_position, false );
+	if( out_actual_ending_position )
+		*out_actual_ending_position = actual_ending_position;
+
+	int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( starting_position ), WalkPosition( actual_ending_position ) );
+
+	// If we are close enough, assume we are there, to counteract errors from movement
+	if( distance < 24 )
+		return 0;
+
+	// TODO: Create a better estimate using terrain analysis
+	return int( (distance * 1.2) / unit->getType().topSpeed() );
 }
 
 bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const

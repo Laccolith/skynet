@@ -2,8 +2,9 @@
 
 #include "Region.h"
 
-SkynetChokepoint::SkynetChokepoint( WalkPosition center, WalkPosition side1, WalkPosition side2, int clearance )
-	: m_center( center )
+SkynetChokepoint::SkynetChokepoint( int id, WalkPosition center, WalkPosition side1, WalkPosition side2, int clearance )
+	: m_id( id)
+	, m_center( center )
 	, m_sides( std::make_pair( side1, side2 ) )
 	, m_clearance( clearance )
 {

@@ -7,6 +7,7 @@
 #include "Region.h"
 #include "Unit.h"
 #include "UnitTracker.h"
+#include "TerrainAnalyser.h"
 #include "MapUtil.h"
 
 SkynetBuildLocationManager::SkynetBuildLocationManager( Core & core )
@@ -131,7 +132,13 @@ void SkynetBuildLocationManager::preUpdate()
 
 	m_base_order_normal = getBaseTracker().getAllBases( getPlayerTracker().getLocalPlayer() );
 
-	//TODO: Sort based on importance
+	std::sort( m_base_order_normal.begin(), m_base_order_normal.end(), []( Base first_base, Base second_base )
+	{
+		if( first_base->isStartLocation() != second_base->isStartLocation() )
+			return first_base->isStartLocation();
+
+		return first_base->getBuildings().size() > second_base->getBuildings().size();
+	} );
 }
 
 void SkynetBuildLocationManager::postUpdate()
@@ -279,7 +286,7 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 				if( !base->getRegion()->isConnected( my_base->getRegion() ) )
 					continue;
 
-				int distance = base->getCenterPosition().getApproxDistance( my_base->getCenterPosition() );
+				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( my_base->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) );
 				if( distance < best_distance )
 				{
 					best_base = base;

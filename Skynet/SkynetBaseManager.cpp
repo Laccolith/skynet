@@ -123,7 +123,7 @@ void SkynetBaseManager::update()
 		UnitGroup refineries;
 		for( auto gas : base_data.first->getGeysers() )
 		{
-			if( !gas->getType().isRefinery() || !gas->isCompleted() || gas->getPlayer() != getPlayerTracker().getLocalPlayer() || gas->getResources() > 0 )
+			if( !gas->getType().isRefinery() || !gas->isCompleted() || gas->getPlayer() != getPlayerTracker().getLocalPlayer() || gas->getResources() == 0 )
 				continue;
 
 			refineries.insert( gas );

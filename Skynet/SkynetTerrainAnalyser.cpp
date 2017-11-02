@@ -100,6 +100,42 @@ void SkynetTerrainAnalyser::update()
 	}
 }
 
+int SkynetTerrainAnalyser::getGroundDistance( WalkPosition start, WalkPosition end ) const
+{
+	Region start_region = getRegion( start );
+	Region end_region = getRegion( end );
+
+	if( start_region == end_region )
+		return start.getApproxDistance( end );
+
+	int shortest_distance = max_distance;
+
+	if( start_region->getConnectivity() == end_region->getConnectivity() )
+	{
+		for( Chokepoint start_chokepoint : start_region->getChokepoints() )
+		{
+			int distance_to_start_chokepoint = start.getApproxDistance( start_chokepoint->getCenter() );
+
+			for( Chokepoint end_chokepoint : end_region->getChokepoints() )
+			{
+				int distance_between_chokepoints = m_processed_data.m_chokepoint_distances[Position( start_chokepoint->getID(), end_chokepoint->getID() )];
+				if( distance_between_chokepoints == max_distance )
+					continue;
+
+				int distance_to_end_chokepoint = end.getApproxDistance( end_chokepoint->getCenter() );
+
+				int total_distance = distance_to_start_chokepoint + distance_between_chokepoints + distance_to_end_chokepoint;
+				if( total_distance < shortest_distance )
+				{
+					shortest_distance = total_distance;
+				}
+			}
+		}
+	}
+
+	return shortest_distance;
+}
+
 void SkynetTerrainAnalyser::process( Data & data, UnitGroup resources )
 {
 	calculateConnectivity( data );
@@ -363,7 +399,8 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		tile_data.fill();
 
 		// This will be the start of our region
-		data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( current_region_tile, current_region_clearance, data.m_tile_connectivity[current_region_tile] ) );
+		int region_id = data.m_region_storage.size();
+		data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( region_id, current_region_tile, current_region_clearance, data.m_tile_connectivity[current_region_tile] ) );
 		SkynetRegion *current_region = data.m_region_storage.back().get();
 		data.m_regions.push_back( current_region );
 
@@ -450,7 +487,8 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 				std::pair<WalkPosition, WalkPosition> choke_sides = findChokePoint( last_minima, data );
 
 				// Create the chokepoint
-				data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( last_minima, choke_sides.first, choke_sides.second, last_minima_size ) );
+				int chokepoint_id = data.m_chokepoint_storage.size();
+				data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( chokepoint_id, last_minima, choke_sides.first, choke_sides.second, last_minima_size ) );
 				SkynetChokepoint *current_chokepoint = data.m_chokepoint_storage.back().get();
 				data.m_chokepoints.push_back( current_chokepoint );
 
@@ -541,6 +579,28 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		current_region->setSize( region_size );
 	}
 
+	data.m_chokepoint_distances.resize( data.m_chokepoints.size(), data.m_chokepoints.size(), max_distance );
+
+	for( Chokepoint start_chokepoint : getChokepoints() )
+	{
+		for( Chokepoint end_chokepoint : getChokepoints() )
+		{
+			Position distance_position{ start_chokepoint->getID(), end_chokepoint->getID() };
+
+			if( start_chokepoint == end_chokepoint )
+				data.m_chokepoint_distances[distance_position] = 0;
+			else if( start_chokepoint->getRegions().first->getConnectivity() != end_chokepoint->getRegions().first->getConnectivity() )
+				continue;
+			else if( start_chokepoint->getRegions().first == end_chokepoint->getRegions().first
+				|| start_chokepoint->getRegions().first == end_chokepoint->getRegions().second
+				|| start_chokepoint->getRegions().second == end_chokepoint->getRegions().first
+				|| start_chokepoint->getRegions().second == end_chokepoint->getRegions().second )
+				data.m_chokepoint_distances[distance_position] = start_chokepoint->getCenter().getApproxDistance( end_chokepoint->getCenter() );
+			else
+				data.m_chokepoint_distances[distance_position] = calculateShortestDistance( start_chokepoint, end_chokepoint );
+		}
+	}
+
 	std::chrono::duration<float> elapsed_seconds = std::chrono::system_clock::now() - start_time;
 	data.m_regions_time_seconds = elapsed_seconds.count();
 }
@@ -600,6 +660,65 @@ std::pair<WalkPosition, WalkPosition> SkynetTerrainAnalyser::findChokePoint( Wal
 			y0 += sy;
 		}
 	}
+}
+
+int SkynetTerrainAnalyser::calculateShortestDistance( Chokepoint start_chokepoint, Chokepoint end_chokepoint ) const
+{
+	Heap<Chokepoint, int> open_chokepoints{ true };
+	std::set<Chokepoint> closed_chokepoints;
+	std::map<Chokepoint, int> chokepoint_distances;
+
+	open_chokepoints.push( std::make_pair( start_chokepoint, 0 ) );
+
+	while( !open_chokepoints.empty() )
+	{
+		Chokepoint current_chokepoint = open_chokepoints.top().first;
+		int current_distance = open_chokepoints.top().second;
+
+		if( current_chokepoint == end_chokepoint )
+			return current_distance;
+
+		chokepoint_distances[current_chokepoint] = current_distance;
+
+		open_chokepoints.pop();
+		closed_chokepoints.insert( current_chokepoint );
+
+		for( Chokepoint connected_chokepoint : current_chokepoint->getRegions().first->getChokepoints() )
+		{
+			if( current_chokepoint == connected_chokepoint || closed_chokepoints.count( connected_chokepoint ) > 0 )
+				continue;
+
+			int connection_distance = current_distance + current_chokepoint->getCenter().getApproxDistance( connected_chokepoint->getCenter() );
+
+			if( !open_chokepoints.contains( connected_chokepoint ) )
+			{
+				open_chokepoints.push( std::make_pair( connected_chokepoint, connection_distance ) );
+			}
+			else if( open_chokepoints.get( connected_chokepoint ) > connection_distance )
+			{
+				open_chokepoints.set( connected_chokepoint, connection_distance );
+			}
+		}
+
+		for( Chokepoint connected_chokepoint : current_chokepoint->getRegions().second->getChokepoints() )
+		{
+			if( current_chokepoint == connected_chokepoint || closed_chokepoints.count( connected_chokepoint ) > 0 )
+				continue;
+
+			int connection_distance = current_distance + current_chokepoint->getCenter().getApproxDistance( connected_chokepoint->getCenter() );
+
+			if( !open_chokepoints.contains( connected_chokepoint ) )
+			{
+				open_chokepoints.push( std::make_pair( connected_chokepoint, connection_distance ) );
+			}
+			else if( open_chokepoints.get( connected_chokepoint ) > connection_distance )
+			{
+				open_chokepoints.set( connected_chokepoint, connection_distance );
+			}
+		}
+	}
+
+	return max_distance;
 }
 
 void SkynetTerrainAnalyser::createBases( Data & data, const UnitGroup & resources )
@@ -763,7 +882,7 @@ void SkynetTerrainAnalyser::checkData()
 	}
 }
 
-const unsigned int data_version_number = 1;
+const unsigned int data_version_number = 2;
 
 template <typename T>
 void writeData( std::ofstream & file, T value )
@@ -808,7 +927,7 @@ bool SkynetTerrainAnalyser::tryLoadData()
 		int connectivity = readData<int>( file );
 		int size = readData<int>( file );
 
-		m_processed_data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( pos, clearance, connectivity ) );
+		m_processed_data.m_region_storage.emplace_back( std::make_unique<SkynetRegion>( i, pos, clearance, connectivity ) );
 		m_processed_data.m_region_storage.back()->setSize( size );
 		m_processed_data.m_regions.push_back( m_processed_data.m_region_storage.back().get() );
 	}
@@ -823,7 +942,7 @@ bool SkynetTerrainAnalyser::tryLoadData()
 		unsigned int region_id_1 = readData<unsigned int>( file );
 		unsigned int region_id_2 = readData<unsigned int>( file );
 
-		m_processed_data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( center, side1, side2, clearance ) );
+		m_processed_data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( i, center, side1, side2, clearance ) );
 		m_processed_data.m_chokepoints.push_back( m_processed_data.m_chokepoint_storage.back().get() );
 
 		m_processed_data.m_chokepoint_storage.back()->setRegion1( m_processed_data.m_regions[region_id_1] );
@@ -831,6 +950,15 @@ bool SkynetTerrainAnalyser::tryLoadData()
 
 		m_processed_data.m_chokepoint_storage.back()->setRegion2( m_processed_data.m_regions[region_id_2] );
 		m_processed_data.m_region_storage[region_id_2]->addChokepoint( m_processed_data.m_chokepoints.back() );
+	}
+
+	m_processed_data.m_chokepoint_distances.resize( num_chokepoints, num_chokepoints, max_distance );
+	for( int i = 0; i < (int) num_chokepoints; ++i )
+	{
+		for( int j = 0; j < (int) num_chokepoints; ++j )
+		{
+			m_processed_data.m_chokepoint_distances[Position( i, j )] = readData<int>( file );
+		}
 	}
 
 	unsigned int num_base_locations = readData<unsigned int>( file );
@@ -952,6 +1080,14 @@ void SkynetTerrainAnalyser::saveData()
 		writeData( file, chokepoint->getClearance() );
 		writeData( file, region_ids[chokepoint->getRegions().first] );
 		writeData( file, region_ids[chokepoint->getRegions().second] );
+	}
+
+	for( int i = 0, i_end = m_processed_data.m_chokepoint_storage.size(); i < i_end; ++i )
+	{
+		for( int j = 0, j_end = m_processed_data.m_chokepoint_storage.size(); j < j_end; ++j )
+		{
+			writeData( file, m_processed_data.m_chokepoint_distances[Position(i, j)] );
+		}
 	}
 
 	writeData( file, (unsigned int) m_processed_data.m_base_location_storage.size() );

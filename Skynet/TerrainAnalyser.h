@@ -24,4 +24,6 @@ public:
 	virtual int getClearance( WalkPosition pos ) const = 0;
 	virtual int getConnectivity( WalkPosition pos ) const = 0;
 	virtual WalkPosition getClosestObstacle( WalkPosition pos ) const = 0;
+
+	virtual int getGroundDistance( WalkPosition start, WalkPosition end ) const = 0;
 };

@@ -7,6 +7,8 @@
 class RegionInterface
 {
 public:
+	virtual int getID() const = 0;
+
 	virtual WalkPosition getCenter() const = 0;
 	virtual int getClearance() const = 0;
 	virtual int getConnectivity() const = 0;

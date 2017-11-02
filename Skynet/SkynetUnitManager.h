@@ -41,6 +41,7 @@ private:
 	};
 	std::map<Unit, UnitTiming> m_unit_timings;
 
+	int getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position, Position * out_actual_ending_position = nullptr ) const;
 	bool canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const;
 	bool canFitInTravelTime( const std::vector<UnitTimePoint> & time_points, Unit unit, int from_time, int available_idle_time, Position previous_pos ) const;
 

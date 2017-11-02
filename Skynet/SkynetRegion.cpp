@@ -3,8 +3,9 @@
 #include "SkynetTerrainAnalyser.h"
 #include "Chokepoint.h"
 
-SkynetRegion::SkynetRegion( WalkPosition center, int clearance, int connectivity )
-	: m_center( center )
+SkynetRegion::SkynetRegion( int id, WalkPosition center, int clearance, int connectivity )
+	: m_id( id )
+	, m_center( center )
 	, m_clearance( clearance )
 	, m_connectivity( connectivity )
 	, m_size( 0 )

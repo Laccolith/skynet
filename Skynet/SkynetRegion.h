@@ -6,7 +6,9 @@ class SkynetTerrainAnalyser;
 class SkynetRegion : public RegionInterface
 {
 public:
-	SkynetRegion( WalkPosition center, int clearance, int connectivity );
+	SkynetRegion( int id, WalkPosition center, int clearance, int connectivity );
+
+	int getID() const override { return m_id; }
 
 	WalkPosition getCenter() const override { return m_center; }
 	int getClearance() const override { return m_clearance; }
@@ -34,6 +36,8 @@ protected:
 	void markInvalid() { m_is_valid = false; }
 
 private:
+	int m_id;
+
 	WalkPosition m_center;
 	int m_clearance;
 	int m_connectivity;

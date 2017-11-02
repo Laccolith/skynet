@@ -26,6 +26,8 @@ public:
 	int getConnectivity( WalkPosition pos ) const override { return m_processed_data.m_tile_connectivity[clampToMap( pos )]; }
 	WalkPosition getClosestObstacle( WalkPosition pos ) const override { return m_processed_data.m_tile_to_closest_obstacle[clampToMap( pos )]; }
 
+	int getGroundDistance( WalkPosition start, WalkPosition end ) const override;
+
 	WalkPosition clampToMap( WalkPosition pos ) const
 	{
 		if( pos.x >= m_map_size.x ) pos.x = m_map_size.x - 1;
@@ -57,6 +59,7 @@ private:
 		RectangleArray<int, WALKPOSITION_SCALE> m_tile_clearance;
 		RectangleArray<int, WALKPOSITION_SCALE> m_tile_connectivity;
 		RectangleArray<WalkPosition, WALKPOSITION_SCALE> m_tile_to_closest_obstacle;
+		RectangleArray<int> m_chokepoint_distances;
 
 		int m_request = 0;
 
@@ -102,6 +105,7 @@ private:
 	void calculateClearance( Data & data );
 	void calculateRegions( Data & data );
 	std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center, Data & data ) const;
+	int calculateShortestDistance( Chokepoint start_chokepoint, Chokepoint end_chokepoint ) const;
 	void createBases( Data & data, const UnitGroup & resources );
 
 	std::future<std::unique_ptr<Data>> m_async_future;

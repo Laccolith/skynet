@@ -6,7 +6,9 @@ class SkynetTerrainAnalyser;
 class SkynetChokepoint : public ChokepointInterface
 {
 public:
-	SkynetChokepoint( WalkPosition center, WalkPosition side1, WalkPosition side2, int clearance );
+	SkynetChokepoint( int id, WalkPosition center, WalkPosition side1, WalkPosition side2, int clearance );
+
+	int getID() const override { return m_id; }
 
 	WalkPosition getCenter() const override { return m_center; }
 	std::pair<WalkPosition, WalkPosition> getSides() const override { return m_sides; }
@@ -27,6 +29,8 @@ protected:
 	void markInvalid() { m_is_valid = false; }
 
 private:
+	int m_id;
+
 	WalkPosition m_center;
 	std::pair<WalkPosition, WalkPosition> m_sides;
 	int m_clearance;

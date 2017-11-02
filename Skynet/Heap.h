@@ -31,7 +31,7 @@ public:
 		if( m_data.empty() )
 			return;
 
-		std::map<Key, int>::iterator it = m_mapping.find( m_data.front().first );
+		auto it = m_mapping.find( m_data.front().first );
 		if( it != m_mapping.end() )
 		{
 			it->second = 0;
@@ -51,7 +51,7 @@ public:
 
 	bool set( const Key &key, const Val &val )
 	{
-		std::map<Key, int>::iterator it = m_mapping.find( key );
+		auto it = m_mapping.find( key );
 		if( it == m_mapping.end() )
 		{
 			push( std::make_pair( key, val ) );
@@ -73,14 +73,14 @@ public:
 
 	const Val &get( const Key &key ) const
 	{
-		std::map<Key, int>::const_iterator it = m_mapping.find( key );
+		auto it = m_mapping.find( key );
 		int index = it->second;
 		return m_data[index].second;
 	}
 
 	bool contains( const Key &key ) const
 	{
-		std::map<Key, int>::const_iterator it = m_mapping.find( key );
+		auto it = m_mapping.find( key );
 		return (it != m_mapping.end());
 	}
 
@@ -97,7 +97,7 @@ public:
 
 	bool erase( const Key &key )
 	{
-		std::map<Key, int>::iterator it = m_mapping.find( key );
+		auto it = m_mapping.find( key );
 		if( it == m_mapping.end() )
 			return false;
 
