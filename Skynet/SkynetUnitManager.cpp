@@ -65,9 +65,9 @@ Position getTravelPosition( Position previous_pos, UnitPosition next_pos, bool s
 		else
 		{
 			if( previous_pos.y < top )
-				return Position( previous_pos.y, top );
+				return Position( previous_pos.x, top );
 			else if( previous_pos.y > bottom )
-				return Position( previous_pos.y, bottom );
+				return Position( previous_pos.x, bottom );
 		}
 
 		return previous_pos;
