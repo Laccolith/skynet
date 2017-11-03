@@ -22,8 +22,6 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	core.registerUpdateProcess( 1.0f, [this]() { update(); } );
-
-	setDebugging( Debug::Default, true );
 }
 
 void SkynetTerrainAnalyser::update()
