@@ -119,7 +119,7 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 
 void SkynetBaseTracker::notify( const UnitDiscover & message )
 {
-	if( message.unit->getType().isBuilding() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
+	if( message.unit->getType().isBuilding() && !message.unit->getType().isAddon() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
 	{
 		m_tile_to_base[message.unit->getTilePosition()]->add_building( message.unit );
 	}
@@ -127,15 +127,22 @@ void SkynetBaseTracker::notify( const UnitDiscover & message )
 
 void SkynetBaseTracker::notify( const UnitMorphRenegade & message )
 {
-	if( message.unit->getType().isBuilding() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
+	if( message.isMorph() )
 	{
-		m_tile_to_base[message.unit->getTilePosition()]->add_building( message.unit );
+		if( message.last_type.isBuilding() && !message.last_type.isAddon() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
+		{
+			m_tile_to_base[message.unit->getTilePosition()]->remove_building( message.unit );
+		}
+		if( message.unit->getType().isBuilding() && !message.unit->getType().isAddon() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
+		{
+			m_tile_to_base[message.unit->getTilePosition()]->add_building( message.unit );
+		}
 	}
 }
 
 void SkynetBaseTracker::notify( const UnitDestroy & message )
 {
-	if( message.unit->getType().isBuilding() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
+	if( message.unit->getType().isBuilding() && !message.unit->getType().isAddon() && !message.unit->getPlayer()->isNeutral() && !m_bases.empty() )
 	{
 		m_tile_to_base[message.unit->getTilePosition()]->remove_building( message.unit );
 	}

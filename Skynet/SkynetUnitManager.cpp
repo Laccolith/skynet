@@ -6,11 +6,17 @@
 
 SkynetUnitManager::SkynetUnitManager( Core & core )
 	: UnitManagerInterface( core )
+	, MessageListener<UnitDestroy>( getUnitTracker() )
 {
 	core.registerUpdateProcess( 2.0f, [this]() { preUpdate(); } );
 	core.registerUpdateProcess( 5.0f, [this]() { postUpdate(); } );
 
 	setDebugging( Debug::Default, true );
+}
+
+void SkynetUnitManager::notify( const UnitDestroy & message )
+{
+	m_unit_timings.erase( message.unit );
 }
 
 void SkynetUnitManager::preUpdate()
@@ -84,7 +90,7 @@ Position getTravelPosition( Position previous_pos, UnitPosition next_pos, bool s
 
 void SkynetUnitManager::postUpdate()
 {
-	int current_latency = BWAPI::Broodwar->getRemainingLatencyFrames();
+	int current_latency = 12 + BWAPI::Broodwar->getRemainingLatencyFrames();
 
 	for( auto & timings : m_unit_timings )
 	{
@@ -152,7 +158,7 @@ int SkynetUnitManager::getTravelTime( Unit unit, Position starting_position, Uni
 		return 0;
 
 	// TODO: Create a better estimate using terrain analysis
-	return int( (distance * 1.2) / unit->getType().topSpeed() );
+	return int( (distance * 1.6) / unit->getType().topSpeed() );
 }
 
 bool SkynetUnitManager::canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const
@@ -255,10 +261,12 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 
 			if( earliest_start_time + required_duration < time_point.start_time )
 			{
-				int next_travel_time = time_point.starting_position.index() != 0 ? getTravelTime( unit, ending_position, time_point.starting_position ) : 0;
+				Position actual_ending_position = ending_position == Positions::None ? getTravelPosition( previous_pos, starting_position, false ) : ending_position;
+
+				int next_travel_time = time_point.starting_position.index() != 0 ? getTravelTime( unit, actual_ending_position, time_point.starting_position ) : 0;
 				if( earliest_start_time + required_duration + next_travel_time < time_point.start_time )
 				{
-					if( time_point.starting_position.index() != 0 || canFitInTravelTime( unit_timing.time_points, unit, earliest_start_time + required_duration, 0, ending_position ) )
+					if( time_point.starting_position.index() != 0 || canFitInTravelTime( unit_timing.time_points, unit, earliest_start_time + required_duration, 0, actual_ending_position ) )
 					{
 						return earliest_start_time;
 					}

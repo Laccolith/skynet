@@ -1,14 +1,17 @@
 #pragma once
 
 #include "UnitManager.h"
+#include "UnitTracker.h"
 
 #include <map>
 #include <vector>
 
-class SkynetUnitManager : public UnitManagerInterface
+class SkynetUnitManager : public UnitManagerInterface, public MessageListener<UnitDestroy>
 {
 public:
 	SkynetUnitManager( Core & core );
+
+	void notify( const UnitDestroy & message ) override;
 
 	void preUpdate();
 	void postUpdate();

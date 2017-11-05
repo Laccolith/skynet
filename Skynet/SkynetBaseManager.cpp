@@ -8,6 +8,9 @@
 
 #include <array>
 
+constexpr int c_max_mineral_workers = 2;
+constexpr int c_max_gas_workers = 3;
+
 SkynetBaseManager::SkynetBaseManager( Core & core )
 	: BaseManagerInterface( core )
 	, MessageListener<BasesRecreated>( getBaseTracker() )
@@ -100,7 +103,16 @@ void SkynetBaseManager::update()
 
 	for( auto & base_data : m_base_data )
 	{
-		const UnitGroup & current_workers = current_base_workers[base_data.first];
+		auto base_worker_it = current_base_workers.find( base_data.first );
+		if( base_worker_it == current_base_workers.end() )
+		{
+			base_data.second.available_workers.clear();
+			base_data.second.worker_to_resource.clear();
+			base_data.second.resource_to_workers.clear();
+			continue;
+		}
+
+		const UnitGroup & current_workers = base_worker_it->second;
 
 		base_data.second.available_workers.removeIf( [&current_workers, &base_data]( Unit worker )
 		{
@@ -129,29 +141,21 @@ void SkynetBaseManager::update()
 			refineries.insert( gas );
 		}
 
-		int num_gas = std::min( refineries.size() * 3, base_data.second.available_workers.size() );
-		int num_mining = std::min( base_data.second.sorted_minerals.size() * 3, base_data.second.available_workers.size() - num_gas );
+		bool is_active = base_data.first->getResourceDepot() && base_data.first->getResourceDepot()->isCompleted();
 
-		std::array<int, 3> mineral_assignments = { 0, 0, 0 };
-		mineral_assignments[0] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining );
-		mineral_assignments[1] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining - mineral_assignments[0] );
-		mineral_assignments[2] = std::min( (int) base_data.second.sorted_minerals.size(), num_mining - mineral_assignments[0] - mineral_assignments[1] );
+		int max_gas = is_active ? std::min( refineries.size() * c_max_gas_workers, base_data.second.available_workers.size() ) : 0;
+		int max_mining = is_active ? std::min( base_data.second.sorted_minerals.size() * c_max_mineral_workers, base_data.second.available_workers.size() - max_gas ) : 0;
+
+		std::array<int, c_max_mineral_workers> mineral_assignments;
+		for( int i = 0; i < c_max_mineral_workers; ++i )
+		{
+			mineral_assignments[i] = std::min( (int) base_data.second.sorted_minerals.size(), max_mining );
+			max_mining -= mineral_assignments[i];
+		}
 
 		for( auto & pair : base_data.second.resource_to_workers )
 		{
-			if( pair.first->getType().isRefinery() )
-			{
-				if( !refineries.contains( pair.first ) )
-				{
-					for( auto unit : pair.second )
-					{
-						base_data.second.worker_to_resource.erase( unit );
-					}
-
-					pair.second.clear();
-				}
-			}
-			else if( pair.first->getType().isMineralField() )
+			if( pair.first->getType().isMineralField() )
 			{
 				int num_to_remove = 0;
 				for( size_t i = 0; i < pair.second.size(); ++i )
@@ -168,6 +172,18 @@ void SkynetBaseManager::update()
 					pair.second.pop_back();
 				}
 			}
+			else
+			{
+				if( !refineries.contains( pair.first ) )
+				{
+					for( auto unit : pair.second )
+					{
+						base_data.second.worker_to_resource.erase( unit );
+					}
+
+					pair.second.clear();
+				}
+			}
 		}
 
 		for( auto worker : base_data.second.available_workers )
@@ -180,7 +196,7 @@ void SkynetBaseManager::update()
 				for( auto refinery : refineries )
 				{
 					auto & workers = base_data.second.resource_to_workers[refinery];
-					if( workers.size() < 3 )
+					if( workers.size() < c_max_gas_workers )
 					{
 						resource_assignment = refinery;
 						workers.insert( worker, true );
@@ -188,7 +204,7 @@ void SkynetBaseManager::update()
 					}
 				}
 
-				for( unsigned int i = 1; i <= 3 && !resource_assignment; ++i )
+				for( unsigned int i = 1; i <= c_max_mineral_workers && !resource_assignment; ++i )
 				{
 					for( Unit mineral : base_data.second.sorted_minerals )
 					{
@@ -212,8 +228,39 @@ void SkynetBaseManager::update()
 			}
 		}
 
-		mineral_rate += double( num_mining ) * (8.0 / 180.0);
-		gas_rate += double( num_gas ) * (8.0 / 180.0);
+		// TODO: Figure out travel time and generate these values
+		for( auto & pair : base_data.second.resource_to_workers )
+		{
+			switch( pair.second.size() )
+			{
+			case 0:
+				continue;
+
+			case 1:
+				if( pair.first->getType().isMineralField() )
+					mineral_rate += 0.0501;
+				else
+					gas_rate += 0.0701;
+
+				continue;
+
+			case 2:
+				if( pair.first->getType().isMineralField() )
+					mineral_rate += 0.08745;
+				else
+					gas_rate += 0.13985;
+
+				continue;
+
+			default:
+				if( pair.first->getType().isMineralField() )
+					mineral_rate += 0.08745;
+				else
+					gas_rate += 0.2083;
+
+				continue;
+			}
+		}
 	}
 
 	getResourceManager().setMineralRate( mineral_rate );

@@ -14,6 +14,9 @@ SkynetUnitTracker::SkynetUnitTracker( Core & core )
 
 Unit SkynetUnitTracker::getUnit( BWAPI::Unit unit ) const
 {
+	if( unit->getID() >= (int) m_bwapi_units.size() )
+		return nullptr;
+
 	return m_bwapi_units[unit->getID()].get();
 }
 
@@ -21,10 +24,11 @@ UnitGroup SkynetUnitTracker::getUnitGroup( const BWAPI::Unitset & units ) const
 {
 	UnitGroup return_units;
 
-	for( BWAPI::Unit unit : units )
+	for( BWAPI::Unit bwapi_unit : units )
 	{
-		if( m_bwapi_units[unit->getID()] )
-			return_units.insert( m_bwapi_units[unit->getID()].get(), true );
+		auto unit = getUnit( bwapi_unit );
+		if( unit )
+			return_units.insert( unit, true );
 	}
 
 	return return_units;
@@ -84,20 +88,6 @@ void SkynetUnitTracker::update()
 		m_free_ids.push_back( dead_unit->getID() );
 	m_dead_units.clear();
 
-	int highest_id = 0;
-	for( auto unit : BWAPI::Broodwar->getAllUnits() )
-	{
-		if( unit->getID() > highest_id )
-		{
-			highest_id = unit->getID();
-		}
-	}
-
-	if( highest_id >= (int) m_bwapi_units.size() )
-	{
-		m_bwapi_units.resize( highest_id + 1 );
-	}
-
 	for( const Event &event : BWAPI::Broodwar->getEvents() )
 	{
 		if( event.getType() == Events::UnitDestroy )
@@ -137,6 +127,9 @@ void SkynetUnitTracker::update()
 
 void SkynetUnitTracker::onUnitDiscover( BWAPI::Unit unit )
 {
+	if( unit->getID() >= (int) m_bwapi_units.size() )
+		m_bwapi_units.resize( unit->getID() + 1 );
+
 	auto & new_unit = m_bwapi_units[unit->getID()];
 
 	if( new_unit )
