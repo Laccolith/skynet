@@ -483,7 +483,7 @@ void SkynetBaseManager::postUpdate()
 					if( start_chokepoint )
 					{
 						int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) );
-						int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() );
+						int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() ) + 40;
 
 						if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )
 						{
