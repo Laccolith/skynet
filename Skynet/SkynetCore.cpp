@@ -99,15 +99,20 @@ SkynetCore::SkynetCore()
 	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
 	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
 
+	for( int i = 0; i < 20; ++i )
+		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
+
 	for( int i = 0; i < 160; ++i )
 		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
 
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
+
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
+	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
 	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
 
-	for( int i = 0; i < 10; ++i )
+	for( int i = 0; i < 16; ++i )
 		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
 
 	/*for( int i = 0; i < 16; ++i )
 	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );

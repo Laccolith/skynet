@@ -149,7 +149,7 @@ void SkynetBaseManager::postUpdate()
 
 	for( auto & base_data : m_base_data )
 	{
-		bool is_active = base_data.first->getResourceDepot() && base_data.first->getResourceDepot()->getPlayer() == getPlayerTracker().getLocalPlayer();
+		bool is_active = base_data.first->getResourceDepot() && base_data.first->getResourceDepot()->getPlayer() == player;
 
 		auto base_worker_it = current_base_workers.find( base_data.first );
 		if( base_worker_it == current_base_workers.end() )
@@ -190,7 +190,7 @@ void SkynetBaseManager::postUpdate()
 		UnitGroup refineries;
 		for( auto gas : base_data.first->getGeysers() )
 		{
-			if( !gas->getType().isRefinery() || !gas->isCompleted() || gas->getPlayer() != getPlayerTracker().getLocalPlayer() || gas->getResources() == 0 )
+			if( !gas->getType().isRefinery() || !gas->isCompleted() || gas->getPlayer() != player || gas->getResources() == 0 )
 				continue;
 
 			refineries.insert( gas );
@@ -255,79 +255,121 @@ void SkynetBaseManager::postUpdate()
 			}
 		}
 
-		for( auto worker : base_data.second.available_workers )
+		bool given_move_order = false;
+
+		int depot_time_till_complete = base_data.first->getResourceDepot()->getTimeTillCompleted();
+		if( depot_time_till_complete > 40.0 )
 		{
-			Unit & resource_assignment = base_data.second.worker_to_resource[worker];
-			if( !resource_assignment )
+			Base nearest_base = nullptr;
+			int nearest_distance = max_distance;
+
+			for( Base base : getBaseTracker().getAllBases( player ) )
 			{
-				// TODO: Room for improvement - Collect all workers without assignments first then choose the assignements for them all based on distance
+				if( base == base_data.first )
+					continue;
 
-				for( auto refinery : refineries )
+				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( base_data.first->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) );
+				if( distance < nearest_distance )
 				{
-					auto & workers = base_data.second.resource_to_workers[refinery];
-					if( workers.size() < c_max_gas_workers )
-					{
-						resource_assignment = refinery;
-						workers.insert( worker, true );
-						break;
-					}
+					nearest_distance = distance;
+					nearest_base = base;
 				}
+			}
 
-				for( unsigned int i = 1; i <= c_max_mineral_workers && !resource_assignment; ++i )
+			if( nearest_base )
+			{
+				int travel_time = int( double( nearest_distance ) / player->getRace().getWorker().topSpeed() );
+				if( ((travel_time*2.0) + 40.0) < depot_time_till_complete )
 				{
-					for( Unit mineral : base_data.second.sorted_minerals )
+					for( auto worker : base_data.second.available_workers )
 					{
-						auto & workers = base_data.second.resource_to_workers[mineral];
-						if( workers.size() < i )
+						worker->move( nearest_base->getCenterPosition() );
+					}
+
+					given_move_order = true;
+				}
+			}
+		}
+		
+		if( !given_move_order )
+		{
+			for( auto worker : base_data.second.available_workers )
+			{
+				Unit & resource_assignment = base_data.second.worker_to_resource[worker];
+				if( !resource_assignment )
+				{
+					// TODO: Room for improvement - Collect all workers without assignments first then choose the assignements for them all based on distance
+
+					for( auto refinery : refineries )
+					{
+						auto & workers = base_data.second.resource_to_workers[refinery];
+						if( workers.size() < c_max_gas_workers )
 						{
-							resource_assignment = mineral;
+							resource_assignment = refinery;
 							workers.insert( worker, true );
 							break;
 						}
 					}
-				}
-			}
 
-			if( resource_assignment )
-			{
-				if( worker->isCarryingGas() || worker->isCarryingMinerals() )
-					worker->returnCargo( base_data.first->getResourceDepot() );
-				else
-					worker->gather( resource_assignment );
+					for( unsigned int i = 1; i <= c_max_mineral_workers && !resource_assignment; ++i )
+					{
+						for( Unit mineral : base_data.second.sorted_minerals )
+						{
+							auto & workers = base_data.second.resource_to_workers[mineral];
+							if( workers.size() < i )
+							{
+								resource_assignment = mineral;
+								workers.insert( worker, true );
+								break;
+							}
+						}
+					}
+				}
+
+				if( resource_assignment )
+				{
+					if( worker->isCarryingGas() || worker->isCarryingMinerals() )
+						worker->returnCargo( base_data.first->getResourceDepot() );
+					else
+						worker->gather( resource_assignment );
+				}
 			}
 		}
 
 		// TODO: Figure out travel time and generate these values
-		for( auto & pair : base_data.second.resource_to_workers )
+		if( base_data.first->getResourceDepot()->isCompleted() )
 		{
-			switch( pair.second.size() )
+			for( auto & pair : base_data.second.resource_to_workers )
 			{
-			case 0:
-				continue;
+				switch( pair.second.size() )
+				{
+				case 0:
+					continue;
 
-			case 1:
-				if( pair.first->getType().isMineralField() )
-					mineral_rate += 0.0501;
-				else
-					gas_rate += 0.0701;
+				case 1:
+					if( pair.first->getType().isMineralField() )
+						mineral_rate += 0.0501;
+					else
+						gas_rate += 0.0701;
 
-				continue;
+					continue;
 
-			case 2:
-				if( pair.first->getType().isMineralField() )
-					mineral_rate += 0.08745;
-				else
-					gas_rate += 0.13985;
+				case 2:
+					if( pair.first->getType().isMineralField() )
+						mineral_rate += 0.08745;
+					else
+						gas_rate += 0.13985;
 
-				continue;
+					continue;
 
-			default:
-				if( pair.first->getType().isMineralField() )
-					mineral_rate += 0.08745;
-				else
-					gas_rate += 0.2083;
+				default:
+					if( pair.first->getType().isMineralField() )
+						mineral_rate += 0.08745;
+					else
+						gas_rate += 0.2083;
 
-				continue;
+					continue;
+				}
 			}
 		}
 	}
@@ -440,14 +482,20 @@ void SkynetBaseManager::postUpdate()
 
 					if( start_chokepoint )
 					{
-						for( int i = 0; i < num_to_move; ++i )
+						int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) );
+						int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() );
+
+						if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )
 						{
-							auto task = getTaskManager().createTask( "Worker Base Transfer" );
+							for( int i = 0; i < num_to_move; ++i )
+							{
+								auto task = getTaskManager().createTask( "Worker Base Transfer" );
 
-							// TODO: Required time needs to be how long it will take to travel
-							task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
+								// TODO: Required time needs to be how long it will take to travel
+								task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
 
-							transfers.push_back( std::move( task ) );
+								transfers.push_back( std::move( task ) );
+							}
 						}
 					}
 
