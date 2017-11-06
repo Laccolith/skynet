@@ -36,7 +36,7 @@ void SkynetControlTaskTrain::preUpdate()
 	auto producer = m_task->getAssignedUnit();
 	if( producer )
 	{
-		if( producer->isTraining() && producer->getTrainingQueue().front() == m_unit_type )
+		if( !producer->getTrainingQueue().empty() && producer->getTrainingQueue().front() == m_unit_type )
 		{
 			if( !m_build_unit )
 			{
@@ -80,13 +80,16 @@ void SkynetControlTaskTrain::postUpdate()
 		{
 			producer->train( m_unit_type );
 		}
-		else if( producer->getTrainingQueue().front() != m_unit_type )
+		else if( !producer->getTrainingQueue().empty() )
 		{
-			producer->cancel( 0 );
-		}
-		else if( producer->getTrainingQueue().size() > 1 )
-		{
-			producer->cancel();
+			if( producer->getTrainingQueue().front() != m_unit_type )
+			{
+				producer->cancel( 0 );
+			}
+			else if( producer->getTrainingQueue().size() > 1 )
+			{
+				producer->cancel();
+			}
 		}
 	}
 }

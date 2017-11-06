@@ -48,17 +48,17 @@ SkynetBase::SkynetBase( CoreAccess & core_access, Region region )
 
 bool SkynetBase::isEnemyBase() const
 {
-	return BWAPI::Broodwar->self()->isEnemy( m_player->getBWAPIPlayer() );
+	return m_player && BWAPI::Broodwar->self()->isEnemy( m_player->getBWAPIPlayer() );
 }
 
 bool SkynetBase::isMyBase() const
 {
-	return m_player->isLocalPlayer();
+	return m_player && m_player->isLocalPlayer();
 }
 
 bool SkynetBase::isAllyBase() const
 {
-	return BWAPI::Broodwar->self()->isAlly( m_player->getBWAPIPlayer() );
+	return m_player && BWAPI::Broodwar->self()->isAlly( m_player->getBWAPIPlayer() );
 }
 
 void SkynetBase::draw() const

@@ -92,6 +92,14 @@ void SkynetBaseManager::preUpdate()
 			return current_base == worker_transfer.first.second;
 		} ), worker_transfer.second.end() );
 	}
+
+	for( auto it = m_worker_transfers.begin(); it != m_worker_transfers.end(); )
+	{
+		if( it->second.empty() )
+			it = m_worker_transfers.erase( it );
+		else
+			++it;
+	}
 }
 
 void SkynetBaseManager::postUpdate()
@@ -383,41 +391,47 @@ void SkynetBaseManager::postUpdate()
 		Base target_base = worker_transfer.first.second;
 
 		int workers_transfering = 0;
+		int awaiting_transfer = 0;
 		for( auto & transfer_task : worker_transfer.second )
 		{
 			if( transfer_task->getAssignedUnit() )
+			{
 				transfer_task->getAssignedUnit()->move( target_base->getCenterPosition() );
-			else
 				++workers_transfering;
+			}
+			else
+				++awaiting_transfer;
 		}
 
-		if( workers_transfering > 0 )
+		if( awaiting_transfer > 0 || workers_transfering > 0 )
 		{
-			int workers_transfering_target = workers_transfering;
+			int transfering_target = awaiting_transfer + workers_transfering;
 			auto & muti_base_data_target = multi_base_data_map[target_base];
 			
 			for( int i = 0; i < (int) muti_base_data_target.worker_counts.size(); ++i )
 			{
-				int workers_assigned = std::min( workers_transfering_target, muti_base_data_target.worker_counts[i].required_workers );
+				int workers_assigned = std::min( transfering_target, muti_base_data_target.worker_counts[i].required_workers );
 				muti_base_data_target.worker_counts[i].required_workers -= workers_assigned;
 				muti_base_data_target.worker_counts[i].assigned_workers += workers_assigned;
-				workers_transfering_target -= workers_assigned;
+				transfering_target -= workers_assigned;
 			}
 
-			if( workers_transfering_target > 0 )
+			if( transfering_target > 0 )
 			{
-				muti_base_data_target.worker_counts[c_max_mineral_workers + 1].assigned_workers += workers_transfering;
+				muti_base_data_target.worker_counts[c_max_mineral_workers + 1].assigned_workers += transfering_target;
 			}
 
-			int workers_transfering_source = workers_transfering;
-			auto & muti_base_data_source = multi_base_data_map[source_base];
-
-			for( int i = muti_base_data_source.worker_counts.size() - 1; i >= 0; --i )
+			if( awaiting_transfer )
 			{
-				int workers_assigned = std::min( workers_transfering_source, muti_base_data_source.worker_counts[i].assigned_workers );
-				muti_base_data_source.worker_counts[i].required_workers += workers_assigned;
-				muti_base_data_source.worker_counts[i].assigned_workers -= workers_assigned;
-				workers_transfering_source -= workers_assigned;
+				auto & muti_base_data_source = multi_base_data_map[source_base];
+
+				for( int i = muti_base_data_source.worker_counts.size() - 1; i >= 0; --i )
+				{
+					int workers_assigned = std::min( awaiting_transfer, muti_base_data_source.worker_counts[i].assigned_workers );
+					muti_base_data_source.worker_counts[i].required_workers += workers_assigned;
+					muti_base_data_source.worker_counts[i].assigned_workers -= workers_assigned;
+					awaiting_transfer -= workers_assigned;
+				}
 			}
 		}
 	}
@@ -474,33 +488,48 @@ void SkynetBaseManager::postUpdate()
 			{
 				if( multi_base_data_target.second.required_change > 0 )
 				{
-					int num_to_move = std::min( -multi_base_data.second.required_change, multi_base_data_target.second.required_change );
+					int total_to_move = std::min( -multi_base_data.second.required_change, multi_base_data_target.second.required_change );
+					int remaining_to_move = total_to_move;
 
-					auto & transfers = m_worker_transfers[std::make_pair( multi_base_data.first, multi_base_data_target.first )];
+					auto reverse_transfers = m_worker_transfers.find(std::make_pair( multi_base_data_target.first, multi_base_data.first ));
 
-					auto start_chokepoint = getTerrainAnalyser().getTravelChokepoints( multi_base_data.first->getRegion(), multi_base_data_target.first->getRegion() ).first;
-
-					if( start_chokepoint )
+					if( reverse_transfers != m_worker_transfers.end() && !reverse_transfers->second.empty() )
 					{
-						int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) );
-						int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() ) + 40;
-
-						if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )
+						while( remaining_to_move > 0 && !reverse_transfers->second.empty() )
 						{
-							for( int i = 0; i < num_to_move; ++i )
+							reverse_transfers->second.pop_back();
+							--remaining_to_move;
+						}
+					}
+
+					if( remaining_to_move > 0 )
+					{
+						auto start_chokepoint = getTerrainAnalyser().getTravelChokepoints( multi_base_data.first->getRegion(), multi_base_data_target.first->getRegion() ).first;
+
+						if( start_chokepoint )
+						{
+							int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) );
+							int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() ) + 40;
+
+							if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )
 							{
-								auto task = getTaskManager().createTask( "Worker Base Transfer" );
+								auto & transfers = m_worker_transfers[std::make_pair( multi_base_data.first, multi_base_data_target.first )];
 
-								// TODO: Required time needs to be how long it will take to travel
-								task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
+								for( int i = 0; i < remaining_to_move; ++i )
+								{
+									auto task = getTaskManager().createTask( "Worker Base Transfer" );
 
-								transfers.push_back( std::move( task ) );
+									// TODO: Required time needs to be how long it will take to travel
+									task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
+
+									transfers.push_back( std::move( task ) );
+								}
 							}
 						}
 					}
 
-					multi_base_data.second.required_change += num_to_move;
-					multi_base_data_target.second.required_change -= num_to_move;
+					multi_base_data.second.required_change += total_to_move;
+					multi_base_data_target.second.required_change -= total_to_move;
 				}
 			}
 		}
