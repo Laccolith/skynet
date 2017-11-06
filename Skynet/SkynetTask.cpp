@@ -179,6 +179,90 @@ int SkynetTask::addRequirementUnit( UnitType unit_type, int duration, std::uniqu
 	return -1;
 }
 
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, std::make_unique<SkynetTaskRequirementUnitPosition>() );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region, Position starting_position, Position ending_position )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, std::make_unique<SkynetTaskRequirementUnitPosition>( starting_position, ending_position ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region, std::unique_ptr<BuildLocation> build_location )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, std::make_unique<SkynetTaskRequirementUnitPositionBuildLocation>( std::move( build_location ) ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region, int duration )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, duration, std::make_unique<SkynetTaskRequirementUnitPosition>() );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region, int duration, Position starting_position, Position ending_position )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, duration, std::make_unique<SkynetTaskRequirementUnitPosition>( starting_position, ending_position ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Region region, int duration, std::unique_ptr<BuildLocation> build_location )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, region, duration, std::make_unique<SkynetTaskRequirementUnitPositionBuildLocation>( std::move( build_location ) ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, std::make_unique<SkynetTaskRequirementUnitPosition>() );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base, Position starting_position, Position ending_position )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, std::make_unique<SkynetTaskRequirementUnitPosition>( starting_position, ending_position ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base, std::unique_ptr<BuildLocation> build_location )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, std::make_unique<SkynetTaskRequirementUnitPositionBuildLocation>( std::move( build_location ) ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base, int duration )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, duration, std::make_unique<SkynetTaskRequirementUnitPosition>() );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base, int duration, Position starting_position, Position ending_position )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, duration, std::make_unique<SkynetTaskRequirementUnitPosition>( starting_position, ending_position ) );
+	return -1;
+}
+
+int SkynetTask::addRequirementUnit( UnitType unit_type, Base base, int duration, std::unique_ptr<BuildLocation> build_location )
+{
+	// TODO: Log if there is already a unit requirement
+	m_unit_requirement = std::make_unique<SkynetTaskRequirementUnitType>( unit_type, base, duration, std::make_unique<SkynetTaskRequirementUnitPositionBuildLocation>( std::move( build_location ) ) );
+	return -1;
+}
+
 int SkynetTask::addRequirementUnit( Unit unit )
 {
 	// TODO: Log if there is already a unit requirement

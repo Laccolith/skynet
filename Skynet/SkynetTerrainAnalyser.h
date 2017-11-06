@@ -26,6 +26,7 @@ public:
 	int getConnectivity( WalkPosition pos ) const override { return m_processed_data.m_tile_connectivity[clampToMap( pos )]; }
 	WalkPosition getClosestObstacle( WalkPosition pos ) const override { return m_processed_data.m_tile_to_closest_obstacle[clampToMap( pos )]; }
 
+	std::pair<Chokepoint, Chokepoint> getTravelChokepoints( Region start, Region end ) const override;
 	int getGroundDistance( WalkPosition start, WalkPosition end ) const override;
 
 	WalkPosition clampToMap( WalkPosition pos ) const

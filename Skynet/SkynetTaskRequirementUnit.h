@@ -25,6 +25,10 @@ class SkynetTaskRequirementUnitType : public SkynetTaskRequirementUnit
 public:
 	SkynetTaskRequirementUnitType( UnitType unit_type, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
 	SkynetTaskRequirementUnitType( UnitType unit_type, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
+	SkynetTaskRequirementUnitType( UnitType unit_type, Region region, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
+	SkynetTaskRequirementUnitType( UnitType unit_type, Region region, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
+	SkynetTaskRequirementUnitType( UnitType unit_type, Base base, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
+	SkynetTaskRequirementUnitType( UnitType unit_type, Base base, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position );
 
 	int getReserveEarliestTime( CoreAccess & access, int current_earliest_time ) override;
 	void freeReserved( CoreAccess & access ) override;
@@ -37,6 +41,8 @@ public:
 
 private:
 	UnitType m_unit_type;
+	Region m_region;
+	Base m_base;
 	int m_duration;
 	std::unique_ptr<SkynetTaskRequirementUnitPositionBase> m_position;
 

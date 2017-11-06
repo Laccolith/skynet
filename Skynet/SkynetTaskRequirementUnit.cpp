@@ -3,9 +3,13 @@
 #include "PlayerTracker.h"
 #include "UnitTracker.h"
 #include "UnitManager.h"
+#include "TerrainAnalyser.h"
+#include "BaseTracker.h"
 
 SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
 	: m_unit_type( unit_type )
+	, m_region( nullptr )
+	, m_base( nullptr )
 	, m_duration( duration )
 	, m_position( std::move( position ) )
 {
@@ -13,6 +17,44 @@ SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type
 
 SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
 	: m_unit_type( unit_type )
+	, m_region( nullptr )
+	, m_base( nullptr )
+	, m_duration( max_time )
+	, m_position( std::move( position ) )
+{
+}
+
+SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, Region region, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
+	: m_unit_type( unit_type )
+	, m_region( region )
+	, m_base( nullptr )
+	, m_duration( duration )
+	, m_position( std::move( position ) )
+{
+}
+
+SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, Region region, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
+	: m_unit_type( unit_type )
+	, m_region( region )
+	, m_base( nullptr )
+	, m_duration( max_time )
+	, m_position( std::move( position ) )
+{
+}
+
+SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, Base base, int duration, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
+	: m_unit_type( unit_type )
+	, m_region( nullptr )
+	, m_base( base )
+	, m_duration( duration )
+	, m_position( std::move( position ) )
+{
+}
+
+SkynetTaskRequirementUnitType::SkynetTaskRequirementUnitType( UnitType unit_type, Base base, std::unique_ptr<SkynetTaskRequirementUnitPositionBase> position )
+	: m_unit_type( unit_type )
+	, m_region( nullptr )
+	, m_base( base )
 	, m_duration( max_time )
 	, m_position( std::move( position ) )
 {
@@ -92,6 +134,12 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 
 	for( Unit unit : applicable_units )
 	{
+		if( m_region && access.getTerrainAnalyser().getRegion( unit->getWalkPosition() ) != m_region )
+			continue;
+
+		if( m_base && access.getBaseTracker().getBaseTracker().getBase( unit->getTilePosition() ) != m_base )
+			continue;
+
 		// TODO: Allow choosing none existant units, but need to create a dependency to the task creating it
 		// So that it doesn't cycle wether it can use or not
 		// Still only choose it if it would be faster then using an existing unit

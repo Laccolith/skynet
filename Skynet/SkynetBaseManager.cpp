@@ -4,6 +4,8 @@
 #include "UnitManager.h"
 #include "PlayerTracker.h"
 #include "ResourceManager.h"
+#include "TerrainAnalyser.h"
+#include "Chokepoint.h"
 #include "MapUtil.h"
 
 #include <array>
@@ -16,7 +18,8 @@ SkynetBaseManager::SkynetBaseManager( Core & core )
 	, MessageListener<BasesRecreated>( getBaseTracker() )
 	, MessageListener<UnitDestroy>( getUnitTracker() )
 {
-	core.registerUpdateProcess( 5.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 3.0f, [this]() { preUpdate(); } );
+	core.registerUpdateProcess( 5.0f, [this]() { postUpdate(); } );
 }
 
 void SkynetBaseManager::notify( const BasesRecreated & message )
@@ -65,7 +68,33 @@ void SkynetBaseManager::notify( const UnitDestroy & message )
 	}
 }
 
-void SkynetBaseManager::update()
+void SkynetBaseManager::preUpdate()
+{
+	for( auto & worker_transfer : m_worker_transfers )
+	{
+		if( !worker_transfer.first.second->getResourceDepot() || worker_transfer.first.second->getResourceDepot()->getPlayer() != getPlayerTracker().getLocalPlayer() )
+		{
+			worker_transfer.second.clear();
+			continue;
+		}
+
+		worker_transfer.second.erase( std::remove_if( worker_transfer.second.begin(), worker_transfer.second.end(), [this, &worker_transfer]( auto & transfer_task )
+		{
+			Unit worker = transfer_task->getAssignedUnit();
+			if( !worker )
+				return false;
+
+			if( !worker->exists() )
+				return true;
+
+			Base current_base = getBaseTracker().getBase( worker->getTilePosition() );
+
+			return current_base == worker_transfer.first.second;
+		} ), worker_transfer.second.end() );
+	}
+}
+
+void SkynetBaseManager::postUpdate()
 {
 	if( isDebugging( Debug::Default ) )
 	{
@@ -101,15 +130,41 @@ void SkynetBaseManager::update()
 	double mineral_rate = 0.0;
 	double gas_rate = 0.0;
 
+	struct WorkerCount
+	{
+		int assigned_workers = 0;
+		int required_workers = 0;
+	};
+
+	struct MultiBaseData
+	{
+		int time_till_operational = 0;
+
+		std::array<WorkerCount, c_max_mineral_workers + 2> worker_counts;
+
+		int required_change = 0;
+	};
+
+	std::map<Base, MultiBaseData> multi_base_data_map;
+
 	for( auto & base_data : m_base_data )
 	{
+		bool is_active = base_data.first->getResourceDepot() && base_data.first->getResourceDepot()->getPlayer() == getPlayerTracker().getLocalPlayer();
+
 		auto base_worker_it = current_base_workers.find( base_data.first );
 		if( base_worker_it == current_base_workers.end() )
 		{
-			base_data.second.available_workers.clear();
-			base_data.second.worker_to_resource.clear();
-			base_data.second.resource_to_workers.clear();
-			continue;
+			if( !is_active )
+			{
+				base_data.second.available_workers.clear();
+				base_data.second.worker_to_resource.clear();
+				base_data.second.resource_to_workers.clear();
+				continue;
+			}
+			else
+			{
+				base_worker_it = current_base_workers.emplace( base_data.first, UnitGroup() ).first;
+			}
 		}
 
 		const UnitGroup & current_workers = base_worker_it->second;
@@ -141,8 +196,6 @@ void SkynetBaseManager::update()
 			refineries.insert( gas );
 		}
 
-		bool is_active = base_data.first->getResourceDepot() && base_data.first->getResourceDepot()->isCompleted();
-
 		int max_gas = is_active ? std::min( refineries.size() * c_max_gas_workers, base_data.second.available_workers.size() ) : 0;
 		int max_mining = is_active ? std::min( base_data.second.sorted_minerals.size() * c_max_mineral_workers, base_data.second.available_workers.size() - max_gas ) : 0;
 
@@ -151,6 +204,22 @@ void SkynetBaseManager::update()
 		{
 			mineral_assignments[i] = std::min( (int) base_data.second.sorted_minerals.size(), max_mining );
 			max_mining -= mineral_assignments[i];
+		}
+
+		auto & muti_base_data = multi_base_data_map[base_data.first];
+		muti_base_data.time_till_operational = base_data.first->getResourceDepot() ? base_data.first->getResourceDepot()->getTimeTillCompleted() : max_time;
+
+		muti_base_data.worker_counts[0].assigned_workers = max_gas;
+		muti_base_data.worker_counts[0].required_workers = (refineries.size() * c_max_gas_workers) - max_gas;
+
+		muti_base_data.worker_counts[c_max_mineral_workers + 1].assigned_workers = base_data.second.available_workers.size() - max_gas;
+
+		for( int i = 0; i < c_max_mineral_workers; ++i )
+		{
+			muti_base_data.worker_counts[i + 1].assigned_workers = mineral_assignments[i];
+			muti_base_data.worker_counts[i + 1].required_workers = base_data.second.sorted_minerals.size() - mineral_assignments[i];
+
+			muti_base_data.worker_counts[c_max_mineral_workers + 1].assigned_workers -= mineral_assignments[i];
 		}
 
 		for( auto & pair : base_data.second.resource_to_workers )
@@ -222,7 +291,7 @@ void SkynetBaseManager::update()
 			if( resource_assignment )
 			{
 				if( worker->isCarryingGas() || worker->isCarryingMinerals() )
-					worker->returnCargo();
+					worker->returnCargo( base_data.first->getResourceDepot() );
 				else
 					worker->gather( resource_assignment );
 			}
@@ -265,4 +334,129 @@ void SkynetBaseManager::update()
 
 	getResourceManager().setMineralRate( mineral_rate );
 	getResourceManager().setGasRate( gas_rate );
+
+	for( auto & worker_transfer : m_worker_transfers )
+	{
+		Base source_base = worker_transfer.first.first;
+		Base target_base = worker_transfer.first.second;
+
+		int workers_transfering = 0;
+		for( auto & transfer_task : worker_transfer.second )
+		{
+			if( transfer_task->getAssignedUnit() )
+				transfer_task->getAssignedUnit()->move( target_base->getCenterPosition() );
+			else
+				++workers_transfering;
+		}
+
+		if( workers_transfering > 0 )
+		{
+			int workers_transfering_target = workers_transfering;
+			auto & muti_base_data_target = multi_base_data_map[target_base];
+			
+			for( int i = 0; i < (int) muti_base_data_target.worker_counts.size(); ++i )
+			{
+				int workers_assigned = std::min( workers_transfering_target, muti_base_data_target.worker_counts[i].required_workers );
+				muti_base_data_target.worker_counts[i].required_workers -= workers_assigned;
+				muti_base_data_target.worker_counts[i].assigned_workers += workers_assigned;
+				workers_transfering_target -= workers_assigned;
+			}
+
+			if( workers_transfering_target > 0 )
+			{
+				muti_base_data_target.worker_counts[c_max_mineral_workers + 1].assigned_workers += workers_transfering;
+			}
+
+			int workers_transfering_source = workers_transfering;
+			auto & muti_base_data_source = multi_base_data_map[source_base];
+
+			for( int i = muti_base_data_source.worker_counts.size() - 1; i >= 0; --i )
+			{
+				int workers_assigned = std::min( workers_transfering_source, muti_base_data_source.worker_counts[i].assigned_workers );
+				muti_base_data_source.worker_counts[i].required_workers += workers_assigned;
+				muti_base_data_source.worker_counts[i].assigned_workers -= workers_assigned;
+				workers_transfering_source -= workers_assigned;
+			}
+		}
+	}
+
+	for(;;)
+	{
+		int most_saturated_i = -1;
+		std::pair<const Base, MultiBaseData> * most_saturated = nullptr;
+
+		int least_saturated_i = c_max_mineral_workers + 2;
+		std::pair<const Base, MultiBaseData> * least_saturated = nullptr;
+
+		for( auto & multi_base_data : multi_base_data_map )
+		{
+			for( int i = 0; i < (int)multi_base_data.second.worker_counts.size(); ++i)
+			{
+				if( (i > most_saturated_i && multi_base_data.second.worker_counts[i].assigned_workers > 0) ||
+					(i == most_saturated_i && most_saturated->second.worker_counts[i].assigned_workers < multi_base_data.second.worker_counts[i].assigned_workers) )
+				{
+					most_saturated_i = i;
+					most_saturated = &multi_base_data;
+				}
+
+				if( (i < least_saturated_i && multi_base_data.second.worker_counts[i].required_workers > 0) ||
+					(i == least_saturated_i && least_saturated->second.worker_counts[i].required_workers < multi_base_data.second.worker_counts[i].required_workers) )
+				{
+					least_saturated_i = i;
+					least_saturated = &multi_base_data;
+				}
+			}
+		}
+
+		if( !most_saturated || !least_saturated || most_saturated == least_saturated || most_saturated_i <= least_saturated_i )
+			break;
+
+		int workers_to_move = std::min( most_saturated->second.worker_counts[most_saturated_i].assigned_workers, least_saturated->second.worker_counts[least_saturated_i].required_workers );
+
+		most_saturated->second.required_change -= workers_to_move;
+		least_saturated->second.required_change += workers_to_move;
+
+		most_saturated->second.worker_counts[most_saturated_i].assigned_workers -= workers_to_move;
+		most_saturated->second.worker_counts[most_saturated_i].required_workers += workers_to_move;
+
+		least_saturated->second.worker_counts[least_saturated_i].required_workers -= workers_to_move;
+		least_saturated->second.worker_counts[least_saturated_i].assigned_workers += workers_to_move;
+	}
+
+	// TODO: Pair these up based on distance
+	for( auto & multi_base_data : multi_base_data_map )
+	{
+		while( multi_base_data.second.required_change < 0 )
+		{
+			for( auto & multi_base_data_target : multi_base_data_map )
+			{
+				if( multi_base_data_target.second.required_change > 0 )
+				{
+					int num_to_move = std::min( -multi_base_data.second.required_change, multi_base_data_target.second.required_change );
+
+					auto & transfers = m_worker_transfers[std::make_pair( multi_base_data.first, multi_base_data_target.first )];
+
+					auto start_chokepoint = getTerrainAnalyser().getTravelChokepoints( multi_base_data.first->getRegion(), multi_base_data_target.first->getRegion() ).first;
+
+					if( start_chokepoint )
+					{
+						for( int i = 0; i < num_to_move; ++i )
+						{
+							auto task = getTaskManager().createTask( "Worker Base Transfer" );
+
+							// TODO: Required time needs to be how long it will take to travel
+							task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
+
+							transfers.push_back( std::move( task ) );
+						}
+					}
+
+					multi_base_data.second.required_change += num_to_move;
+					multi_base_data_target.second.required_change -= num_to_move;
+				}
+			}
+		}
+	}
+
+	volatile int i = 0;
 }

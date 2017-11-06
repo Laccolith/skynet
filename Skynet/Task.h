@@ -28,6 +28,20 @@ public:
 	virtual int addRequirementUnit( UnitType unit_type, int duration, Position starting_position, Position ending_position ) = 0;
 	virtual int addRequirementUnit( UnitType unit_type, int duration, std::unique_ptr<BuildLocation> build_location ) = 0;
 
+	virtual int addRequirementUnit( UnitType unit_type, Region region ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Region region, Position starting_position, Position ending_position ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Region region, std::unique_ptr<BuildLocation> build_location ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Region region, int duration ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Region region, int duration, Position starting_position, Position ending_position ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Region region, int duration, std::unique_ptr<BuildLocation> build_location ) = 0;
+
+	virtual int addRequirementUnit( UnitType unit_type, Base base ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Base base, Position starting_position, Position ending_position ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Base base, std::unique_ptr<BuildLocation> build_location ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Base base, int duration ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Base base, int duration, Position starting_position, Position ending_position ) = 0;
+	virtual int addRequirementUnit( UnitType unit_type, Base base, int duration, std::unique_ptr<BuildLocation> build_location ) = 0;
+
 	virtual int addRequirementUnit( Unit unit ) = 0;
 	virtual int addRequirementUnit( Unit unit, Position starting_position, Position ending_position ) = 0;
 	virtual int addRequirementUnit( Unit unit, std::unique_ptr<BuildLocation> build_location ) = 0;

@@ -3,6 +3,7 @@
 #include "BaseManager.h"
 #include "BaseTracker.h"
 #include "UnitTracker.h"
+#include "TaskManager.h"
 
 #include <vector>
 
@@ -14,7 +15,8 @@ public:
 	void notify( const BasesRecreated & message ) override;
 	void notify( const UnitDestroy & message ) override;
 
-	void update();
+	void preUpdate();
+	void postUpdate();
 
 private:
 	struct BaseData
@@ -25,6 +27,8 @@ private:
 		std::map<Unit, UnitGroup> resource_to_workers;
 	};
 	std::map<Base, BaseData> m_base_data;
+
+	std::map<std::pair<Base, Base>, std::vector<std::unique_ptr<TaskInterface>>> m_worker_transfers;
 
 	DEFINE_DEBUGGING_INTERFACE( Default );
 };

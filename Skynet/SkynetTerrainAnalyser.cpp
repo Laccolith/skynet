@@ -121,6 +121,37 @@ void SkynetTerrainAnalyser::update()
 	}
 }
 
+std::pair<Chokepoint, Chokepoint> SkynetTerrainAnalyser::getTravelChokepoints( Region start, Region end ) const
+{
+	std::pair<Chokepoint, Chokepoint> current_shortest{ nullptr, nullptr };
+	if( start == end )
+		return current_shortest;
+
+	int shortest_distance = max_distance;
+
+	if( start->getConnectivity() == end->getConnectivity() )
+	{
+		for( Chokepoint start_chokepoint : start->getChokepoints() )
+		{
+			for( Chokepoint end_chokepoint : end->getChokepoints() )
+			{
+				int distance_between_chokepoints = m_processed_data.m_chokepoint_distances[Position( start_chokepoint->getID(), end_chokepoint->getID() )];
+				if( distance_between_chokepoints == max_distance )
+					continue;
+
+				if( distance_between_chokepoints < shortest_distance )
+				{
+					shortest_distance = distance_between_chokepoints;
+					current_shortest.first = start_chokepoint;
+					current_shortest.second = end_chokepoint;
+				}
+			}
+		}
+	}
+
+	return current_shortest;
+}
+
 int SkynetTerrainAnalyser::getGroundDistance( WalkPosition start, WalkPosition end ) const
 {
 	Region start_region = getRegion( start );

@@ -38,6 +38,20 @@ public:
 	int addRequirementUnit( UnitType unit_type, int duration, Position starting_position, Position ending_position ) override;
 	int addRequirementUnit( UnitType unit_type, int duration, std::unique_ptr<BuildLocation> build_location ) override;
 
+	int addRequirementUnit( UnitType unit_type, Region region ) override;
+	int addRequirementUnit( UnitType unit_type, Region region, Position starting_position, Position ending_position ) override;
+	int addRequirementUnit( UnitType unit_type, Region region, std::unique_ptr<BuildLocation> build_location ) override;
+	int addRequirementUnit( UnitType unit_type, Region region, int duration ) override;
+	int addRequirementUnit( UnitType unit_type, Region region, int duration, Position starting_position, Position ending_position ) override;
+	int addRequirementUnit( UnitType unit_type, Region region, int duration, std::unique_ptr<BuildLocation> build_location ) override;
+
+	int addRequirementUnit( UnitType unit_type, Base base ) override;
+	int addRequirementUnit( UnitType unit_type, Base base, Position starting_position, Position ending_position ) override;
+	int addRequirementUnit( UnitType unit_type, Base base, std::unique_ptr<BuildLocation> build_location ) override;
+	int addRequirementUnit( UnitType unit_type, Base base, int duration ) override;
+	int addRequirementUnit( UnitType unit_type, Base base, int duration, Position starting_position, Position ending_position ) override;
+	int addRequirementUnit( UnitType unit_type, Base base, int duration, std::unique_ptr<BuildLocation> build_location ) override;
+
 	int addRequirementUnit( Unit unit ) override;
 	int addRequirementUnit( Unit unit, Position starting_position, Position ending_position ) override;
 	int addRequirementUnit( Unit unit, std::unique_ptr<BuildLocation> build_location ) override;
