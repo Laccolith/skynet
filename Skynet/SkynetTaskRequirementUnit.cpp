@@ -96,7 +96,7 @@ int SkynetTaskRequirementUnitType::getReserveEarliestTime( CoreAccess & access, 
 
 void SkynetTaskRequirementUnitType::freeReserved( CoreAccess & access )
 {
-	if( m_chosen_unit )
+	if( m_is_reserved )
 	{
 		access.getUnitManager().freeTaskUnit( m_chosen_unit );
 		m_position->freeReservation();
@@ -105,7 +105,7 @@ void SkynetTaskRequirementUnitType::freeReserved( CoreAccess & access )
 
 Unit SkynetTaskRequirementUnitType::getChosenUnit() const
 {
-	return m_chosen_unit;
+	return m_is_reserved ? m_chosen_unit : nullptr;
 }
 
 TilePosition SkynetTaskRequirementUnitType::getBuildPosition() const
@@ -115,12 +115,12 @@ TilePosition SkynetTaskRequirementUnitType::getBuildPosition() const
 
 int SkynetTaskRequirementUnitType::getRemainingUnitTime( CoreAccess & access ) const
 {
-	return m_chosen_unit ? access.getUnitManager().remainingReservedTaskTime( m_chosen_unit ) : 0;
+	return m_is_reserved ? access.getUnitManager().remainingReservedTaskTime( m_chosen_unit ) : 0;
 }
 
 void SkynetTaskRequirementUnitType::requestUnitTimeChange( CoreAccess & access, int time )
 {
-	if( m_chosen_unit )
+	if( m_is_reserved )
 	{
 		access.getUnitManager().modifyReservedTaskTime( m_chosen_unit, time );
 	}
@@ -128,33 +128,53 @@ void SkynetTaskRequirementUnitType::requestUnitTimeChange( CoreAccess & access, 
 
 int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, UnitPosition starting_position, Position ending_position )
 {
+	Unit previous_unit = m_chosen_unit;
+
 	m_chosen_unit = nullptr;
-
 	int best_time = max_time;
+	int best_travel_time = 0;
 
-	for( Unit unit : applicable_units )
+	enum class ChoiceType
 	{
-		if( m_region && access.getTerrainAnalyser().getRegion( unit->getWalkPosition() ) != m_region )
-			continue;
+		TestingPrevious,
+		CompareToPrevious,
+		TestingNew
+	};
 
-		if( m_base && access.getBaseTracker().getBaseTracker().getBase( unit->getTilePosition() ) != m_base )
-			continue;
+	auto update_for_unit = [&]( Unit unit, ChoiceType & choice_type ) -> bool
+	{
+		if( choice_type != ChoiceType::TestingPrevious && m_region && access.getTerrainAnalyser().getRegion( unit->getWalkPosition() ) != m_region )
+			return false;
+
+		if( choice_type != ChoiceType::TestingPrevious && m_base && access.getBaseTracker().getBaseTracker().getBase( unit->getTilePosition() ) != m_base )
+			return false;
 
 		// TODO: Allow choosing none existant units, but need to create a dependency to the task creating it
 		// So that it doesn't cycle wether it can use or not
 		// Still only choose it if it would be faster then using an existing unit
 		if( !unit->exists() )
-			continue;
+			return false;
 
 		int unit_available_time = std::max( unit->getTimeTillCompleted(), current_earliest_time );
 
 		if( starting_position.index() != 0 )
 		{
-			int earliest_time = access.getUnitManager().getAvailableTime( unit, unit_available_time, m_duration, starting_position, ending_position );
+			int travel_time = 0;
+			int earliest_time = access.getUnitManager().getAvailableTime( unit, unit_available_time, m_duration, starting_position, ending_position, travel_time );
+
+			if( choice_type == ChoiceType::CompareToPrevious )
+			{
+				if( earliest_time == current_earliest_time && best_travel_time <= travel_time + 36 )
+					return true;
+				else
+					choice_type = ChoiceType::TestingNew;
+			}
+
 			if( earliest_time < best_time )
 			{
 				m_chosen_unit = unit;
 				best_time = earliest_time;
+				best_travel_time = travel_time;
 			}
 		}
 		else
@@ -167,7 +187,25 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 			}
 		}
 
-		if( best_time == current_earliest_time )
+		return best_time - best_travel_time <= current_earliest_time;
+	};
+
+	ChoiceType choice_type = ChoiceType::TestingNew;
+	if( previous_unit && applicable_units.contains( previous_unit ) )
+	{
+		choice_type = ChoiceType::TestingPrevious;
+		if( update_for_unit( previous_unit, choice_type ) )
+			choice_type = ChoiceType::CompareToPrevious;
+		else
+			choice_type = ChoiceType::TestingNew;
+	}
+
+	for( Unit unit : applicable_units )
+	{
+		if( unit == previous_unit )
+			continue;
+
+		if( update_for_unit( unit, choice_type ) )
 			break;
 	}
 
@@ -179,9 +217,9 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 	m_position->reserve( best_time );
 	access.getUnitManager().reserveTaskUnit( m_chosen_unit, best_time, end_time, starting_position, ending_position );
 
-	if( best_time > 0 )
+	if( best_time <= 0 )
 	{
-		m_chosen_unit = nullptr;
+		m_is_reserved = true;
 	}
 
 	return best_time;
@@ -210,7 +248,8 @@ int SkynetTaskRequirementUnitSpecific::getReserveEarliestTime( CoreAccess & acce
 	int earliest_time = max_time;
 	if( starting_position.index() != 0 )
 	{
-		earliest_time = access.getUnitManager().getAvailableTime( m_unit, current_earliest_time, m_duration, starting_position, ending_position );
+		int travel_time = 0;
+		earliest_time = access.getUnitManager().getAvailableTime( m_unit, current_earliest_time, m_duration, starting_position, ending_position, travel_time );
 	}
 	else
 	{

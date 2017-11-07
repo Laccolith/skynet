@@ -276,7 +276,7 @@ void SkynetBaseManager::postUpdate()
 				if( base == base_data.first )
 					continue;
 
-				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( base_data.first->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) );
+				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( base_data.first->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) ) * 8;
 				if( distance < nearest_distance )
 				{
 					nearest_distance = distance;
@@ -508,7 +508,7 @@ void SkynetBaseManager::postUpdate()
 
 						if( start_chokepoint )
 						{
-							int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) );
+							int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) ) * 8;
 							int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() ) + 40;
 
 							if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )

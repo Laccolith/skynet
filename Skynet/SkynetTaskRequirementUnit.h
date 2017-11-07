@@ -47,6 +47,7 @@ private:
 	std::unique_ptr<SkynetTaskRequirementUnitPositionBase> m_position;
 
 	Unit m_chosen_unit = nullptr;
+	bool m_is_reserved = false;
 
 	int chooseUnit( CoreAccess & access, int current_earliest_time, const UnitGroup & applicable_units, UnitPosition starting_position, Position ending_position );
 };

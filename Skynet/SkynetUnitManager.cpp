@@ -151,10 +151,10 @@ int SkynetUnitManager::getTravelTime( Unit unit, Position starting_position, Uni
 {
 	Position actual_ending_position = getTravelPosition( starting_position, ending_position, false );
 
-	int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( starting_position ), WalkPosition( actual_ending_position ) );
+	int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( starting_position ), WalkPosition( actual_ending_position ) ) * 8;
 
 	// If we are close enough, assume we are there, to counteract errors from movement
-	if( distance < 24 )
+	if( distance < 42 )
 		return 0;
 
 	// TODO: Create a better estimate using terrain analysis
@@ -240,11 +240,15 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 	return std::max( previous_time, ideal_time );
 }
 
-int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required_duration, UnitPosition starting_position, Position ending_position ) const
+int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required_duration, UnitPosition starting_position, Position ending_position, int & out_travel_time ) const
 {
 	auto unit_it = m_unit_timings.find( unit );
 	if( unit_it == m_unit_timings.end() )
+	{
+		out_travel_time = getTravelTime( unit, unit->getPosition(), starting_position );
+
 		return ideal_time;
+	}
 
 	auto & unit_timing = unit_it->second;
 
@@ -288,7 +292,9 @@ int SkynetUnitManager::getAvailableTime( Unit unit, int ideal_time, int required
 		previous_pos = actual_ending_position != Positions::None ? actual_ending_position : previous_pos;
 	}
 
-	int travel_time = getTravelTime( unit, previous_pos, starting_position ) - idle_time;
+	out_travel_time = getTravelTime( unit, previous_pos, starting_position );
+
+	int travel_time = out_travel_time - idle_time;
 
 	return std::max( previous_time + std::max( travel_time, 0 ), ideal_time );
 }
