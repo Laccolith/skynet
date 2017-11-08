@@ -15,7 +15,7 @@
 #include <filesystem>
 
 // Increment if anything changes in the algorithm, or in the file format
-const unsigned int data_version_number = 4;
+const unsigned int data_version_number = 5;
 
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	: TerrainAnalyserInterface( core )
@@ -444,6 +444,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 	RectangleArray<RegionTileData, WALKPOSITION_SCALE> tile_data( m_map_size.x, m_map_size.y );
 	RectangleArray<SkynetChokepoint *, WALKPOSITION_SCALE> tile_to_chokepoint( m_map_size.x, m_map_size.y, nullptr );
+	std::vector<std::unique_ptr<SkynetChokepoint>> narrow_chokepoints;
 
 	auto comp = []( const std::pair<WalkPosition, int> & first, const std::pair<WalkPosition, int> & second )
 	{
@@ -526,7 +527,9 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 				// This chokepoint wasn't created by the current region, add it as the other side
 				else if( existing_chokepoint->getRegions().first != current_region )
 				{
-					current_region->addChokepoint( existing_chokepoint );
+					if( existing_chokepoint->getID() >= 0 )
+						current_region->addChokepoint( existing_chokepoint );
+
 					existing_chokepoint->setRegion2( current_region );
 				}
 
@@ -577,18 +580,31 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 				std::pair<WalkPosition, WalkPosition> choke_sides = findChokePoint( last_minima, data );
 
 				// Create the chokepoint
-				int chokepoint_id = data.m_chokepoint_storage.size();
-				data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( chokepoint_id, last_minima, choke_sides.first, choke_sides.second, last_minima_size ) );
-				SkynetChokepoint *current_chokepoint = data.m_chokepoint_storage.back().get();
-				data.m_chokepoints.push_back( current_chokepoint );
+				SkynetChokepoint *current_chokepoint = nullptr;
+
+				// Don't create permanent chokepoints if they are too narrow and cannot be moved through by any unit
+				bool is_narrow_chokepoint = last_minima_size < 22;
+				if( !is_narrow_chokepoint )
+				{
+					int chokepoint_id = data.m_chokepoint_storage.size();
+					data.m_chokepoint_storage.emplace_back( std::make_unique<SkynetChokepoint>( chokepoint_id, last_minima, choke_sides.first, choke_sides.second, last_minima_size ) );
+					current_chokepoint = data.m_chokepoint_storage.back().get();
+					data.m_chokepoints.push_back( current_chokepoint );
+
+					current_region->addChokepoint( current_chokepoint );
+				}
+				else
+				{
+					narrow_chokepoints.emplace_back( std::make_unique<SkynetChokepoint>( -1, last_minima, choke_sides.first, choke_sides.second, last_minima_size ) );
+					current_chokepoint = narrow_chokepoints.back().get();
+				}
 
 				// The first region is the region that created it
 				current_chokepoint->setRegion1( current_region );
-				current_region->addChokepoint( current_chokepoint );
 
 				// For every tile between the chokepoint sides
 				std::queue<WalkPosition> choke_children;
-				auto add_choke_children = [this, &region_size, &tile_to_chokepoint, &choke_children, &current_region, &current_chokepoint, &data]( WalkPosition line_pos )
+				auto add_choke_children = [this, &region_size, &tile_to_chokepoint, &choke_children, &current_region, &current_chokepoint, &data, is_narrow_chokepoint]( WalkPosition line_pos )
 				{
 					if( line_pos.x >= 0 && line_pos.y >= 0 && line_pos.x < m_map_size.x && line_pos.y < m_map_size.y && data.m_tile_clearance[line_pos] != 0 )
 					{
@@ -599,7 +615,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 						if( debug_window )
 						{
-							debug_window->addBox( line_pos.x, line_pos.y, line_pos.x + 1, line_pos.y + 1, Colors::Orange );
+							debug_window->addBox( line_pos.x, line_pos.y, line_pos.x + 1, line_pos.y + 1, is_narrow_chokepoint ? Colors::Purple : Colors::Orange );
 						}
 					}
 
@@ -672,6 +688,7 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 		current_region->setSize( region_size );
 	}
 
+	// Calculate the ground distance for traveling between chokepoints
 	data.m_chokepoint_distances.resize( data.m_chokepoints.size(), data.m_chokepoints.size(), max_distance );
 
 	for( Chokepoint start_chokepoint : getChokepoints() )
