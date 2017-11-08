@@ -22,13 +22,15 @@ SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	core.registerUpdateProcess( 1.0f, [this]() { update(); } );
+
+	setDebugging( Debug::RegionAnalysis, true );
 }
 
 void SkynetTerrainAnalyser::update()
 {
 	if( !m_processed_data.m_analysed )
 	{
-		if( !tryLoadData() )
+		if( isDebugging( Debug::RegionAnalysis ) || !tryLoadData() )
 		{
 			process( m_processed_data, getResources() );
 			saveData();
@@ -416,14 +418,14 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 	static std::unique_ptr<Window> debug_window;
 	if( isDebugging( Debug::RegionAnalysis ) )
 	{
-		debug_window = std::make_unique<Window>( "Calculating Regions", m_map_size.x * 8, m_map_size.y * 8 );
+		debug_window = std::make_unique<Window>( "Calculating Regions", m_map_size.x, m_map_size.y );
 
 		for( int x = 0; x < m_map_size.x; ++x )
 		{
 			for( int y = 0; y < m_map_size.y; ++y )
 			{
 				if( data.m_tile_clearance[WalkPosition( x, y )] == 0 )
-					debug_window->addBox( x * 8, y * 8, x * 8 + 8, y * 8 + 8, Colors::Red );
+					debug_window->addBox( x , y, x + 1, y + 1, Colors::Red );
 			}
 		}
 	}
@@ -497,17 +499,18 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 			auto existing_chokepoint = tile_to_chokepoint[current_tile];
 			if( existing_chokepoint )
 			{
-				if( debug_window )
-					debug_window->addBox( current_tile.x * 8, current_tile.y * 8, current_tile.x * 8, current_tile.y * 8, Colors::Purple );
-
 				// Chokepoint already has a second region
 				if( existing_chokepoint->getRegions().second )
 				{
 					// It is not the current region, this shouldn't happen
 					if( existing_chokepoint->getRegions().second != current_region )
 					{
-						//DrawBuffer::Instance().drawBufferedBox(BWAPI::CoordinateType::Map, currentTile.x * 8, currentTile.y * 8, currentTile.x * 8 + 8, currentTile.y * 8 + 8, 999999, BWAPI::Colors::Red);
 						//LOGMESSAGEWARNING("Touched a choke saved to anouther region");
+
+						if( debug_window )
+						{
+							debug_window->addBox( current_tile.x, current_tile.y, current_tile.x + 1, current_tile.y + 1, Colors::Red );
+						}
 					}
 				}
 				// This chokepoint wasn't created by the current region, add it as the other side
@@ -528,6 +531,11 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 			else if( data.m_tile_to_region[current_tile] != current_region )
 			{
 				//LOGMESSAGEWARNING("2 regions possibly connected without a choke");
+				if( debug_window )
+				{
+					debug_window->addBox( current_tile.x, current_tile.y, current_tile.x + 1, current_tile.y + 1, Colors::Red );
+				}
+
 				continue;
 			}
 
@@ -578,6 +586,11 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 						tile_to_chokepoint[line_pos] = current_chokepoint;
 						data.m_tile_to_region[line_pos] = current_region;
 						choke_children.push( line_pos );
+
+						if( debug_window )
+						{
+							debug_window->addBox( line_pos.x, line_pos.y, line_pos.x + 1, line_pos.y + 1, Colors::Orange );
+						}
 					}
 
 					return false;
@@ -585,12 +598,6 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 
 				MapUtil::forEachPositionInLine( choke_sides.first, last_minima, add_choke_children );
 				MapUtil::forEachPositionInLine( last_minima, choke_sides.second, add_choke_children );
-
-				if( debug_window )
-				{
-					debug_window->addLine( choke_sides.first.x * 8, choke_sides.first.y * 8, last_minima.x * 8, last_minima.y * 8, 8, Colors::Orange );
-					debug_window->addLine( last_minima.x * 8, last_minima.y * 8, choke_sides.second.x * 8, choke_sides.second.y * 8, 8, Colors::Orange );
-				}
 
 				// Remove any tiles that are after the chokepoint as they are now cut off
 				while( !choke_children.empty() )

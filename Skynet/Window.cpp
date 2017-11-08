@@ -4,6 +4,7 @@
 
 #include <future>
 #include <thread>
+#include <array>
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
@@ -33,6 +34,7 @@ class WindowImpl
 
 	std::mutex m_mutex;
 	std::vector<std::unique_ptr<sf::Shape>> m_shapes;
+	std::vector<std::array<sf::Vertex, 4>> m_lines;
 
 public:
 	WindowImpl( std::string title, int width, int height )
@@ -73,7 +75,7 @@ public:
 					case sf::Event::MouseWheelScrolled:
 					{
 						auto view = sfml_window.getView();
-						float zoom_factor = event.mouseWheelScroll.delta > 0.0f ? 1.5f : 0.6666666f;
+						float zoom_factor = event.mouseWheelScroll.delta < 0.0f ? 1.5f : 0.6666666f;
 						view.zoom( zoom_factor );
 						current_zoom *= zoom_factor;
 						sfml_window.setView( view );
@@ -126,6 +128,9 @@ public:
 					std::lock_guard<std::mutex> lock( m_mutex );
 					for( auto & shape : m_shapes )
 						sfml_window.draw( *shape );
+
+					for( auto & line : m_lines )
+						sfml_window.draw( line.data(), 4, sf::Quads );
 				}
 
 				sfml_window.display();
@@ -154,24 +159,25 @@ public:
 
 	void addLine( int x1, int y1, int x2, int y2, float thickness, Color color )
 	{
-		PositionFloat start = PositionFloat( float( x1 ), float( y1 ) );
-		PositionFloat end = PositionFloat( float( x2 ), float( y2 ) );
+		sf::Vector2f point_1{ float( x1 ), float( y1 ) };
+		sf::Vector2f point_2{ float( x2 ), float( y2 ) };
 
-		PositionFloat line_direction = end - start;
-		float length = normalise( line_direction );
+		point_1 *= m_scale;
+		point_2 *= m_scale;
 
-		float dot = dotProduct( line_direction, PositionFloat( 0.0f, -1.0f ) );
-		float acos = std::acos( dot );
-		float angle = acos * 180 / 3.14159265359f;
-
-		auto new_shape = std::make_unique<sf::RectangleShape>( sf::Vector2f( length, thickness ) * m_scale );
-		new_shape->setOrigin( 0.0f, thickness * 0.5f * m_scale );
-		new_shape->setPosition( sf::Vector2f( start.x, start.y ) * m_scale );
-		new_shape->rotate( angle );
-		new_shape->setFillColor( sf::Color( color.red(), color.green(), color.blue() ) );
+		sf::Vector2f direction = point_1 - point_2;
+		sf::Vector2f unit_direction = direction / std::sqrt( direction.x*direction.x + direction.y*direction.y );
+		sf::Vector2f unit_perpendicular( -unit_direction.y, unit_direction.x );
+		sf::Vector2f offset = (thickness / 2.f) * unit_perpendicular;
 
 		std::lock_guard<std::mutex> lock( m_mutex );
-		m_shapes.push_back( std::move( new_shape ) );
+		m_lines.emplace_back(
+		std::array<sf::Vertex, 4>{
+			sf::Vertex( point_1 + offset, sf::Color( color.red(), color.green(), color.blue() ) ),
+			sf::Vertex( point_2 + offset, sf::Color( color.red(), color.green(), color.blue() ) ),
+			sf::Vertex( point_2 - offset, sf::Color( color.red(), color.green(), color.blue() ) ),
+			sf::Vertex( point_1 - offset, sf::Color( color.red(), color.green(), color.blue() ) )
+		} );
 	}
 };
 
