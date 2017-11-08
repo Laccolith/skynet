@@ -15,15 +15,13 @@
 #include <filesystem>
 
 // Increment if anything changes in the algorithm, or in the file format
-const unsigned int data_version_number = 3;
+const unsigned int data_version_number = 4;
 
 SkynetTerrainAnalyser::SkynetTerrainAnalyser( Core & core )
 	: TerrainAnalyserInterface( core )
 	, m_map_size( BWAPI::Broodwar->mapWidth() * 4, BWAPI::Broodwar->mapHeight() * 4 )
 {
 	core.registerUpdateProcess( 1.0f, [this]() { update(); } );
-
-	setDebugging( Debug::RegionAnalysis, true );
 }
 
 void SkynetTerrainAnalyser::update()
@@ -407,8 +405,15 @@ struct RegionTileData
 	WalkPosition last_minima = WalkPositions::None;
 	unsigned int children_flags = 0;
 
-	void set_child( int i ) { children_flags |= (i + 1); }
-	bool has_child( int i ) const { return (children_flags & (i + 1)) != 0; }
+	void set_child( int i )
+	{
+		children_flags |= 1 << i;
+	}
+
+	bool has_child( int i ) const
+	{
+		return (children_flags >> i) & 1;
+	}
 };
 
 void SkynetTerrainAnalyser::calculateRegions( Data & data )
@@ -425,7 +430,12 @@ void SkynetTerrainAnalyser::calculateRegions( Data & data )
 			for( int y = 0; y < m_map_size.y; ++y )
 			{
 				if( data.m_tile_clearance[WalkPosition( x, y )] == 0 )
-					debug_window->addBox( x , y, x + 1, y + 1, Colors::Red );
+				{
+					if( data.m_connectivity_to_small_obstacles[data.m_tile_connectivity[WalkPosition( x, y )]] )
+						debug_window->addBox( x, y, x + 1, y + 1, Colors::Blue );
+					else
+						debug_window->addBox( x, y, x + 1, y + 1, Colors::Grey );
+				}
 			}
 		}
 	}
