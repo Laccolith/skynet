@@ -62,6 +62,14 @@ public:
 		} );
 	}
 
+	Condition operator!=( T value ) const
+	{
+		return Condition( [left = *this, value]( CoreAccess & access ) -> bool
+		{
+			return left.evaluate( access ) != value;
+		} );
+	}
+
 	Condition operator>( T value ) const
 	{
 		return Condition( [left = *this, value]( CoreAccess & access ) -> bool
@@ -100,6 +108,15 @@ public:
 		return Condition( [left = *this, right = other]( CoreAccess & access ) -> bool
 		{
 			return left.evaluate( access ) == right.evaluate( access );
+		} );
+	}
+
+	template <typename O>
+	Condition operator!=( const Value<O> & other ) const
+	{
+		return Condition( [left = *this, right = other]( CoreAccess & access ) -> bool
+		{
+			return left.evaluate( access ) != right.evaluate( access );
 		} );
 	}
 
