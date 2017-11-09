@@ -41,6 +41,9 @@ public:
 	virtual BuildLocationManagerInterface & getBuildLocationManager() { return m_core.getBuildLocationManager(); }
 	virtual const BuildLocationManagerInterface & getBuildLocationManager() const { return m_core.getBuildLocationManager(); }
 
+	virtual BuildOrderManagerInterface & getBuildOrderManager() { return m_core.getBuildOrderManager(); }
+	virtual const BuildOrderManagerInterface & getBuildOrderManager() const { return m_core.getBuildOrderManager(); }
+
 private:
 	Core & m_core;
 };

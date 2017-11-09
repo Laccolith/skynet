@@ -12,6 +12,7 @@ public:
 	SkynetPlayerTracker( Core & core );
 
 	Player getLocalPlayer() const override { return m_local_player; }
+	Player getEnemyPlayer() const override { return m_enemy_player; }
 	Player getNeutralPlayer() const override { return m_neutral_player; }
 	Player getPlayer( int player_id ) const override;
 	Player getPlayer( BWAPI::Player player ) const override;
@@ -22,6 +23,7 @@ private:
 	std::vector<std::unique_ptr<SkynetPlayer>> m_bwapi_players;
 
 	Player m_local_player = nullptr;
+	Player m_enemy_player = nullptr;
 	Player m_neutral_player = nullptr;
 	std::vector<Player> m_all_players;
 

@@ -76,6 +76,12 @@
     <Filter Include="BuildLocationManager\Skynet">
       <UniqueIdentifier>{8550c6f6-67e8-4278-b2a6-062bcaf52591}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BuildOrderManager">
+      <UniqueIdentifier>{c391da32-2d3c-417f-8ada-a7b624d84ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BuildOrderManager\Skynet">
+      <UniqueIdentifier>{52a1e9a9-2234-4435-aa7f-b9e73b7fbe40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -175,6 +181,15 @@
       <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBuildOrderManager.cpp">
+      <Filter>BuildOrderManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetBuildOrder.cpp">
+      <Filter>BuildOrderManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="LazyQuery.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
@@ -360,6 +375,21 @@
       <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildOrderManager.h">
+      <Filter>BuildOrderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBuildOrderManager.h">
+      <Filter>BuildOrderManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetBuildOrder.h">
+      <Filter>BuildOrderManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyLogic.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyQuery.h">
       <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>

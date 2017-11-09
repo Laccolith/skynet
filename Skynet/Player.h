@@ -15,6 +15,9 @@ public:
 	virtual bool isEnemy( Player player ) const = 0;
 	virtual bool isNeutral() const = 0;
 
+	virtual const std::vector<PlayerInterface*> & getAllies() const = 0;
+	virtual const std::vector<PlayerInterface*> & getEnemies() const = 0;
+
 	virtual Race getRace() const = 0;
 
 	virtual Color getColor() const = 0;

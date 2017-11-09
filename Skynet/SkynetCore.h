@@ -51,6 +51,9 @@ public:
 	BuildLocationManagerInterface & getBuildLocationManager() override { return *m_build_location_manager; }
 	const BuildLocationManagerInterface & getBuildLocationManager() const override { return *m_build_location_manager; }
 
+	BuildOrderManagerInterface & getBuildOrderManager() override { return *m_build_order_manager; }
+	const BuildOrderManagerInterface & getBuildOrderManager() const override { return *m_build_order_manager; }
+
 private:
 	bool m_in_startup = true;
 
@@ -68,6 +71,7 @@ private:
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
 	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
 	std::unique_ptr<BuildLocationManagerInterface> m_build_location_manager;
+	std::unique_ptr<BuildOrderManagerInterface> m_build_order_manager;
 
 	std::vector<std::unique_ptr<ControlTask>> m_tasks;
 };

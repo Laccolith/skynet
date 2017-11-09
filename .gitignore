@@ -1,0 +1,12 @@
+﻿/.vs
+/include
+/lib
+/Debug
+/DebugDLL
+/Release
+/ReleaseDLL
+/Skynet/bwapi-data
+/Skynet/Debug
+/Skynet/DebugDLL
+/Skynet/Release
+/Skynet/ReleaseDLL

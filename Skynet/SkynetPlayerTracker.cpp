@@ -29,9 +29,28 @@ SkynetPlayerTracker::SkynetPlayerTracker( Core & core )
 		{
 			m_local_player = stored_player.get();
 		}
+		else if( player == BWAPI::Broodwar->enemy() )
+		{
+			m_enemy_player = stored_player.get();
+		}
 		else if( player == BWAPI::Broodwar->neutral() )
 		{
 			m_neutral_player = stored_player.get();
+		}
+	}
+
+	for( auto & player : m_bwapi_players )
+	{
+		for( auto & other_player : m_all_players )
+		{
+			if( player->getBWAPIPlayer()->isEnemy( other_player->getBWAPIPlayer() ) )
+			{
+				player->addEnemy( other_player );
+			}
+			else if( player->getBWAPIPlayer()->isAlly( other_player->getBWAPIPlayer() ) )
+			{
+				player->addAlly( other_player );
+			}
 		}
 	}
 }

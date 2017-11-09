@@ -189,10 +189,13 @@ copy "bwapi.ini" "%25BWAPIData%25"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LazyQuery.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="SkynetBaseManager.cpp" />
     <ClCompile Include="SkynetBuildLocation.cpp" />
     <ClCompile Include="SkynetBuildLocationManager.cpp" />
+    <ClCompile Include="SkynetBuildOrder.cpp" />
+    <ClCompile Include="SkynetBuildOrderManager.cpp" />
     <ClCompile Include="SkynetControlTask.cpp" />
     <ClCompile Include="SkynetControlTaskConstruct.cpp" />
     <ClCompile Include="SkynetControlTaskFactory.cpp" />
@@ -230,15 +233,20 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="BaseTracker.h" />
     <ClInclude Include="BuildLocation.h" />
     <ClInclude Include="BuildLocationManager.h" />
+    <ClInclude Include="BuildOrderManager.h" />
     <ClInclude Include="Chokepoint.h" />
     <ClInclude Include="ControlTask.h" />
     <ClInclude Include="ControlTaskFactory.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreAccess.h" />
+    <ClInclude Include="LazyLogic.h" />
+    <ClInclude Include="LazyQuery.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="SkynetBaseManager.h" />
     <ClInclude Include="SkynetBuildLocation.h" />
     <ClInclude Include="SkynetBuildLocationManager.h" />
+    <ClInclude Include="SkynetBuildOrder.h" />
+    <ClInclude Include="SkynetBuildOrderManager.h" />
     <ClInclude Include="SkynetControlTask.h" />
     <ClInclude Include="SkynetControlTaskConstruct.h" />
     <ClInclude Include="SkynetControlTaskFactory.h" />
