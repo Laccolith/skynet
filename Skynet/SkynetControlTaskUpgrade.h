@@ -12,8 +12,9 @@ class SkynetControlTaskUpgrade : public SkynetControlTask
 public:
 	SkynetControlTaskUpgrade( SkynetControlTaskFactory & skynet_control_task_factory, UpgradeType upgrade_type, int upgrade_level );
 
+	int timeTillStart() const override;
 	bool isInProgress() const override;
-	bool isFinished() const override;
+	bool isComplete() const override;
 
 	void preUpdate() override;
 	void postUpdate() override;

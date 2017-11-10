@@ -11,12 +11,17 @@ SkynetControlTaskUpgrade::SkynetControlTaskUpgrade( SkynetControlTaskFactory & s
 	createTask();
 }
 
+int SkynetControlTaskUpgrade::timeTillStart() const
+{
+	return m_task ? m_task->getPlannedTime() : 0;
+}
+
 bool SkynetControlTaskUpgrade::isInProgress() const
 {
 	return !m_task || m_task->getAssignedUnit();
 }
 
-bool SkynetControlTaskUpgrade::isFinished() const
+bool SkynetControlTaskUpgrade::isComplete() const
 {
 	return !m_task;
 }

@@ -12,8 +12,9 @@ class SkynetControlTaskResearch : public SkynetControlTask
 public:
 	SkynetControlTaskResearch( SkynetControlTaskFactory & skynet_control_task_factory, TechType tech_type );
 
+	int timeTillStart() const override;
 	bool isInProgress() const override;
-	bool isFinished() const override;
+	bool isComplete() const override;
 
 	void preUpdate() override;
 	void postUpdate() override;

@@ -15,8 +15,9 @@ class SkynetControlTaskConstruct : public SkynetControlTask
 public:
 	SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type, BuildLocationType build_location_type );
 
+	int timeTillStart() const override;
 	bool isInProgress() const override;
-	bool isFinished() const override;
+	bool isComplete() const override;
 
 	void preUpdate() override;
 	void postUpdate() override;

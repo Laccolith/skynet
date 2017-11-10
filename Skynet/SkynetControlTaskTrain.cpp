@@ -10,12 +10,17 @@ SkynetControlTaskTrain::SkynetControlTaskTrain( SkynetControlTaskFactory & skyne
 	createTask();
 }
 
+int SkynetControlTaskTrain::timeTillStart() const
+{
+	return m_task ? m_task->getPlannedTime() : 0;
+}
+
 bool SkynetControlTaskTrain::isInProgress() const
 {
 	return !m_task || m_build_unit;
 }
 
-bool SkynetControlTaskTrain::isFinished() const
+bool SkynetControlTaskTrain::isComplete() const
 {
 	return !m_task;
 }

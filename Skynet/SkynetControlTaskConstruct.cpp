@@ -12,12 +12,17 @@ SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory
 	createTask();
 }
 
+int SkynetControlTaskConstruct::timeTillStart() const
+{
+	return m_task ? m_task->getPlannedTime() : 0;
+}
+
 bool SkynetControlTaskConstruct::isInProgress() const
 {
 	return m_build_unit || m_has_finished;
 }
 
-bool SkynetControlTaskConstruct::isFinished() const
+bool SkynetControlTaskConstruct::isComplete() const
 {
 	return m_has_finished;
 }

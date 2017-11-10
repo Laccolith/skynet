@@ -6,7 +6,11 @@
 
 namespace LazyQuery
 {
+	Condition conditionTrue();
+	Condition conditionFalse();
+
 	Value<double> randomUnary();
+	Value<int> counter();
 
 	Value<int> numStartPositions();
 

@@ -35,14 +35,14 @@ public:
 	TaskManagerInterface & getTaskManager() { return m_core.getTaskManager(); }
 	const TaskManagerInterface & getTaskManager() const { return m_core.getTaskManager(); }
 
-	virtual ControlTaskFactoryInterface & getControlTaskFactory() { return m_core.getControlTaskFactory(); }
-	virtual const ControlTaskFactoryInterface & getControlTaskFactory() const { return m_core.getControlTaskFactory(); }
+	ControlTaskFactoryInterface & getControlTaskFactory() { return m_core.getControlTaskFactory(); }
+	const ControlTaskFactoryInterface & getControlTaskFactory() const { return m_core.getControlTaskFactory(); }
 
-	virtual BuildLocationManagerInterface & getBuildLocationManager() { return m_core.getBuildLocationManager(); }
-	virtual const BuildLocationManagerInterface & getBuildLocationManager() const { return m_core.getBuildLocationManager(); }
+	BuildLocationManagerInterface & getBuildLocationManager() { return m_core.getBuildLocationManager(); }
+	const BuildLocationManagerInterface & getBuildLocationManager() const { return m_core.getBuildLocationManager(); }
 
-	virtual BuildOrderManagerInterface & getBuildOrderManager() { return m_core.getBuildOrderManager(); }
-	virtual const BuildOrderManagerInterface & getBuildOrderManager() const { return m_core.getBuildOrderManager(); }
+	BuildOrderManagerInterface & getBuildOrderManager() { return m_core.getBuildOrderManager(); }
+	const BuildOrderManagerInterface & getBuildOrderManager() const { return m_core.getBuildOrderManager(); }
 
 private:
 	Core & m_core;

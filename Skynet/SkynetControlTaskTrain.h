@@ -12,8 +12,9 @@ class SkynetControlTaskTrain : public SkynetControlTask
 public:
 	SkynetControlTaskTrain( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type );
 
+	int timeTillStart() const override;
 	bool isInProgress() const override;
-	bool isFinished() const override;
+	bool isComplete() const override;
 
 	void preUpdate() override;
 	void postUpdate() override;

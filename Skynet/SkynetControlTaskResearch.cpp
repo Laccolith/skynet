@@ -10,12 +10,17 @@ SkynetControlTaskResearch::SkynetControlTaskResearch( SkynetControlTaskFactory &
 	createTask();
 }
 
+int SkynetControlTaskResearch::timeTillStart() const
+{
+	return m_task ? m_task->getPlannedTime() : 0;
+}
+
 bool SkynetControlTaskResearch::isInProgress() const
 {
 	return !m_task || m_task->getAssignedUnit();
 }
 
-bool SkynetControlTaskResearch::isFinished() const
+bool SkynetControlTaskResearch::isComplete() const
 {
 	return !m_task;
 }

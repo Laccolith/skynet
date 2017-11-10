@@ -5,6 +5,22 @@
 
 #include <random>
 
+Condition LazyQuery::conditionTrue()
+{
+	return Condition( []( CoreAccess & ) -> bool
+	{
+		return true;
+	} );
+}
+
+Condition LazyQuery::conditionFalse()
+{
+	return Condition( []( CoreAccess & ) -> bool
+	{
+		return false;
+	} );
+}
+
 Value<double> LazyQuery::randomUnary()
 {
 	std::random_device rd;
@@ -14,6 +30,14 @@ Value<double> LazyQuery::randomUnary()
 	return Value<double>( [num = dis(gen)]( CoreAccess & access ) -> double
 	{
 		return num;
+	} );
+}
+
+Value<int> LazyQuery::counter()
+{
+	return Value<int>( [count = 0]( CoreAccess & access ) mutable -> int
+	{
+		return count++;
 	} );
 }
 
