@@ -199,7 +199,9 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClCompile Include="SkynetControlTask.cpp" />
     <ClCompile Include="SkynetControlTaskConstruct.cpp" />
     <ClCompile Include="SkynetControlTaskFactory.cpp" />
+    <ClCompile Include="SkynetControlTaskResearch.cpp" />
     <ClCompile Include="SkynetControlTaskTrain.cpp" />
+    <ClCompile Include="SkynetControlTaskUpgrade.cpp" />
     <ClCompile Include="SkynetCore.cpp" />
     <ClCompile Include="DrawBuffer.cpp" />
     <ClCompile Include="DrawingUtil.cpp" />
@@ -250,7 +252,9 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="SkynetControlTask.h" />
     <ClInclude Include="SkynetControlTaskConstruct.h" />
     <ClInclude Include="SkynetControlTaskFactory.h" />
+    <ClInclude Include="SkynetControlTaskResearch.h" />
     <ClInclude Include="SkynetControlTaskTrain.h" />
+    <ClInclude Include="SkynetControlTaskUpgrade.h" />
     <ClInclude Include="SkynetCore.h" />
     <ClInclude Include="DrawBuffer.h" />
     <ClInclude Include="DrawingUtil.h" />

@@ -14,6 +14,8 @@ public:
 	void postUpdate();
 
 	std::unique_ptr<ControlTask> createBuildControlTask( UnitType unit_type, BuildLocationType build_location_type = BuildLocationType::Base ) override;
+	std::unique_ptr<ControlTask> createResearchControlTask( TechType tech_type ) override;
+	std::unique_ptr<ControlTask> createUpgradeControlTask( UpgradeType upgrade_type, int upgrade_level ) override;
 
 	void onTaskDestroyed( SkynetControlTask * task );
 

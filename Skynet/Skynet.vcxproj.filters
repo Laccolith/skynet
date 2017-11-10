@@ -192,6 +192,12 @@
     <ClCompile Include="LazyQuery.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetControlTaskResearch.cpp">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetControlTaskUpgrade.cpp">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SmartEnum.h">
@@ -391,6 +397,12 @@
     </ClInclude>
     <ClInclude Include="LazyQuery.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTaskResearch.h">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetControlTaskUpgrade.h">
+      <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

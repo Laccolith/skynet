@@ -3,6 +3,8 @@
 #include "SkynetControlTask.h"
 #include "SkynetControlTaskTrain.h"
 #include "SkynetControlTaskConstruct.h"
+#include "SkynetControlTaskResearch.h"
+#include "SkynetControlTaskUpgrade.h"
 
 SkynetControlTaskFactory::SkynetControlTaskFactory( Core & core )
 	: ControlTaskFactoryInterface( core )
@@ -51,6 +53,20 @@ std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( U
 	if( control_task )
 		m_control_tasks.push_back( control_task.get() );
 
+	return control_task;
+}
+
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createResearchControlTask( TechType tech_type )
+{
+	auto control_task = std::make_unique<SkynetControlTaskResearch>( *this, tech_type );
+	m_control_tasks.push_back( control_task.get() );
+	return control_task;
+}
+
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createUpgradeControlTask( UpgradeType upgrade_type, int upgrade_level )
+{
+	auto control_task = std::make_unique<SkynetControlTaskUpgrade>( *this, upgrade_type, upgrade_level );
+	m_control_tasks.push_back( control_task.get() );
 	return control_task;
 }
 
