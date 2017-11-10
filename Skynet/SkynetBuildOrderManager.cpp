@@ -1,5 +1,6 @@
 #include "SkynetBuildOrderManager.h"
 
+#include "TaskManager.h"
 #include "LazyQuery.h"
 
 #include <random>
@@ -8,6 +9,8 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 	: BuildOrderManagerInterface( core )
 {
 	core.registerUpdateProcess( 3.0f, [this]() { update(); } );
+
+	m_build_order_priority = getTaskManager().createPriorityGroup( "Build Order", 80.0 );
 
 	setDebugging( Debug::Default, true );
 
@@ -18,22 +21,20 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & pvt_end_game = createBuildOrder( "PvT End Game" );
 	{
-		// Macro workers
-		// Macro supply
-		// Macro production
-		// Macro army
-		// Macro expansion
-		// Macro tech
+		// Auto Build supply
+		// Auto Build production
+		// Auto Build army
+		// Auto Build expansion
+		// Auto Build tech
 		// Scout
 	}
 
 	auto & pvt_mid_game = createBuildOrder( "PvT Mid Game" );
 	{
-		// Macro workers
-		// Macro supply
-		// Macro production
-		// Macro army
-		// Macro expansion
+		// Auto Build supply
+		// Auto Build production
+		// Auto Build army
+		// Auto Build expansion
 		// Scout
 
 		pvt_mid_game.addItem( Protoss_Templar_Archives );
@@ -46,11 +47,10 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & citadel_first = createBuildOrder( "Citadel First" );
 	{
-		// Macro workers
-		// Macro supply
-		// Macro production
-		// Macro army
-		// Macro expansion
+		// Auto Build supply
+		// Auto Build production
+		// Auto Build army
+		// Auto Build expansion
 		// Scout
 
 		citadel_first.addItem( Protoss_Citadel_of_Adun );
@@ -61,10 +61,9 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & expand = createBuildOrder( "Expand" );
 	{
-		// Macro workers
-		// Macro supply
-		// Macro production
-		// Macro army
+		// Auto Build supply
+		// Auto Build production
+		// Auto Build army
 		// Scout
 
 		auto last_item = expand.addItem( Protoss_Nexus, BuildLocationType::Expansion );
@@ -74,16 +73,15 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & additional_gateways = createBuildOrder( "Additional Gateways" );
 	{
-		// Macro workers
-		// Macro supply
+		// Auto Build supply
 		// Scout
 
 		additional_gateways.addItem( Protoss_Dragoon );
-		// Macro army
+		// Auto Build army
 		additional_gateways.addItem( Protoss_Gateway );
 		auto last_item = additional_gateways.addItem( Singularity_Charge );
 
-		// Macro production
+		// Auto Build production
 
 		additional_gateways.addBuild( expand, last_item.isInProgress() && counter() > (24 * 60 * 4) ); // TODO: or enemy has researched siege tech
 	}
@@ -95,24 +93,27 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 		one_gate_core.addItem( Protoss_Probe, 4 );
 		one_gate_core.addItem( Protoss_Pylon );
 		// Scout
-		one_gate_core.addItem( Protoss_Probe );
-		// Macro workers
+
+		auto build_workers_item = one_gate_core.addItem( Protoss_Probe );
+		one_gate_core.setAutoBuildWorkers( true, build_workers_item.isInProgress() );
+
 		one_gate_core.addItem( Protoss_Gateway );
 		one_gate_core.addItem( Protoss_Assimilator );
 		one_gate_core.addItem( Protoss_Cybernetics_Core );
 		auto last_item = one_gate_core.addItem( Protoss_Pylon );
-		// Macro supply
+		// Auto Build supply
 
 		one_gate_core.addBuild( additional_gateways, last_item.isInProgress() && enemyRace() == Races::Terran );
 	}
 
 	auto & fourteen_nexus = createBuildOrder( "14 Nexus" );
 	{
-		fourteen_nexus.setStartingCondition( enemyRace() == Races::Terran && numEnemies() == 1 && numStartPositions() >= 2 );
+		fourteen_nexus.setStartingCondition( enemyRace() == Races::Terran && numEnemies() == 1 && numStartPositions() >= 4 );
 
 		fourteen_nexus.addItem( Protoss_Probe, 4 );
 		fourteen_nexus.addItem( Protoss_Pylon );
 		// Scout
+
 		fourteen_nexus.addItem( Protoss_Probe, 5 );
 		fourteen_nexus.addItem( Protoss_Nexus, BuildLocationType::Expansion );
 		fourteen_nexus.addItem( Protoss_Probe );
@@ -134,10 +135,11 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 		fourteen_nexus.addItem( Protoss_Pylon );
 		auto last_item = fourteen_nexus.addItem( Protoss_Dragoon, 2 );
 
-		// Macro workers
-		// Macro supply
-		// Macro army
-		// Macro production
+		fourteen_nexus.setAutoBuildWorkers( true );
+
+		// Auto Build supply
+		// Auto Build army
+		// Auto Build production
 
 		fourteen_nexus.addBuild( citadel_first, last_item.isComplete() && counter() > (24 * 60 * 2) );
 	}
@@ -231,7 +233,7 @@ void SkynetBuildOrderManager::changeBuild( SkynetBuildOrder & next_build )
 	m_current_build_order = &next_build;
 
 	m_current_build_items.clear();
-	m_current_build_item_tasks.clear();
+	m_current_build_item_tasks.clear(); // TODO: Need to keep these if they are still active so we don't stop something in progress
 	m_current_generic_items.clear();
 
 	m_current_build_items = next_build.getBuildItems();

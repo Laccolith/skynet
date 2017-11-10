@@ -4,8 +4,9 @@
 #include "Unit.h"
 #include "BuildLocationManager.h"
 
-SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type, BuildLocationType build_location_type )
+SkynetControlTaskConstruct::SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, UnitType unit_type, BuildLocationType build_location_type )
 	: SkynetControlTask( skynet_control_task_factory )
+	, m_priority( priority )
 	, m_unit_type( unit_type )
 	, m_build_location_type( build_location_type )
 {
@@ -142,7 +143,7 @@ void SkynetControlTaskConstruct::postUpdate()
 
 void SkynetControlTaskConstruct::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask( "Building - " + m_unit_type.getName() );
+	m_task = getAccess().getTaskManager().createTask( "Building - " + m_unit_type.getName(), m_priority );
 
 	if( !m_build_unit )
 	{

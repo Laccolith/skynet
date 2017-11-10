@@ -6,4 +6,6 @@ class BaseManagerInterface : public CoreModule
 {
 public:
 	BaseManagerInterface( Core & core ) : CoreModule( core, "BaseManager" ) {}
+
+	virtual void setWorkerTraining( bool enabled ) = 0;
 };

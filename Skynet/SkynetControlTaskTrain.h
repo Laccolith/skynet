@@ -10,7 +10,7 @@ class TaskInterface;
 class SkynetControlTaskTrain : public SkynetControlTask
 {
 public:
-	SkynetControlTaskTrain( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type );
+	SkynetControlTaskTrain( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, UnitType unit_type );
 
 	int timeTillStart() const override;
 	bool isInProgress() const override;
@@ -20,6 +20,7 @@ public:
 	void postUpdate() override;
 
 private:
+	TaskPriority * m_priority;
 	UnitType m_unit_type;
 	Unit m_build_unit = nullptr;
 

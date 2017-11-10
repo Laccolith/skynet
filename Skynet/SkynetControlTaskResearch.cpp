@@ -3,8 +3,9 @@
 #include "TaskManager.h"
 #include "Unit.h"
 
-SkynetControlTaskResearch::SkynetControlTaskResearch( SkynetControlTaskFactory & skynet_control_task_factory, TechType tech_type )
+SkynetControlTaskResearch::SkynetControlTaskResearch( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, TechType tech_type )
 	: SkynetControlTask( skynet_control_task_factory )
+	, m_priority( priority )
 	, m_tech_type( tech_type )
 {
 	createTask();
@@ -86,7 +87,7 @@ void SkynetControlTaskResearch::postUpdate()
 
 void SkynetControlTaskResearch::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask( "Researching - " + m_tech_type.getName() );
+	m_task = getAccess().getTaskManager().createTask( "Researching - " + m_tech_type.getName(), m_priority );
 
 	if( m_tech_type.mineralPrice() > 0 )
 		m_reserved_resources.push_back( m_task->addRequirementMineral( m_tech_type.mineralPrice() ) );

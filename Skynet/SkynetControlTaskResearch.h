@@ -10,7 +10,7 @@ class TaskInterface;
 class SkynetControlTaskResearch : public SkynetControlTask
 {
 public:
-	SkynetControlTaskResearch( SkynetControlTaskFactory & skynet_control_task_factory, TechType tech_type );
+	SkynetControlTaskResearch( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, TechType tech_type );
 
 	int timeTillStart() const override;
 	bool isInProgress() const override;
@@ -20,6 +20,7 @@ public:
 	void postUpdate() override;
 
 private:
+	TaskPriority * m_priority;
 	TechType m_tech_type;
 
 	std::vector<int> m_reserved_resources;

@@ -13,6 +13,7 @@ public:
 
 	void update();
 
+	TaskPriority * getTaskPriority() const { return m_build_order_priority; }
 	int timeTillItemStarts( int id );
 	bool isItemInProgress( int id );
 	bool isItemComplete( int id );
@@ -20,6 +21,7 @@ public:
 	void changeBuild( SkynetBuildOrder & next_build );
 
 private:
+	TaskPriority * m_build_order_priority = nullptr;
 	std::vector<std::unique_ptr<SkynetBuildOrder>> m_build_orders;
 
 	SkynetBuildOrder * m_current_build_order = nullptr;

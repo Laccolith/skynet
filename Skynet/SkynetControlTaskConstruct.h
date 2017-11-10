@@ -13,7 +13,7 @@ class TaskInterface;
 class SkynetControlTaskConstruct : public SkynetControlTask
 {
 public:
-	SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type, BuildLocationType build_location_type );
+	SkynetControlTaskConstruct( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, UnitType unit_type, BuildLocationType build_location_type );
 
 	int timeTillStart() const override;
 	bool isInProgress() const override;
@@ -23,6 +23,7 @@ public:
 	void postUpdate() override;
 
 private:
+	TaskPriority * m_priority;
 	UnitType m_unit_type;
 	BuildLocationType m_build_location_type;
 	bool m_has_finished = false;

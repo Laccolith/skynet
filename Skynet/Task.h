@@ -4,6 +4,14 @@
 
 #include <memory>
 
+class TaskPriority
+{
+public:
+	virtual ~TaskPriority() {}
+
+	virtual void changePriority( double priority ) = 0;
+};
+
 class BuildLocation;
 class TaskInterface
 {

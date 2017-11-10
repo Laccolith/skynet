@@ -29,7 +29,7 @@ void SkynetControlTaskFactory::postUpdate()
 	}
 }
 
-std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( UnitType unit_type, BuildLocationType build_location_type )
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( TaskPriority * priority, UnitType unit_type, BuildLocationType build_location_type )
 {
 	std::unique_ptr<SkynetControlTask> control_task;
 
@@ -43,11 +43,11 @@ std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( U
 	}
 	else if( unit_type.isBuilding() )
 	{
-		control_task = std::make_unique<SkynetControlTaskConstruct>( *this, unit_type, build_location_type );
+		control_task = std::make_unique<SkynetControlTaskConstruct>( *this, priority, unit_type, build_location_type );
 	}
 	else
 	{
-		control_task = std::make_unique<SkynetControlTaskTrain>( *this, unit_type );
+		control_task = std::make_unique<SkynetControlTaskTrain>( *this, priority, unit_type );
 	}
 
 	if( control_task )
@@ -56,16 +56,16 @@ std::unique_ptr<ControlTask> SkynetControlTaskFactory::createBuildControlTask( U
 	return control_task;
 }
 
-std::unique_ptr<ControlTask> SkynetControlTaskFactory::createResearchControlTask( TechType tech_type )
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createResearchControlTask( TaskPriority * priority, TechType tech_type )
 {
-	auto control_task = std::make_unique<SkynetControlTaskResearch>( *this, tech_type );
+	auto control_task = std::make_unique<SkynetControlTaskResearch>( *this, priority, tech_type );
 	m_control_tasks.push_back( control_task.get() );
 	return control_task;
 }
 
-std::unique_ptr<ControlTask> SkynetControlTaskFactory::createUpgradeControlTask( UpgradeType upgrade_type, int upgrade_level )
+std::unique_ptr<ControlTask> SkynetControlTaskFactory::createUpgradeControlTask( TaskPriority * priority, UpgradeType upgrade_type, int upgrade_level )
 {
-	auto control_task = std::make_unique<SkynetControlTaskUpgrade>( *this, upgrade_type, upgrade_level );
+	auto control_task = std::make_unique<SkynetControlTaskUpgrade>( *this, priority, upgrade_type, upgrade_level );
 	m_control_tasks.push_back( control_task.get() );
 	return control_task;
 }

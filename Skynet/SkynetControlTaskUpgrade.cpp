@@ -3,8 +3,9 @@
 #include "TaskManager.h"
 #include "Unit.h"
 
-SkynetControlTaskUpgrade::SkynetControlTaskUpgrade( SkynetControlTaskFactory & skynet_control_task_factory, UpgradeType upgrade_type, int upgrade_level )
+SkynetControlTaskUpgrade::SkynetControlTaskUpgrade( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, UpgradeType upgrade_type, int upgrade_level )
 	: SkynetControlTask( skynet_control_task_factory )
+	, m_priority( priority )
 	, m_upgrade_type( upgrade_type )
 	, m_upgrade_level( upgrade_level )
 {
@@ -87,7 +88,7 @@ void SkynetControlTaskUpgrade::postUpdate()
 
 void SkynetControlTaskUpgrade::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask( "Upgrading - " + m_upgrade_type.getName() );
+	m_task = getAccess().getTaskManager().createTask( "Upgrading - " + m_upgrade_type.getName(), m_priority );
 
 	if( m_upgrade_type.mineralPrice() > 0 )
 		m_reserved_resources.push_back( m_task->addRequirementMineral( m_upgrade_type.mineralPrice() ) );

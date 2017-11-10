@@ -27,10 +27,10 @@ SkynetCore::SkynetCore()
 	m_unit_manager = std::make_unique<SkynetUnitManager>( *this );
 	m_terrain_analyser = std::make_unique<SkynetTerrainAnalyser>( *this );
 	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
-	m_base_manager = std::make_unique<SkynetBaseManager>( *this );
-	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
 	m_control_task_factory = std::make_unique<SkynetControlTaskFactory>( *this );
+	m_base_manager = std::make_unique<SkynetBaseManager>( *this );
+	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_build_location_manager = std::make_unique<SkynetBuildLocationManager>( *this );
 	m_build_order_manager = std::make_unique<SkynetBuildOrderManager>( *this );
 

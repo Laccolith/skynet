@@ -13,9 +13,9 @@ public:
 	void preUpdate();
 	void postUpdate();
 
-	std::unique_ptr<ControlTask> createBuildControlTask( UnitType unit_type, BuildLocationType build_location_type = BuildLocationType::Base ) override;
-	std::unique_ptr<ControlTask> createResearchControlTask( TechType tech_type ) override;
-	std::unique_ptr<ControlTask> createUpgradeControlTask( UpgradeType upgrade_type, int upgrade_level ) override;
+	std::unique_ptr<ControlTask> createBuildControlTask( TaskPriority * priority, UnitType unit_type, BuildLocationType build_location_type = BuildLocationType::Base ) override;
+	std::unique_ptr<ControlTask> createResearchControlTask( TaskPriority * priority, TechType tech_type ) override;
+	std::unique_ptr<ControlTask> createUpgradeControlTask( TaskPriority * priority, UpgradeType upgrade_type, int upgrade_level ) override;
 
 	void onTaskDestroyed( SkynetControlTask * task );
 

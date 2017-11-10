@@ -7,10 +7,11 @@
 #include "TerrainAnalyser.h"
 #include "Chokepoint.h"
 #include "MapUtil.h"
+#include "ControlTaskFactory.h"
 
 #include <array>
 
-constexpr int c_max_mineral_workers = 2;
+constexpr int c_max_mineral_workers = 3;
 constexpr int c_max_gas_workers = 3;
 
 SkynetBaseManager::SkynetBaseManager( Core & core )
@@ -20,6 +21,9 @@ SkynetBaseManager::SkynetBaseManager( Core & core )
 {
 	core.registerUpdateProcess( 3.0f, [this]() { preUpdate(); } );
 	core.registerUpdateProcess( 5.0f, [this]() { postUpdate(); } );
+
+	m_transfer_worker_priority = getTaskManager().createPriorityGroup( "Transfer Workers", 100.0 );
+	m_train_worker_priority = getTaskManager().createPriorityGroup( "Train Workers", 95.0 );
 }
 
 void SkynetBaseManager::notify( const BasesRecreated & message )
@@ -135,6 +139,7 @@ void SkynetBaseManager::postUpdate()
 		current_base_workers[base].insert( worker, true );
 	}
 
+	int required_workers = 0;
 	double mineral_rate = 0.0;
 	double gas_rate = 0.0;
 
@@ -203,6 +208,9 @@ void SkynetBaseManager::postUpdate()
 
 			refineries.insert( gas );
 		}
+
+		if( is_active )
+			required_workers += (refineries.size() * 3) + (base_data.second.sorted_minerals.size() * 2);
 
 		int max_gas = is_active ? std::min( refineries.size() * c_max_gas_workers, base_data.second.available_workers.size() ) : 0;
 		int max_mining = is_active ? std::min( base_data.second.sorted_minerals.size() * c_max_mineral_workers, base_data.second.available_workers.size() - max_gas ) : 0;
@@ -517,7 +525,7 @@ void SkynetBaseManager::postUpdate()
 
 								for( int i = 0; i < remaining_to_move; ++i )
 								{
-									auto task = getTaskManager().createTask( "Worker Base Transfer" );
+									auto task = getTaskManager().createTask( "Worker Base Transfer", m_transfer_worker_priority );
 
 									// TODO: Required time needs to be how long it will take to travel
 									task->addRequirementUnit( player->getRace().getWorker(), multi_base_data.first, 16, Position( start_chokepoint->getCenter() ), multi_base_data_target.first->getCenterPosition() );
@@ -535,5 +543,30 @@ void SkynetBaseManager::postUpdate()
 		}
 	}
 
-	volatile int i = 0;
+	if( m_can_train_workers )
+	{
+		required_workers += 4;
+		if( required_workers > 50 )
+			required_workers = 50;
+
+		int num_workers = getUnitTracker().getAllUnits( player->getRace().getWorker(), player ).size();
+		if( required_workers > num_workers )
+			required_workers -= num_workers;
+		else
+			required_workers = 0;
+
+		int num_depots = getUnitTracker().getAllUnits( player->getRace().getWorker().whatBuilds().first, player ).size();
+		if( required_workers > num_depots * 2 )
+			required_workers = num_depots * 2;
+
+		m_worker_train_items.erase( std::remove_if( m_worker_train_items.begin(), m_worker_train_items.end(), []( auto & train_item )
+		{
+			return train_item->isComplete();
+		} ), m_worker_train_items.end() );
+
+		while( (int)m_worker_train_items.size() < required_workers )
+		{
+			m_worker_train_items.push_back( getControlTaskFactory().createBuildControlTask( m_train_worker_priority, player->getRace().getWorker() ) );
+		}
+	}
 }

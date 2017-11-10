@@ -3,8 +3,9 @@
 #include "TaskManager.h"
 #include "Unit.h"
 
-SkynetControlTaskTrain::SkynetControlTaskTrain( SkynetControlTaskFactory & skynet_control_task_factory, UnitType unit_type )
+SkynetControlTaskTrain::SkynetControlTaskTrain( SkynetControlTaskFactory & skynet_control_task_factory, TaskPriority * priority, UnitType unit_type )
 	: SkynetControlTask( skynet_control_task_factory )
+	, m_priority( priority )
 	, m_unit_type( unit_type )
 {
 	createTask();
@@ -101,7 +102,7 @@ void SkynetControlTaskTrain::postUpdate()
 
 void SkynetControlTaskTrain::createTask()
 {
-	m_task = getAccess().getTaskManager().createTask( "Training - " + m_unit_type.getName() );
+	m_task = getAccess().getTaskManager().createTask( "Training - " + m_unit_type.getName(), m_priority );
 
 	if( m_unit_type.mineralPrice() > 0 )
 		m_reserved_resources.push_back( m_task->addRequirementMineral( m_unit_type.mineralPrice() ) );

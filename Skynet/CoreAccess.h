@@ -29,6 +29,9 @@ public:
 	BaseTrackerInterface & getBaseTracker() { return m_core.getBaseTracker(); }
 	const BaseTrackerInterface & getBaseTracker() const { return m_core.getBaseTracker(); }
 
+	BaseManagerInterface & getBaseManager() { return m_core.getBaseManager(); }
+	const BaseManagerInterface & getBaseManager() const { return m_core.getBaseManager(); }
+
 	ResourceManagerInterface & getResourceManager() { return m_core.getResourceManager(); }
 	const ResourceManagerInterface & getResourceManager() const { return m_core.getResourceManager(); }
 
