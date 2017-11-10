@@ -26,4 +26,6 @@ private:
 	std::vector<std::pair<std::function<std::unique_ptr<ControlTask>()>, Condition>> m_current_build_items;
 	std::vector<std::unique_ptr<ControlTask>> m_current_build_item_tasks;
 	std::vector<std::pair<std::function<void()>, Condition>> m_current_generic_items;
+
+	DEFINE_DEBUGGING_INTERFACE( Default );
 };

@@ -72,6 +72,4 @@ private:
 	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
 	std::unique_ptr<BuildLocationManagerInterface> m_build_location_manager;
 	std::unique_ptr<BuildOrderManagerInterface> m_build_order_manager;
-
-	std::vector<std::unique_ptr<ControlTask>> m_tasks;
 };

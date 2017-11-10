@@ -59,7 +59,7 @@ SkynetBuildOrderItem SkynetBuildOrder::addItem( UnitType unit_type, int count, B
 
 SkynetBuildOrderItem SkynetBuildOrder::addItem( UnitType unit_type, BuildLocationType build_location_type, Condition condition )
 {
-	return addItem( unit_type, 1, BuildLocationType::Base, condition );
+	return addItem( unit_type, 1, build_location_type, condition );
 }
 
 SkynetBuildOrderItem SkynetBuildOrder::addItem( UnitType unit_type, int count, Condition condition )

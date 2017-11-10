@@ -42,6 +42,8 @@ public:
 	void setStartingCondition( Condition starting_condition );
 	bool canBeStartingBuild();
 
+	const std::string & getName() const { return m_name; }
+
 	auto getBuildItems() const { return m_build_items; }
 	auto getGenericItems() const { return m_generic_items; }
 

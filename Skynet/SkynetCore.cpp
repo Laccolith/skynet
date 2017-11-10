@@ -41,92 +41,6 @@ SkynetCore::SkynetCore()
 
 	m_in_startup = false;
 	BWAPI::Broodwar->printf( "Skynet is online." );
-
-	auto worker_type = getPlayerTracker().getLocalPlayer()->getRace().getWorker();
-	auto supply_type = getPlayerTracker().getLocalPlayer()->getRace().getSupplyProvider();
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Nexus, BuildLocationType::Expansion ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	//m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Assimilator ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	for( int i = 0; i < 20; ++i )
-		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-	for( int i = 0; i < 160; ++i )
-		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-
-	for( int i = 0; i < 16; ++i )
-		m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );
-
-	/*for( int i = 0; i < 16; ++i )
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( worker_type ) );
-
-	for( int i = 0; i < 160; ++i )
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Zealot ) );
-
-	for( int i = 0; i < 4; ++i )
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( UnitTypes::Protoss_Gateway ) );
-
-	for( int i = 0; i < 25; ++i )
-	m_tasks.emplace_back( getControlTaskFactory().createBuildControlTask( supply_type ) );*/
 }
 
 SkynetCore::~SkynetCore() = default;
@@ -329,6 +243,10 @@ void SkynetCore::update()
 	{
 		Position mouse_position = BWAPI::Broodwar->getMousePosition() + BWAPI::Broodwar->getScreenPosition();
 		for( Unit unit : getUnitTracker().getAllUnits( UnitTypes::Protoss_Zealot, getPlayerTracker().getLocalPlayer() ) )
+		{
+			unit->attack( mouse_position );
+		}
+		for( Unit unit : getUnitTracker().getAllUnits( UnitTypes::Protoss_Dragoon, getPlayerTracker().getLocalPlayer() ) )
 		{
 			unit->attack( mouse_position );
 		}
