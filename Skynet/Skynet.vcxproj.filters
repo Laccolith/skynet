@@ -88,6 +88,12 @@
     <Filter Include="SupplyManager\Skynet">
       <UniqueIdentifier>{20cc8479-b2e0-4ff0-9f37-d8edd3437c51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ProductionManager">
+      <UniqueIdentifier>{ab510c23-b3bd-41e9-be52-5d6e6e2f803e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProductionManager\Skynet">
+      <UniqueIdentifier>{c071fff4-5a61-4d64-a5d4-797f84a866c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -206,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="SkynetSupplyManager.cpp">
       <Filter>SupplyManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetProductionManger.cpp">
+      <Filter>ProductionManager\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +427,12 @@
     </ClInclude>
     <ClInclude Include="SkynetSupplyManager.h">
       <Filter>SupplyManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductionManager.h">
+      <Filter>ProductionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetProductionManger.h">
+      <Filter>ProductionManager\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

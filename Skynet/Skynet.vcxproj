@@ -209,6 +209,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClCompile Include="MapUtil.cpp" />
     <ClCompile Include="SkynetPlayer.cpp" />
     <ClCompile Include="SkynetPlayerTracker.cpp" />
+    <ClCompile Include="SkynetProductionManger.cpp" />
     <ClCompile Include="SkynetResourceManager.cpp" />
     <ClCompile Include="SkynetBase.cpp" />
     <ClCompile Include="SkynetBaseLocation.cpp" />
@@ -245,6 +246,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="LazyLogic.h" />
     <ClInclude Include="LazyQuery.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="ProductionManager.h" />
     <ClInclude Include="SkynetBaseManager.h" />
     <ClInclude Include="SkynetBuildLocation.h" />
     <ClInclude Include="SkynetBuildLocationManager.h" />
@@ -273,6 +275,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="SkynetChokepoint.h" />
     <ClInclude Include="SkynetPlayer.h" />
     <ClInclude Include="SkynetPlayerTracker.h" />
+    <ClInclude Include="SkynetProductionManger.h" />
     <ClInclude Include="SkynetRegion.h" />
     <ClInclude Include="SkynetResourceManager.h" />
     <ClInclude Include="SkynetSupplyManager.h" />

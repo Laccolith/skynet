@@ -91,14 +91,14 @@ public:
 	template <typename T>
 	void postMessage( const T & message )
 	{
-		static_assert(std::is_base_of<MessageReporterBase<T>, MessageReporter>::value, "Message cannot handle that message type");
+		static_assert(std::is_base_of<MessageReporterBase<T>, MessageReporter>::value, "Reporter cannot handle that message type");
 		static_cast<MessageReporterBase<T>*>(this)->basePostMessage( message );
 	}
 
 	template <typename T>
 	void postMessage()
 	{
-		static_assert(std::is_base_of<MessageReporterBase<T>, MessageReporter>::value, "Message cannot handle that message type");
+		static_assert(std::is_base_of<MessageReporterBase<T>, MessageReporter>::value, "Reporter cannot handle that message type");
 		static_cast<MessageReporterBase<T>*>(this)->basePostMessage( T() );
 	}
 };

@@ -16,6 +16,7 @@ class ControlTaskFactoryInterface;
 class BuildLocationManagerInterface;
 class BuildOrderManagerInterface;
 class SupplyManagerInterface;
+class ProductionManagerInterface;
 
 class Core
 {
@@ -62,6 +63,9 @@ public:
 
 	virtual SupplyManagerInterface & getSupplyManager() = 0;
 	virtual const SupplyManagerInterface & getSupplyManager() const = 0;
+
+	virtual ProductionManagerInterface & getProductionManager() = 0;
+	virtual const ProductionManagerInterface & getProductionManager() const = 0;
 
 	~Core() {}
 };

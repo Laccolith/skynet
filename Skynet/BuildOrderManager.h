@@ -1,8 +1,13 @@
 #pragma once
 
 #include "CoreModule.h"
+#include "Messaging.h"
 
-class BuildOrderManagerInterface : public CoreModule
+struct BuildOrderChanged
+{
+};
+
+class BuildOrderManagerInterface : public CoreModule, public MessageReporter<BuildOrderChanged>
 {
 public:
 	BuildOrderManagerInterface( Core & core ) : CoreModule( core, "BuildOrderManager" ) {}

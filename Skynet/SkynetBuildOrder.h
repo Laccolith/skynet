@@ -39,6 +39,11 @@ public:
 
 	void setAutoBuildWorkers( bool value, Condition condition = LazyQuery::conditionTrue() );
 	void setAutoBuildSupply( bool value, Condition condition = LazyQuery::conditionTrue() );
+	void setAutoBuildArmy( bool value, Condition condition = LazyQuery::conditionTrue() );
+	void setAutoBuildProduction( bool value, Condition condition = LazyQuery::conditionTrue() );
+	void setAutoBuildTech( bool value, Condition condition = LazyQuery::conditionTrue() );
+
+	void addArmyUnit( UnitType unit_type, double weight, Condition unit_condition = LazyQuery::conditionTrue(), Condition production_condition = LazyQuery::conditionTrue() );
 
 	void addBuild( SkynetBuildOrder & next_build, Condition condition );
 

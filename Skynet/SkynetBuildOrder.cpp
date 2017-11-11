@@ -4,6 +4,7 @@
 #include "ControlTaskFactory.h"
 #include "BaseManager.h"
 #include "SupplyManager.h"
+#include "ProductionManager.h"
 
 SkynetBuildOrderItem::SkynetBuildOrderItem( SkynetBuildOrderManager & build_order_manager, SkynetBuildOrder & build_order, int first_item_id, int last_item_id )
 	: m_build_order_manager( &build_order_manager )
@@ -112,6 +113,38 @@ void SkynetBuildOrder::setAutoBuildSupply( bool value, Condition condition )
 	{
 		build_order_manager.getSupplyManager().setBuilding( value );
 	}, condition );
+}
+
+void SkynetBuildOrder::setAutoBuildArmy( bool value, Condition condition )
+{
+	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, value]()
+	{
+		build_order_manager.getProductionManager().setArmyBuilding( value );
+	}, condition );
+}
+
+void SkynetBuildOrder::setAutoBuildProduction( bool value, Condition condition )
+{
+	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, value]()
+	{
+		build_order_manager.getProductionManager().setProductionBuilding( value );
+	}, condition );
+}
+
+void SkynetBuildOrder::setAutoBuildTech( bool value, Condition condition )
+{
+	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, value]()
+	{
+		build_order_manager.getProductionManager().setTechBuilding( value );
+	}, condition );
+}
+
+void SkynetBuildOrder::addArmyUnit( UnitType unit_type, double weight, Condition unit_condition, Condition production_condition )
+{
+	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, unit_type, weight, unit_condition, production_condition]()
+	{
+		build_order_manager.getProductionManager().addArmyUnit( unit_type, weight, unit_condition, production_condition );
+	}, LazyQuery::conditionTrue() );
 }
 
 void SkynetBuildOrder::addBuild( SkynetBuildOrder & next_build, Condition condition )

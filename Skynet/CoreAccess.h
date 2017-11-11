@@ -50,6 +50,9 @@ public:
 	SupplyManagerInterface & getSupplyManager() { return m_core.getSupplyManager(); }
 	const SupplyManagerInterface & getSupplyManager() const { return m_core.getSupplyManager(); }
 
+	ProductionManagerInterface & getProductionManager() { return m_core.getProductionManager(); }
+	const ProductionManagerInterface & getProductionManager() const { return m_core.getProductionManager(); }
+
 private:
 	Core & m_core;
 };

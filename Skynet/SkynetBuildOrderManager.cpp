@@ -21,50 +21,44 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & pvt_end_game = createBuildOrder( "PvT End Game" );
 	{
-		// Auto Build supply
-		// Auto Build production
-		// Auto Build army
-		// Auto Build expansion
-		// Auto Build tech
-		// Scout
+		pvt_end_game.addArmyUnit( Protoss_Dragoon, 14.0 );
+		pvt_end_game.addArmyUnit( Protoss_Zealot, 14.0 );
+		pvt_end_game.addArmyUnit( Protoss_High_Templar, 3.0 );
+		pvt_end_game.addArmyUnit( Protoss_Arbiter, 1.0 );
 	}
 
 	auto & pvt_mid_game = createBuildOrder( "PvT Mid Game" );
 	{
-		// Auto Build supply
-		// Auto Build production
-		// Auto Build army
-		// Auto Build expansion
-		// Scout
+		pvt_mid_game.addArmyUnit( Protoss_Dragoon, 10.0 );
+		pvt_mid_game.addArmyUnit( Protoss_Zealot, 10.0 );
 
 		pvt_mid_game.addItem( Protoss_Templar_Archives );
 		auto last_item = pvt_mid_game.addItem( Psionic_Storm );
 
-		// Macro tech
+		pvt_mid_game.addArmyUnit( Protoss_High_Templar, 1.0, last_item.isInProgress() );
+
+		pvt_mid_game.setAutoBuildTech( true, last_item.isInProgress() );
 
 		pvt_mid_game.addBuild( pvt_end_game, last_item.isComplete() && counter() > (24 * 60) );
 	}
 
 	auto & citadel_first = createBuildOrder( "Citadel First" );
 	{
-		// Auto Build supply
-		// Auto Build production
-		// Auto Build army
+		citadel_first.addArmyUnit( Protoss_Zealot, 1.0 );
+
 		// Auto Build expansion
-		// Scout
 
 		citadel_first.addItem( Protoss_Citadel_of_Adun );
 		auto last_item = citadel_first.addItem( Leg_Enhancements );
+
+		citadel_first.addArmyUnit( Protoss_Dragoon, 1.0, last_item.isInProgress() );
 
 		citadel_first.addBuild( pvt_mid_game, last_item.isComplete() && counter() > (24 * 60) );
 	}
 
 	auto & expand = createBuildOrder( "Expand" );
 	{
-		// Auto Build supply
-		// Auto Build production
-		// Auto Build army
-		// Scout
+		expand.addArmyUnit( Protoss_Dragoon, 1.0 );
 
 		auto last_item = expand.addItem( Protoss_Nexus, BuildLocationType::Expansion );
 
@@ -73,15 +67,15 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 
 	auto & additional_gateways = createBuildOrder( "Additional Gateways" );
 	{
-		// Auto Build supply
-		// Scout
+		additional_gateways.addArmyUnit( Protoss_Dragoon, 1.0 );
 
-		additional_gateways.addItem( Protoss_Dragoon );
-		// Auto Build army
+		auto last_item = additional_gateways.addItem( Protoss_Dragoon );
+		additional_gateways.setAutoBuildArmy( true, last_item.isInProgress() );
+
 		additional_gateways.addItem( Protoss_Gateway );
-		auto last_item = additional_gateways.addItem( Singularity_Charge );
+		last_item = additional_gateways.addItem( Singularity_Charge );
 
-		// Auto Build production
+		additional_gateways.setAutoBuildProduction( true, last_item.isInProgress() );
 
 		additional_gateways.addBuild( expand, last_item.isInProgress() && counter() > (24 * 60 * 4) ); // TODO: or enemy has researched siege tech
 	}
@@ -135,11 +129,12 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 		fourteen_nexus.addItem( Protoss_Pylon );
 		auto last_item = fourteen_nexus.addItem( Protoss_Dragoon, 2 );
 
+		fourteen_nexus.addArmyUnit( Protoss_Dragoon, 1.0 );
+
 		fourteen_nexus.setAutoBuildWorkers( true, last_item.isInProgress() );
 		fourteen_nexus.setAutoBuildSupply( true, last_item.isInProgress() );
-
-		// Auto Build army
-		// Auto Build production
+		fourteen_nexus.setAutoBuildArmy( true, last_item.isInProgress() );
+		fourteen_nexus.setAutoBuildProduction( true, last_item.isInProgress() );
 
 		fourteen_nexus.addBuild( citadel_first, last_item.isComplete() && counter() > (24 * 60 * 2) );
 	}
@@ -228,7 +223,7 @@ bool SkynetBuildOrderManager::isItemComplete( int id )
 void SkynetBuildOrderManager::changeBuild( SkynetBuildOrder & next_build )
 {
 	if( isDebugging( Debug::Default ) )
-		BWAPI::Broodwar->printf( "Build changing to %s.", next_build.getName().c_str() );
+		BWAPI::Broodwar->printf( m_current_build_order ? "Build transitioning to %s." : "Build starting with %s.", next_build.getName().c_str() );
 
 	m_current_build_order = &next_build;
 
@@ -240,4 +235,6 @@ void SkynetBuildOrderManager::changeBuild( SkynetBuildOrder & next_build )
 	m_current_generic_items = next_build.getGenericItems();
 
 	m_current_build_item_tasks.resize( m_current_build_items.size() );
+
+	postMessage<BuildOrderChanged>();
 }
