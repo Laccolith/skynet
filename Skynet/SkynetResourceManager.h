@@ -23,6 +23,12 @@ public:
 	int earliestGasAvailability( int amount ) const override;
 	int earliestSupplyAvailability( int amount ) const override;
 
+	int availableMineralsAtTime( int time ) const override;
+	int availableGasAtTime( int time ) const override;
+	int availableSupplyAtTime( int time ) const override;
+
+	int totalSupplyAtTime( int time ) const override;
+
 	void addTaskSupplyOutput( int time, int amount, bool temporary ) override;
 	void removeTaskSupplyOutput( int time, int amount ) override;
 
@@ -49,7 +55,8 @@ private:
 	double m_gas_rate = 0.0;
 
 	void reserveTaskResource( int time, int amount, std::vector<ResourceTiming> & m_reserved_timings );
-	int SkynetResourceManager::earliestAvailability( int required_amount, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const;
+	int availabilityAtTime( int time, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const;
+	int earliestAvailability( int required_amount, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const;
 
 	DEFINE_DEBUGGING_INTERFACE( Default );
 };

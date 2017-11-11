@@ -82,6 +82,12 @@
     <Filter Include="BuildOrderManager\Skynet">
       <UniqueIdentifier>{52a1e9a9-2234-4435-aa7f-b9e73b7fbe40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SupplyManager">
+      <UniqueIdentifier>{a7f078dd-c9c7-4be1-aad7-fc18dbe2ec69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SupplyManager\Skynet">
+      <UniqueIdentifier>{20cc8479-b2e0-4ff0-9f37-d8edd3437c51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -197,6 +203,9 @@
     </ClCompile>
     <ClCompile Include="SkynetControlTaskUpgrade.cpp">
       <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetSupplyManager.cpp">
+      <Filter>SupplyManager\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -403,6 +412,12 @@
     </ClInclude>
     <ClInclude Include="SkynetControlTaskUpgrade.h">
       <Filter>ControlTaskFactory\Skynet\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SupplyManager.h">
+      <Filter>SupplyManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetSupplyManager.h">
+      <Filter>SupplyManager\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

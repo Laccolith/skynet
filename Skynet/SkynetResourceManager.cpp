@@ -8,10 +8,10 @@
 SkynetResourceManager::SkynetResourceManager( Core & core )
 	: ResourceManagerInterface( core )
 {
-	core.registerUpdateProcess( 2.0f, [this]() { update(); } );
+	core.registerUpdateProcess( 3.5f, [this]() { update(); } );
 
 	// Assume all workers start mining on the first frame
-	m_mineral_rate = 4 * (8 / 180.0);
+	m_mineral_rate = 4 * 0.0501;
 }
 
 void SkynetResourceManager::update()
@@ -156,6 +156,64 @@ int SkynetResourceManager::earliestGasAvailability( int amount ) const
 int SkynetResourceManager::earliestSupplyAvailability( int amount ) const
 {
 	return earliestAvailability( amount, BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed() - m_reserved_supply, 0.0, m_task_reserved_supply );
+}
+
+int SkynetResourceManager::availabilityAtTime( int time, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const
+{
+	int last_time = 0;
+	for( auto & time_point : m_reserved_timings )
+	{
+		if( time_point.time > time )
+			break;
+
+		double previous_free_amount = free_amount;
+
+		free_amount -= time_point.amount;
+
+		int time_passed = time_point.time - last_time;
+		free_amount += time_passed * resource_rate;
+
+		last_time = time_point.time;
+	}
+
+	if( time > last_time )
+	{
+		int time_passed = time - last_time;
+		free_amount += time_passed * resource_rate;
+	}
+
+	return (int)free_amount;
+}
+
+int SkynetResourceManager::availableMineralsAtTime( int time ) const
+{
+	return availabilityAtTime( time, BWAPI::Broodwar->self()->minerals() - m_reserved_minerals, m_mineral_rate, m_task_reserved_minerals );
+}
+
+int SkynetResourceManager::availableGasAtTime( int time ) const
+{
+	return availabilityAtTime( time, BWAPI::Broodwar->self()->gas() - m_reserved_gas, m_gas_rate, m_task_reserved_gas );
+}
+
+int SkynetResourceManager::availableSupplyAtTime( int time ) const
+{
+	return availabilityAtTime( time, BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed() - m_reserved_supply, 0.0, m_task_reserved_supply );
+}
+
+int SkynetResourceManager::totalSupplyAtTime( int time ) const
+{
+	int supply_ammount = BWAPI::Broodwar->self()->supplyTotal();
+
+	for( auto & time_point : m_task_reserved_supply )
+	{
+		if( time_point.time > time )
+			break;
+
+		if( time_point.amount < 0 )
+			supply_ammount -= time_point.amount;
+	}
+
+	return supply_ammount;
 }
 
 void SkynetResourceManager::addTaskSupplyOutput( int time, int amount, bool temporary )

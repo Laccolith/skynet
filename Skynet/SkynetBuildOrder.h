@@ -38,6 +38,7 @@ public:
 	SkynetBuildOrderItem addItem( UpgradeType upgrade_type, int level = 1, Condition condition = LazyQuery::conditionTrue() );
 
 	void setAutoBuildWorkers( bool value, Condition condition = LazyQuery::conditionTrue() );
+	void setAutoBuildSupply( bool value, Condition condition = LazyQuery::conditionTrue() );
 
 	void addBuild( SkynetBuildOrder & next_build, Condition condition );
 

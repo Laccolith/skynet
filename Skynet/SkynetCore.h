@@ -54,6 +54,9 @@ public:
 	BuildOrderManagerInterface & getBuildOrderManager() override { return *m_build_order_manager; }
 	const BuildOrderManagerInterface & getBuildOrderManager() const override { return *m_build_order_manager; }
 
+	SupplyManagerInterface & getSupplyManager() override { return *m_supply_manager; }
+	const SupplyManagerInterface & getSupplyManager() const override { return *m_supply_manager; }
+
 private:
 	bool m_in_startup = true;
 
@@ -72,4 +75,5 @@ private:
 	std::unique_ptr<ResourceManagerInterface> m_resource_tracker;
 	std::unique_ptr<BuildLocationManagerInterface> m_build_location_manager;
 	std::unique_ptr<BuildOrderManagerInterface> m_build_order_manager;
+	std::unique_ptr<SupplyManagerInterface> m_supply_manager;
 };

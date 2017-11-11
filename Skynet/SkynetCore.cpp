@@ -15,6 +15,7 @@
 #include "SkynetControlTaskFactory.h"
 #include "SkynetBuildLocationManager.h"
 #include "SkynetBuildOrderManager.h"
+#include "SkynetSupplyManager.h"
 
 SkynetCore::SkynetCore()
 {
@@ -33,6 +34,7 @@ SkynetCore::SkynetCore()
 	m_resource_tracker = std::make_unique<SkynetResourceManager>( *this );
 	m_build_location_manager = std::make_unique<SkynetBuildLocationManager>( *this );
 	m_build_order_manager = std::make_unique<SkynetBuildOrderManager>( *this );
+	m_supply_manager = std::make_unique<SkynetSupplyManager>( *this );
 
 	std::sort( m_update_processes.begin(), m_update_processes.end(), []( const std::pair<float, std::function<void()>> & lhs, const std::pair<float, std::function<void()>> & rhs )
 	{

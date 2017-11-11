@@ -47,6 +47,9 @@ public:
 	BuildOrderManagerInterface & getBuildOrderManager() { return m_core.getBuildOrderManager(); }
 	const BuildOrderManagerInterface & getBuildOrderManager() const { return m_core.getBuildOrderManager(); }
 
+	SupplyManagerInterface & getSupplyManager() { return m_core.getSupplyManager(); }
+	const SupplyManagerInterface & getSupplyManager() const { return m_core.getSupplyManager(); }
+
 private:
 	Core & m_core;
 };

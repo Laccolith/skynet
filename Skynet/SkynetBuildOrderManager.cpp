@@ -101,9 +101,9 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 		one_gate_core.addItem( Protoss_Assimilator );
 		one_gate_core.addItem( Protoss_Cybernetics_Core );
 		auto last_item = one_gate_core.addItem( Protoss_Pylon );
-		// Auto Build supply
+		one_gate_core.setAutoBuildSupply( true, last_item.isInProgress() );
 
-		one_gate_core.addBuild( additional_gateways, last_item.isInProgress() && enemyRace() == Races::Terran );
+		one_gate_core.addBuild( additional_gateways, last_item.isInProgress() );
 	}
 
 	auto & fourteen_nexus = createBuildOrder( "14 Nexus" );
@@ -135,9 +135,9 @@ SkynetBuildOrderManager::SkynetBuildOrderManager( Core & core )
 		fourteen_nexus.addItem( Protoss_Pylon );
 		auto last_item = fourteen_nexus.addItem( Protoss_Dragoon, 2 );
 
-		fourteen_nexus.setAutoBuildWorkers( true );
+		fourteen_nexus.setAutoBuildWorkers( true, last_item.isInProgress() );
+		fourteen_nexus.setAutoBuildSupply( true, last_item.isInProgress() );
 
-		// Auto Build supply
 		// Auto Build army
 		// Auto Build production
 

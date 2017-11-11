@@ -3,6 +3,7 @@
 #include "SkynetBuildOrderManager.h"
 #include "ControlTaskFactory.h"
 #include "BaseManager.h"
+#include "SupplyManager.h"
 
 SkynetBuildOrderItem::SkynetBuildOrderItem( SkynetBuildOrderManager & build_order_manager, SkynetBuildOrder & build_order, int first_item_id, int last_item_id )
 	: m_build_order_manager( &build_order_manager )
@@ -102,6 +103,14 @@ void SkynetBuildOrder::setAutoBuildWorkers( bool value, Condition condition )
 	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, value]()
 	{
 		build_order_manager.getBaseManager().setWorkerTraining( value );
+	}, condition );
+}
+
+void SkynetBuildOrder::setAutoBuildSupply( bool value, Condition condition )
+{
+	m_generic_items.emplace_back( [&build_order_manager = m_build_order_manager, value]()
+	{
+		build_order_manager.getSupplyManager().setBuilding( value );
 	}, condition );
 }
 
