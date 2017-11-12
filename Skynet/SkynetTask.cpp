@@ -2,6 +2,7 @@
 
 #include "SkynetTaskManager.h"
 #include "SkynetTaskRequirementResource.h"
+#include "SkynetTaskRequirementUnitTypeAvailable.h"
 #include "SkynetTaskRequirementUnit.h"
 #include "ResourceManager.h"
 
@@ -29,9 +30,17 @@ SkynetTask::~SkynetTask()
 	{
 		m_task_manager.onTaskDestroyed( *this );
 	}
-	else if( m_supply_output > 0 )
+	else
 	{
-		m_task_manager.getResourceManager().removeTaskSupplyOutput( m_earliest_time + m_supply_output_time, m_supply_output );
+		if( m_supply_output > 0 )
+		{
+			m_task_manager.getResourceManager().removeTaskSupplyOutput( m_earliest_time + m_supply_output_time, m_supply_output );
+		}
+
+		if( m_unit_type_output != UnitTypes::None )
+		{
+			m_task_manager.getUnitManager().removeOutputUnit( m_earliest_time + m_unit_type_output_time, m_unit_type_output );
+		}
 	}
 }
 
@@ -62,6 +71,11 @@ void SkynetTask::updateTime()
 		if( m_supply_output > 0 )
 		{
 			m_task_manager.getResourceManager().addTaskSupplyOutput( m_earliest_time + m_supply_output_time, m_supply_output, m_earliest_time > 0 );
+		}
+
+		if( m_unit_type_output != UnitTypes::None )
+		{
+			m_task_manager.getUnitManager().addOutputUnit( m_earliest_time + m_unit_type_output_time, m_unit_type_output, m_earliest_time > 0 );
 		}
 	}
 }
@@ -134,6 +148,12 @@ int SkynetTask::addRequirementGas( int amount )
 int SkynetTask::addRequirementSupply( int amount )
 {
 	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementSupply>( amount ), m_current_requirement_index++ );
+	return m_requirements.back().second;
+}
+
+int SkynetTask::addRequirementUnitTypeAvailable( UnitType unit_type )
+{
+	m_requirements.emplace_back( std::make_unique<SkynetTaskRequirementUnitTypeAvailable>( unit_type ), m_current_requirement_index++ );
 	return m_requirements.back().second;
 }
 
@@ -313,4 +333,6 @@ void SkynetTask::addOutputSupply( int time, int amount )
 
 void SkynetTask::addOutputUnit( int time, UnitType unit_type )
 {
+	m_unit_type_output = unit_type;
+	m_unit_type_output_time = time;
 }

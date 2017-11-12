@@ -28,6 +28,14 @@ void SkynetUnitManager::preUpdate()
 		if( timings.second.available_time > 1 )
 			--timings.second.available_time;
 	}
+
+	for( auto & times : m_task_output_units )
+	{
+		times.second.erase( std::remove_if( times.second.begin(), times.second.end(), []( auto & time )
+		{
+			return time.second;
+		} ), times.second.end() );
+	}
 }
 
 Position getTravelPosition( Position previous_pos, UnitPosition next_pos, bool safe_move_position )
@@ -372,4 +380,31 @@ int SkynetUnitManager::getFreeTime( Unit unit ) const
 	}
 
 	return time_till_first;
+}
+
+void SkynetUnitManager::addOutputUnit( int time, UnitType unit_type, bool temporary )
+{
+	m_task_output_units[unit_type].emplace_back( time, temporary );
+}
+
+void SkynetUnitManager::removeOutputUnit( int time, UnitType unit_type )
+{
+	auto & times = m_task_output_units[unit_type];
+	times.erase( std::find( times.begin(), times.end(), std::make_pair( time, false ) ) );
+}
+
+int SkynetUnitManager::earliestUnitOutputTime( UnitType unit_type ) const
+{
+	auto it = m_task_output_units.find( unit_type );
+	if( it == m_task_output_units.end() )
+		return max_time;
+
+	int time = max_time;
+	for( auto & timing : it->second )
+	{
+		if( timing.first < time )
+			time = timing.first;
+	}
+
+	return time;
 }

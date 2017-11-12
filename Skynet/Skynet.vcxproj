@@ -222,6 +222,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClCompile Include="SkynetTaskManager.cpp" />
     <ClCompile Include="SkynetTaskRequirementResource.cpp" />
     <ClCompile Include="SkynetTaskRequirementUnit.cpp" />
+    <ClCompile Include="SkynetTaskRequirementUnitTypeAvailable.cpp" />
     <ClCompile Include="SkynetTerrainAnalyser.cpp" />
     <ClCompile Include="SkynetUnit.cpp" />
     <ClCompile Include="SkynetUnitManager.cpp" />
@@ -284,6 +285,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="SkynetTaskRequirement.h" />
     <ClInclude Include="SkynetTaskRequirementResource.h" />
     <ClInclude Include="SkynetTaskRequirementUnit.h" />
+    <ClInclude Include="SkynetTaskRequirementUnitTypeAvailable.h" />
     <ClInclude Include="SkynetUnit.h" />
     <ClInclude Include="SkynetUnitManager.h" />
     <ClInclude Include="SupplyManager.h" />

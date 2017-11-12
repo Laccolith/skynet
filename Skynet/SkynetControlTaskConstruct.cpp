@@ -162,7 +162,8 @@ void SkynetControlTaskConstruct::createTask()
 	if( m_unit_type.supplyProvided() > 0 )
 		m_task->addOutputSupply( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type.supplyProvided() );
 
-	m_task->addOutputUnit( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type.whatBuilds().first );
+	m_task->addOutputUnit( m_unit_type.buildTime() + BWAPI::Broodwar->getLatencyFrames(), m_unit_type );
 
-	// TODO: Add required tech
+	for( auto & requirement : m_unit_type.requiredUnits() )
+		m_task->addRequirementUnitTypeAvailable( requirement.first );
 }

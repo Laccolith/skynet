@@ -29,6 +29,8 @@ public:
 	virtual int addRequirementGas( int amount ) = 0;
 	virtual int addRequirementSupply( int amount ) = 0;
 
+	virtual int addRequirementUnitTypeAvailable( UnitType unit_type ) = 0;
+
 	virtual int addRequirementUnit( UnitType unit_type ) = 0;
 	virtual int addRequirementUnit( UnitType unit_type, Position starting_position, Position ending_position ) = 0;
 	virtual int addRequirementUnit( UnitType unit_type, std::unique_ptr<BuildLocation> build_location ) = 0;

@@ -96,5 +96,6 @@ void SkynetControlTaskResearch::createTask()
 
 	m_task->addRequirementUnit( m_tech_type.whatResearches(), m_tech_type.researchTime() + BWAPI::Broodwar->getLatencyFrames() );
 
-	// TODO: Add required tech
+	if( m_tech_type.requiredUnit() != UnitTypes::None )
+		m_task->addRequirementUnitTypeAvailable( m_tech_type.requiredUnit() );
 }

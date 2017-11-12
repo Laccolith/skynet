@@ -31,6 +31,8 @@ public:
 	int addRequirementGas( int amount ) override;
 	int addRequirementSupply( int amount ) override;
 
+	int addRequirementUnitTypeAvailable( UnitType unit_type ) override;
+
 	int addRequirementUnit( UnitType unit_type ) override;
 	int addRequirementUnit( UnitType unit_type, Position starting_position, Position ending_position ) override;
 	int addRequirementUnit( UnitType unit_type, std::unique_ptr<BuildLocation> build_location ) override;
@@ -76,4 +78,7 @@ private:
 
 	int m_supply_output = 0;
 	int m_supply_output_time = 0;
+
+	UnitType m_unit_type_output = UnitTypes::None;
+	int m_unit_type_output_time = 0;
 };

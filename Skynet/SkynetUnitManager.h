@@ -27,6 +27,11 @@ public:
 
 	int getFreeTime( Unit unit ) const override;
 
+	void addOutputUnit( int time, UnitType unit_type, bool temporary ) override;
+	void removeOutputUnit( int time, UnitType unit_type ) override;
+
+	int earliestUnitOutputTime( UnitType unit_type ) const override;
+
 private:
 	struct UnitTimePoint
 	{
@@ -47,6 +52,8 @@ private:
 	int getTravelTime( Unit unit, Position starting_position, UnitPosition ending_position ) const;
 	bool canTravel( Unit unit, Position starting_position, UnitPosition ending_position ) const;
 	bool canFitInTravelTime( const std::vector<UnitTimePoint> & time_points, Unit unit, int from_time, int available_idle_time, Position previous_pos ) const;
+
+	std::map<UnitType, std::vector<std::pair<int, bool>>> m_task_output_units;
 
 	DEFINE_DEBUGGING_INTERFACE( Default );
 };

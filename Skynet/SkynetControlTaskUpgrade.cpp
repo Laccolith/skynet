@@ -97,5 +97,6 @@ void SkynetControlTaskUpgrade::createTask()
 
 	m_task->addRequirementUnit( m_upgrade_type.whatUpgrades(), m_upgrade_type.upgradeTime( m_upgrade_level ) + BWAPI::Broodwar->getLatencyFrames() );
 
-	// TODO: Add required tech
+	if( m_upgrade_type.whatsRequired( m_upgrade_level ) != UnitTypes::None )
+		m_task->addRequirementUnitTypeAvailable( m_upgrade_type.whatsRequired( m_upgrade_level ) );
 }

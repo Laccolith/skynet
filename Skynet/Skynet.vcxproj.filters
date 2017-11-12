@@ -216,6 +216,9 @@
     <ClCompile Include="SkynetProductionManger.cpp">
       <Filter>ProductionManager\Skynet</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetTaskRequirementUnitTypeAvailable.cpp">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SmartEnum.h">
@@ -433,6 +436,9 @@
     </ClInclude>
     <ClInclude Include="SkynetProductionManger.h">
       <Filter>ProductionManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTaskRequirementUnitTypeAvailable.h">
+      <Filter>TaskManager\Skynet\Requirements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

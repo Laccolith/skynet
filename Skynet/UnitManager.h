@@ -29,4 +29,9 @@ public:
 	virtual void modifyReservedTaskTime( Unit unit, int time ) = 0;
 
 	virtual int getFreeTime( Unit unit ) const = 0;
+
+	virtual void addOutputUnit( int time, UnitType unit_type, bool temporary ) = 0;
+	virtual void removeOutputUnit( int time, UnitType unit_type ) = 0;
+
+	virtual int earliestUnitOutputTime( UnitType unit_type ) const = 0;
 };
