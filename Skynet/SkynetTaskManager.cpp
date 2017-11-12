@@ -34,9 +34,9 @@ void SkynetTaskManager::update()
 	if( isDebugging( Debug::Default ) )
 	{
 		int y_pos = 25;
-		for( auto & task_priority : m_tasks )
+		for( auto & task_priority : task_priorities )
 		{
-			for( auto & task : task_priority.second )
+			for( auto & task : task_priority->second )
 			{
 				task->drawInfo( y_pos );
 			}

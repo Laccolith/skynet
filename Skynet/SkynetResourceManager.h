@@ -56,7 +56,7 @@ private:
 
 	void reserveTaskResource( int time, int amount, std::vector<ResourceTiming> & m_reserved_timings );
 	int availabilityAtTime( int time, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const;
-	int earliestAvailability( int required_amount, double free_amount, double resource_rate, const std::vector<ResourceTiming> & m_reserved_timings ) const;
+	int earliestAvailability( int required_amount, double free_amount, double resource_rate, int max_resource, const std::vector<ResourceTiming> & m_reserved_timings ) const;
 
 	DEFINE_DEBUGGING_INTERFACE( Default );
 };

@@ -15,6 +15,9 @@ public:
 
 	void update();
 
+	void update_army_units();
+	void update_production_units();
+
 	void setArmyBuilding( bool enabled ) override { m_can_build_army = enabled; }
 	void setProductionBuilding( bool enabled ) override { m_can_build_production = enabled; }
 	void setTechBuilding( bool enabled ) override { m_can_build_tech = enabled; }
@@ -27,6 +30,7 @@ private:
 	bool m_can_build_tech = false;
 
 	TaskPriority * m_build_army_priority = nullptr;
+	TaskPriority * m_build_production_priority = nullptr;
 
 	struct ArmyUnit
 	{
@@ -37,5 +41,9 @@ private:
 	};
 	std::vector<ArmyUnit> m_army_units;
 
-	std::map<UnitType, std::vector<std::unique_ptr<ControlTask>>> m_planned_army_units;
+	std::map<UnitType, std::vector<std::unique_ptr<ControlTask>>> m_production_type_to_planned_army;
+	std::map<UnitType, std::vector<ControlTask*>> m_unit_type_to_planned_army;
+
+	std::map<UnitType, std::vector<std::unique_ptr<ControlTask>>> m_production_type_to_planned;
+	ControlTask* m_last_production_task = nullptr;
 };
