@@ -9,6 +9,7 @@ class UnitTrackerInterface;
 class UnitManagerInterface;
 class TerrainAnalyserInterface;
 class BaseTrackerInterface;
+class TerritoryTrackerInterface;
 class BaseManagerInterface;
 class ResourceManagerInterface;
 class TaskManagerInterface;
@@ -17,6 +18,7 @@ class BuildLocationManagerInterface;
 class BuildOrderManagerInterface;
 class SupplyManagerInterface;
 class ProductionManagerInterface;
+class SquadManagerInterface;
 
 class Core
 {
@@ -43,6 +45,9 @@ public:
 	virtual BaseTrackerInterface & getBaseTracker() = 0;
 	virtual const BaseTrackerInterface & getBaseTracker() const = 0;
 
+	virtual TerritoryTrackerInterface & getTerritoryTracker() = 0;
+	virtual const TerritoryTrackerInterface & getTerritoryTracker() const = 0;
+
 	virtual BaseManagerInterface & getBaseManager() = 0;
 	virtual const BaseManagerInterface & getBaseManager() const = 0;
 
@@ -67,5 +72,8 @@ public:
 	virtual ProductionManagerInterface & getProductionManager() = 0;
 	virtual const ProductionManagerInterface & getProductionManager() const = 0;
 
-	~Core() {}
+	virtual SquadManagerInterface & getSquadManager() = 0;
+	virtual const SquadManagerInterface & getSquadManager() const = 0;
+
+	virtual ~Core() = default;
 };

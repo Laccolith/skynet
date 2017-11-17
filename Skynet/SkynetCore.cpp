@@ -9,6 +9,7 @@
 #include "SkynetUnitManager.h"
 #include "SkynetTerrainAnalyser.h"
 #include "SkynetBaseTracker.h"
+#include "SkynetTerritoryTracker.h"
 #include "SkynetBaseManager.h"
 #include "SkynetResourceManager.h"
 #include "SkynetTaskManager.h"
@@ -17,6 +18,7 @@
 #include "SkynetBuildOrderManager.h"
 #include "SkynetSupplyManager.h"
 #include "SkynetProductionManger.h"
+#include "SkynetSquadManager.h"
 
 SkynetCore::SkynetCore()
 {
@@ -29,6 +31,7 @@ SkynetCore::SkynetCore()
 	m_unit_manager = std::make_unique<SkynetUnitManager>( *this );
 	m_terrain_analyser = std::make_unique<SkynetTerrainAnalyser>( *this );
 	m_base_tracker = std::make_unique<SkynetBaseTracker>( *this );
+	m_territory_tracker = std::make_unique<SkynetTerritoryTracker>( *this );
 	m_task_manager = std::make_unique<SkynetTaskManager>( *this );
 	m_control_task_factory = std::make_unique<SkynetControlTaskFactory>( *this );
 	m_base_manager = std::make_unique<SkynetBaseManager>( *this );
@@ -37,6 +40,7 @@ SkynetCore::SkynetCore()
 	m_build_order_manager = std::make_unique<SkynetBuildOrderManager>( *this );
 	m_supply_manager = std::make_unique<SkynetSupplyManager>( *this );
 	m_production_manager = std::make_unique<SkynetProductionManager>( *this );
+	m_squad_manager = std::make_unique<SkynetSquadManager>( *this );
 
 	std::sort( m_update_processes.begin(), m_update_processes.end(), []( const std::pair<float, std::function<void()>> & lhs, const std::pair<float, std::function<void()>> & rhs )
 	{

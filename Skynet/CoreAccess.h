@@ -29,6 +29,9 @@ public:
 	BaseTrackerInterface & getBaseTracker() { return m_core.getBaseTracker(); }
 	const BaseTrackerInterface & getBaseTracker() const { return m_core.getBaseTracker(); }
 
+	TerritoryTrackerInterface & getTerritoryTracker() { return m_core.getTerritoryTracker(); }
+	const TerritoryTrackerInterface & getTerritoryTracker() const { return m_core.getTerritoryTracker(); }
+
 	BaseManagerInterface & getBaseManager() { return m_core.getBaseManager(); }
 	const BaseManagerInterface & getBaseManager() const { return m_core.getBaseManager(); }
 
@@ -52,6 +55,9 @@ public:
 
 	ProductionManagerInterface & getProductionManager() { return m_core.getProductionManager(); }
 	const ProductionManagerInterface & getProductionManager() const { return m_core.getProductionManager(); }
+
+	SquadManagerInterface & getSquadManager() { return m_core.getSquadManager(); }
+	const SquadManagerInterface & getSquadManager() const { return m_core.getSquadManager(); }
 
 private:
 	Core & m_core;

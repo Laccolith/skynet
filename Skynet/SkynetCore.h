@@ -36,6 +36,9 @@ public:
 	BaseTrackerInterface & getBaseTracker() override { return *m_base_tracker; }
 	const BaseTrackerInterface & getBaseTracker() const override { return *m_base_tracker; }
 
+	TerritoryTrackerInterface & getTerritoryTracker() override { return *m_territory_tracker; }
+	const TerritoryTrackerInterface & getTerritoryTracker() const override { return *m_territory_tracker; }
+
 	BaseManagerInterface & getBaseManager() override { return *m_base_manager; }
 	const BaseManagerInterface & getBaseManager() const override { return *m_base_manager; }
 
@@ -60,6 +63,9 @@ public:
 	ProductionManagerInterface & getProductionManager() override { return *m_production_manager; }
 	const ProductionManagerInterface & getProductionManager() const override { return *m_production_manager; }
 
+	SquadManagerInterface & getSquadManager() override { return *m_squad_manager; }
+	const SquadManagerInterface & getSquadManager() const override { return *m_squad_manager; }
+
 private:
 	bool m_in_startup = true;
 
@@ -72,6 +78,7 @@ private:
 	std::unique_ptr<UnitManagerInterface> m_unit_manager;
 	std::unique_ptr<TerrainAnalyserInterface> m_terrain_analyser;
 	std::unique_ptr<BaseTrackerInterface> m_base_tracker;
+	std::unique_ptr<TerritoryTrackerInterface> m_territory_tracker;
 	std::unique_ptr<TaskManagerInterface> m_task_manager;
 	std::unique_ptr<ControlTaskFactoryInterface> m_control_task_factory;
 	std::unique_ptr<BaseManagerInterface> m_base_manager;
@@ -80,4 +87,5 @@ private:
 	std::unique_ptr<BuildOrderManagerInterface> m_build_order_manager;
 	std::unique_ptr<SupplyManagerInterface> m_supply_manager;
 	std::unique_ptr<ProductionManagerInterface> m_production_manager;
+	std::unique_ptr<SquadManagerInterface> m_squad_manager;
 };

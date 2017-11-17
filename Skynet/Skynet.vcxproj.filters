@@ -94,6 +94,18 @@
     <Filter Include="ProductionManager\Skynet">
       <UniqueIdentifier>{c071fff4-5a61-4d64-a5d4-797f84a866c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SquadManager">
+      <UniqueIdentifier>{c280f1f6-07a7-420c-add7-82f7482f7528}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SquadManager\Skynet">
+      <UniqueIdentifier>{2f6310e0-f059-456a-a63c-c32b3d07e83c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TerritoryTracker">
+      <UniqueIdentifier>{d2d294bf-30e3-498c-9d1e-10ee6da734b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TerritoryTracker\Skynet">
+      <UniqueIdentifier>{92f43593-56b9-4224-9841-72273499b0d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -218,6 +230,12 @@
     </ClCompile>
     <ClCompile Include="SkynetTaskRequirementUnitTypeAvailable.cpp">
       <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetSquadManager.cpp">
+      <Filter>SquadManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetTerritoryTracker.cpp">
+      <Filter>TerritoryTracker\Skynet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -439,6 +457,18 @@
     </ClInclude>
     <ClInclude Include="SkynetTaskRequirementUnitTypeAvailable.h">
       <Filter>TaskManager\Skynet\Requirements</Filter>
+    </ClInclude>
+    <ClInclude Include="SquadManager.h">
+      <Filter>SquadManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetSquadManager.h">
+      <Filter>SquadManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="TerritoryTracker.h">
+      <Filter>TerritoryTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetTerritoryTracker.h">
+      <Filter>TerritoryTracker\Skynet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
