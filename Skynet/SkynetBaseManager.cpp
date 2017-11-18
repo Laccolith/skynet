@@ -33,13 +33,13 @@ void SkynetBaseManager::notify( const BasesRecreated & message )
 	for( Base base : getBaseTracker().getAllBases() )
 	{
 		auto & base_data = m_base_data[base];
-		
+
 		base_data.sorted_minerals = base->getMinerals();
 		base_data.sorted_minerals.sort( [base, base_type]( Unit first, Unit second )
 		{
 			int d1 = MapUtil::getDistance( first->getPosition(), first->getType(), base->getCenterPosition(), base_type );
 			int d2 = MapUtil::getDistance( second->getPosition(), second->getType(), base->getCenterPosition(), base_type );
-			
+
 			return d1 < d2;
 		} );
 	}
@@ -284,7 +284,7 @@ void SkynetBaseManager::postUpdate()
 				if( base == base_data.first )
 					continue;
 
-				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( base_data.first->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) ) * 8;
+				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( base_data.first->getCenterPosition() ), WalkPosition( base->getCenterPosition() ), true ) * 8;
 				if( distance < nearest_distance )
 				{
 					nearest_distance = distance;
@@ -306,7 +306,7 @@ void SkynetBaseManager::postUpdate()
 				}
 			}
 		}
-		
+
 		if( !given_move_order )
 		{
 			for( auto worker : base_data.second.available_workers )
@@ -415,7 +415,7 @@ void SkynetBaseManager::postUpdate()
 		{
 			int transfering_target = awaiting_transfer + workers_transfering;
 			auto & muti_base_data_target = multi_base_data_map[target_base];
-			
+
 			for( int i = 0; i < (int) muti_base_data_target.worker_counts.size(); ++i )
 			{
 				int workers_assigned = std::min( transfering_target, muti_base_data_target.worker_counts[i].required_workers );
@@ -444,7 +444,7 @@ void SkynetBaseManager::postUpdate()
 		}
 	}
 
-	for(;;)
+	for( ;;)
 	{
 		int most_saturated_i = -1;
 		std::pair<const Base, MultiBaseData> * most_saturated = nullptr;
@@ -454,7 +454,7 @@ void SkynetBaseManager::postUpdate()
 
 		for( auto & multi_base_data : multi_base_data_map )
 		{
-			for( int i = 0; i < (int)multi_base_data.second.worker_counts.size(); ++i)
+			for( int i = 0; i < (int) multi_base_data.second.worker_counts.size(); ++i )
 			{
 				if( (i > most_saturated_i && multi_base_data.second.worker_counts[i].assigned_workers > 0) ||
 					(i == most_saturated_i && most_saturated->second.worker_counts[i].assigned_workers < multi_base_data.second.worker_counts[i].assigned_workers) )
@@ -499,7 +499,7 @@ void SkynetBaseManager::postUpdate()
 					int total_to_move = std::min( -multi_base_data.second.required_change, multi_base_data_target.second.required_change );
 					int remaining_to_move = total_to_move;
 
-					auto reverse_transfers = m_worker_transfers.find(std::make_pair( multi_base_data_target.first, multi_base_data.first ));
+					auto reverse_transfers = m_worker_transfers.find( std::make_pair( multi_base_data_target.first, multi_base_data.first ) );
 
 					if( reverse_transfers != m_worker_transfers.end() && !reverse_transfers->second.empty() )
 					{
@@ -512,11 +512,11 @@ void SkynetBaseManager::postUpdate()
 
 					if( remaining_to_move > 0 )
 					{
-						auto start_chokepoint = getTerrainAnalyser().getTravelChokepoints( multi_base_data.first->getRegion(), multi_base_data_target.first->getRegion() ).first;
+						auto start_chokepoint = getTerrainAnalyser().getTravelChokepoints( multi_base_data.first->getRegion(), multi_base_data_target.first->getRegion(), true ).first;
 
 						if( start_chokepoint )
 						{
-							int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ) ) * 8;
+							int ground_distance = getTerrainAnalyser().getGroundDistance( WalkPosition( multi_base_data.first->getCenterPosition() ), WalkPosition( multi_base_data_target.first->getCenterPosition() ), true ) * 8;
 							int travel_time = int( double( ground_distance ) / player->getRace().getWorker().topSpeed() ) + 40;
 
 							if( travel_time > multi_base_data_target.first->getResourceDepot()->getTimeTillCompleted() )
@@ -564,7 +564,7 @@ void SkynetBaseManager::postUpdate()
 			return train_item->isComplete();
 		} ), m_worker_train_items.end() );
 
-		while( (int)m_worker_train_items.size() < required_workers )
+		while( (int) m_worker_train_items.size() < required_workers )
 		{
 			m_worker_train_items.push_back( getControlTaskFactory().createBuildControlTask( m_train_worker_priority, player->getRace().getWorker() ) );
 		}

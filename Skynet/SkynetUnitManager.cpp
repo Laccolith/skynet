@@ -159,7 +159,7 @@ int SkynetUnitManager::getTravelTime( Unit unit, Position starting_position, Uni
 {
 	Position actual_ending_position = getTravelPosition( starting_position, ending_position, false );
 
-	int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( starting_position ), WalkPosition( actual_ending_position ) ) * 8;
+	int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( starting_position ), WalkPosition( actual_ending_position ), true ) * 8;
 
 	// If we are close enough, assume we are there, to counteract errors from movement
 	if( distance < 42 )

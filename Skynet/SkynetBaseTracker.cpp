@@ -7,7 +7,7 @@
 
 SkynetBaseTracker::SkynetBaseTracker( Core & core )
 	: BaseTrackerInterface( core )
-	, MessageListener<TerrainAnalysed>( getTerrainAnalyser() )
+	, MessageListener<StaticTerrainAnalysed>( getTerrainAnalyser() )
 	, MessageListener<UnitDiscover, UnitMorphRenegade, UnitDestroy>( getUnitTracker() )
 {
 	core.registerUpdateProcess( 1.5f, [this]() { update(); } );
@@ -40,7 +40,7 @@ void SkynetBaseTracker::update()
 	}
 }
 
-void SkynetBaseTracker::notify( const TerrainAnalysed & message )
+void SkynetBaseTracker::notify( const StaticTerrainAnalysed & message )
 {
 	m_bases.clear();
 	m_base_storage.clear();
@@ -50,7 +50,7 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 
 	std::map<Region, std::vector<SkynetBase*>> region_to_base;
 
-	for( auto base_location : getTerrainAnalyser().getBaseLocations() )
+	for( auto base_location : getTerrainAnalyser().getBaseLocations( true ) )
 	{
 		m_base_storage.emplace_back( std::make_unique<SkynetBase>( *this, base_location->getCenterPosition(), base_location->getRegion(), base_location ) );
 		SkynetBase *current_base = m_base_storage.back().get();
@@ -71,7 +71,7 @@ void SkynetBaseTracker::notify( const TerrainAnalysed & message )
 			if( !BWAPI::Broodwar->isBuildable( pos ) )
 				continue;
 
-			Region region = getTerrainAnalyser().getRegion( WalkPosition( pos ) );
+			Region region = getTerrainAnalyser().getRegion( WalkPosition( pos ), true );
 			if( !region )
 				continue;
 

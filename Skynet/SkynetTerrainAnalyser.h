@@ -5,29 +5,30 @@
 #include "SkynetRegion.h"
 #include "SkynetChokepoint.h"
 #include "SkynetBaseLocation.h"
+#include "UnitTracker.h"
 
 #include "RectangleArray.h"
 
 #include <future>
 
-class SkynetTerrainAnalyser : public TerrainAnalyserInterface
+class SkynetTerrainAnalyser : public TerrainAnalyserInterface, public MessageListener<UnitDiscover, UnitMorphRenegade, UnitDestroy>
 {
 public:
 	SkynetTerrainAnalyser( Core & core );
 
 	void update();
 
-	const std::vector<Region> & getRegions() const override { return m_processed_data.m_regions; }
-	const std::vector<Chokepoint> & getChokepoints() const override { return m_processed_data.m_chokepoints; }
-	const std::vector<BaseLocation> & getBaseLocations() const override { return m_processed_data.m_base_locations; }
+	const std::vector<Region> & getRegions( bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_regions; }
+	const std::vector<Chokepoint> & getChokepoints( bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_chokepoints; }
+	const std::vector<BaseLocation> & getBaseLocations( bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_base_locations; }
 
-	Region getRegion( WalkPosition pos ) const override { return m_processed_data.m_tile_to_region[clampToMap( pos )]; }
-	int getClearance( WalkPosition pos ) const override { return m_processed_data.m_tile_clearance[clampToMap( pos )]; }
-	int getConnectivity( WalkPosition pos ) const override { return m_processed_data.m_tile_connectivity[clampToMap( pos )]; }
-	WalkPosition getClosestObstacle( WalkPosition pos ) const override { return m_processed_data.m_tile_to_closest_obstacle[clampToMap( pos )]; }
+	Region getRegion( WalkPosition pos, bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_tile_to_region[clampToMap( pos )]; }
+	int getClearance( WalkPosition pos, bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_tile_clearance[clampToMap( pos )]; }
+	int getConnectivity( WalkPosition pos, bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_tile_connectivity[clampToMap( pos )]; }
+	WalkPosition getClosestObstacle( WalkPosition pos, bool static_data ) const override { return (static_data ? m_processed_static_data : m_processed_dynamic_data).m_tile_to_closest_obstacle[clampToMap( pos )]; }
 
-	std::pair<Chokepoint, Chokepoint> getTravelChokepoints( Region start, Region end ) const override;
-	int getGroundDistance( WalkPosition start, WalkPosition end ) const override;
+	std::pair<Chokepoint, Chokepoint> getTravelChokepoints( Region start, Region end, bool static_data ) const override;
+	int getGroundDistance( WalkPosition start, WalkPosition end, bool static_data ) const override;
 
 	WalkPosition clampToMap( WalkPosition pos ) const
 	{
@@ -64,62 +65,48 @@ private:
 
 		int m_request = 0;
 
+		float m_walkability_time_seconds = 0.0f;
 		float m_connectivity_time_seconds = 0.0f;
 		float m_clearance_time_seconds = 0.0f;
 		float m_regions_time_seconds = 0.0f;
 
-		Data & operator=( Data && other )
-		{
-			m_analysed = other.m_analysed;
-
-			m_regions = std::move( other.m_regions );
-			m_region_storage = std::move( other.m_region_storage );
-			m_chokepoints = std::move( other.m_chokepoints );
-			m_chokepoint_storage = std::move( other.m_chokepoint_storage );
-			m_base_locations = std::move( other.m_base_locations );
-			m_base_location_storage = std::move( other.m_base_location_storage );
-
-			m_connectivity_to_small_obstacles = std::move( other.m_connectivity_to_small_obstacles );
-
-			m_tile_to_region = std::move( other.m_tile_to_region );
-			m_tile_clearance = std::move( other.m_tile_clearance );
-			m_tile_connectivity = std::move( other.m_tile_connectivity );
-			m_tile_to_closest_obstacle = std::move( other.m_tile_to_closest_obstacle );
-
-			m_request = other.m_request;
-
-			m_connectivity_time_seconds = other.m_connectivity_time_seconds;
-			m_clearance_time_seconds = other.m_clearance_time_seconds;
-			m_regions_time_seconds = other.m_regions_time_seconds;
-
-			return *this;
-		}
+		Data & operator=( Data && other ) = default;
 	};
 
-	Data m_processed_data;
+	Data m_processed_static_data;
+	Data m_processed_dynamic_data;
+	Data m_processing_dynamic_data;
 
-	int m_reprocess_request = 0;
+	UnitGroup m_buildings;
+	std::vector<std::pair<UnitType, TilePosition>> m_buildings_cache;
 
-	void process( Data & data, UnitGroup resources );
+	int m_reprocess_request = 1;
 
+	void process( Data & data, UnitGroup resources, bool static_data );
+
+	void calculateWalkability( Data & data );
 	void calculateConnectivity( Data & data );
 	void calculateClearance( Data & data );
-	void calculateRegions( Data & data );
+	void calculateRegions( Data & data, bool static_data );
 	std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center, Data & data ) const;
 	int calculateShortestDistance( Chokepoint start_chokepoint, Chokepoint end_chokepoint ) const;
 	void createBases( Data & data, const UnitGroup & resources );
 
-	std::future<std::unique_ptr<Data>> m_async_future;
+	std::future<void> m_async_future;
 
 	UnitGroup getResources();
-	void checkData();
+	void checkDynamicData();
 
-	bool tryLoadData();
-	void saveData();
+	bool tryLoadData( Data & data );
+	void saveData( Data & data );
+
+	void notify( const UnitDiscover & message ) override;
+	void notify( const UnitMorphRenegade & message ) override;
+	void notify( const UnitDestroy & message ) override;
 
 	std::vector<std::unique_ptr<SkynetRegion>> m_old_regions;
 	std::vector<std::unique_ptr<SkynetChokepoint>> m_old_chokepoints;
 	std::vector<std::unique_ptr<SkynetBaseLocation>> m_old_base_locations;
 
-	DEFINE_DEBUGGING_INTERFACE( Default, RegionAnalysis );
+	DEFINE_DEBUGGING_INTERFACE( Default, RegionAnalysis, StaticData );
 };

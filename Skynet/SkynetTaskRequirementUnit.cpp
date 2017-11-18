@@ -143,7 +143,7 @@ int SkynetTaskRequirementUnitType::chooseUnit( CoreAccess & access, int current_
 
 	auto update_for_unit = [&]( Unit unit, ChoiceType & choice_type ) -> bool
 	{
-		if( choice_type != ChoiceType::TestingPrevious && m_region && access.getTerrainAnalyser().getRegion( unit->getWalkPosition() ) != m_region )
+		if( choice_type != ChoiceType::TestingPrevious && m_region && access.getTerrainAnalyser().getRegion( unit->getWalkPosition(), true ) != m_region )
 			return false;
 
 		if( choice_type != ChoiceType::TestingPrevious && m_base && access.getBaseTracker().getBaseTracker().getBase( unit->getTilePosition() ) != m_base )

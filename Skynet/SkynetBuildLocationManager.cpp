@@ -286,7 +286,7 @@ std::pair<int, TilePosition> SkynetBuildLocationManager::choosePosition( int tim
 				if( !base->getRegion()->isConnected( my_base->getRegion() ) )
 					continue;
 
-				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( my_base->getCenterPosition() ), WalkPosition( base->getCenterPosition() ) );
+				int distance = getTerrainAnalyser().getGroundDistance( WalkPosition( my_base->getCenterPosition() ), WalkPosition( base->getCenterPosition() ), true );
 				if( distance < best_distance )
 				{
 					best_base = base;
@@ -319,7 +319,7 @@ void SkynetBuildLocationManager::reservePosition( int time, TilePosition positio
 	{
 		for( int y = position.y; y < position.y + unit_type.tileHeight(); ++y )
 		{
-			m_tile_info[TilePosition(x, y)].is_build_planned = true;
+			m_tile_info[TilePosition( x, y )].is_build_planned = true;
 		}
 	}
 

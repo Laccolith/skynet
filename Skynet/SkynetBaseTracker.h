@@ -10,7 +10,7 @@
 
 #include <memory>
 
-class SkynetBaseTracker : public BaseTrackerInterface, public MessageListener<TerrainAnalysed>, public MessageListener<UnitDiscover, UnitMorphRenegade, UnitDestroy>
+class SkynetBaseTracker : public BaseTrackerInterface, public MessageListener<StaticTerrainAnalysed>, public MessageListener<UnitDiscover, UnitMorphRenegade, UnitDestroy>
 {
 public:
 	SkynetBaseTracker( Core & core );
@@ -20,7 +20,7 @@ public:
 
 	Base getBase( TilePosition position ) const override { return m_tile_to_base[position]; }
 
-	void notify( const TerrainAnalysed & message ) override;
+	void notify( const StaticTerrainAnalysed & message ) override;
 	void notify( const UnitDiscover & message ) override;
 	void notify( const UnitMorphRenegade & message ) override;
 	void notify( const UnitDestroy & message ) override;
