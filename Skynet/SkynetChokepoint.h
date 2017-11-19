@@ -26,6 +26,8 @@ protected:
 	void setRegion1( Region region ) { m_regions.first = region; }
 	void setRegion2( Region region ) { m_regions.second = region; }
 
+	void setID( int id ) { m_id = id; }
+
 	void markInvalid() { m_is_valid = false; }
 
 private:

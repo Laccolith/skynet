@@ -63,7 +63,7 @@ void SkynetBuildLocationManager::notify( const BasesRecreated & message )
 					{
 						for( int y = resource->getTilePosition().y - distance_between; y < resource->getTilePosition().y + distance_between + 3; ++y )
 						{
-							if( x < 0 || y < 0 || x >= BWAPI::Broodwar->mapWidth() || y >= BWAPI::Broodwar->mapWidth() )
+							if( x < 0 || y < 0 || x >= BWAPI::Broodwar->mapWidth() || y >= BWAPI::Broodwar->mapHeight() )
 								continue;
 
 							if( m_tile_info[TilePosition( x, y )].is_permanently_reserved )

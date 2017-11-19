@@ -14,11 +14,11 @@
     <Expand>
       <Item Name="[width]">m_width</Item>
       <Item Name="[height]">m_height</Item>
-      <ArrayItems Condition="m_data != 0">
+      <ArrayItems Condition="m_data._Mypair._Myval2 != 0">
         <Direction>Forward</Direction>
         <Rank>2</Rank>
         <Size>$i == 0 ? m_width : m_height</Size>
-        <ValuePointer>m_data</ValuePointer>
+        <ValuePointer>m_data._Mypair._Myval2</ValuePointer>
       </ArrayItems>
     </Expand>
   </Type>

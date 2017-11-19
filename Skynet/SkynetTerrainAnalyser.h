@@ -46,6 +46,10 @@ private:
 
 	struct Data
 	{
+		WalkPosition m_map_size;
+
+		std::vector<std::pair<UnitType, TilePosition>> m_buildings_cache;
+
 		bool m_analysed = false;
 
 		std::vector<Region> m_regions;
@@ -71,6 +75,16 @@ private:
 		float m_regions_time_seconds = 0.0f;
 
 		Data & operator=( Data && other ) = default;
+
+		void process( UnitGroup resources, bool debug_region );
+
+		void calculateWalkability();
+		void calculateConnectivity();
+		void calculateClearance();
+		void calculateRegions( bool debug_region );
+		std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center ) const;
+		int calculateShortestDistance( Chokepoint start_chokepoint, Chokepoint end_chokepoint ) const;
+		void createBases( const UnitGroup & resources );
 	};
 
 	Data m_processed_static_data;
@@ -78,19 +92,8 @@ private:
 	Data m_processing_dynamic_data;
 
 	UnitGroup m_buildings;
-	std::vector<std::pair<UnitType, TilePosition>> m_buildings_cache;
 
 	int m_reprocess_request = 1;
-
-	void process( Data & data, UnitGroup resources, bool static_data );
-
-	void calculateWalkability( Data & data );
-	void calculateConnectivity( Data & data );
-	void calculateClearance( Data & data );
-	void calculateRegions( Data & data, bool static_data );
-	std::pair<WalkPosition, WalkPosition> findChokePoint( WalkPosition center, Data & data ) const;
-	int calculateShortestDistance( Chokepoint start_chokepoint, Chokepoint end_chokepoint ) const;
-	void createBases( Data & data, const UnitGroup & resources );
 
 	std::future<void> m_async_future;
 
