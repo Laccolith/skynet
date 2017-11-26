@@ -6,8 +6,6 @@ SkynetTaskManager::SkynetTaskManager( Core & core )
 	: TaskManagerInterface( core )
 {
 	core.registerUpdateProcess( 4.0f, [this]() { update(); } );
-
-	setDebugging( Debug::Default, true );
 }
 
 void SkynetTaskManager::update()
