@@ -237,6 +237,15 @@
     <ClCompile Include="SkynetTerritoryTracker.cpp">
       <Filter>TerritoryTracker\Skynet</Filter>
     </ClCompile>
+    <ClCompile Include="SkynetSquad.cpp">
+      <Filter>SquadManager\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetEnemyTerritory.cpp">
+      <Filter>TerritoryTracker\Skynet</Filter>
+    </ClCompile>
+    <ClCompile Include="SkynetEnemyOutline.cpp">
+      <Filter>TerritoryTracker\Skynet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SmartEnum.h">
@@ -468,6 +477,21 @@
       <Filter>TerritoryTracker</Filter>
     </ClInclude>
     <ClInclude Include="SkynetTerritoryTracker.h">
+      <Filter>TerritoryTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetSquad.h">
+      <Filter>SquadManager\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyTerritory.h">
+      <Filter>TerritoryTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyOutline.h">
+      <Filter>TerritoryTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetEnemyTerritory.h">
+      <Filter>TerritoryTracker\Skynet</Filter>
+    </ClInclude>
+    <ClInclude Include="SkynetEnemyOutline.h">
       <Filter>TerritoryTracker\Skynet</Filter>
     </ClInclude>
   </ItemGroup>

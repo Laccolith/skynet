@@ -207,6 +207,8 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClCompile Include="DrawingUtil.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUtil.cpp" />
+    <ClCompile Include="SkynetEnemyOutline.cpp" />
+    <ClCompile Include="SkynetEnemyTerritory.cpp" />
     <ClCompile Include="SkynetPlayer.cpp" />
     <ClCompile Include="SkynetPlayerTracker.cpp" />
     <ClCompile Include="SkynetProductionManger.cpp" />
@@ -217,6 +219,7 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClCompile Include="SkynetChokepoint.cpp" />
     <ClCompile Include="CoreModule.cpp" />
     <ClCompile Include="SkynetRegion.cpp" />
+    <ClCompile Include="SkynetSquad.cpp" />
     <ClCompile Include="SkynetSquadManager.cpp" />
     <ClCompile Include="SkynetSupplyManager.cpp" />
     <ClCompile Include="SkynetTask.cpp" />
@@ -246,6 +249,8 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="ControlTaskFactory.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreAccess.h" />
+    <ClInclude Include="EnemyOutline.h" />
+    <ClInclude Include="EnemyTerritory.h" />
     <ClInclude Include="LazyLogic.h" />
     <ClInclude Include="LazyQuery.h" />
     <ClInclude Include="Logger.h" />
@@ -276,11 +281,14 @@ copy "bwapi.ini" "%25BWAPIData%25"
     <ClInclude Include="SkynetBaseLocation.h" />
     <ClInclude Include="SkynetBaseTracker.h" />
     <ClInclude Include="SkynetChokepoint.h" />
+    <ClInclude Include="SkynetEnemyOutline.h" />
+    <ClInclude Include="SkynetEnemyTerritory.h" />
     <ClInclude Include="SkynetPlayer.h" />
     <ClInclude Include="SkynetPlayerTracker.h" />
     <ClInclude Include="SkynetProductionManger.h" />
     <ClInclude Include="SkynetRegion.h" />
     <ClInclude Include="SkynetResourceManager.h" />
+    <ClInclude Include="SkynetSquad.h" />
     <ClInclude Include="SkynetSquadManager.h" />
     <ClInclude Include="SkynetSupplyManager.h" />
     <ClInclude Include="SkynetTask.h" />

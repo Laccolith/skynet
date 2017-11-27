@@ -179,6 +179,13 @@ public:
 			sf::Vertex( point_1 - offset, sf::Color( color.red(), color.green(), color.blue() ) )
 		} );
 	}
+
+	void clear()
+	{
+		std::lock_guard<std::mutex> lock( m_mutex );
+		m_shapes.clear();
+		m_lines.clear();
+	}
 };
 
 #else
@@ -190,6 +197,8 @@ public:
 
 	void addBox( int left, int top, int right, int bottom, Color color ) {}
 	void addLine( int x1, int y1, int x2, int y2, float thickness, Color color ) {}
+
+	void clear() {}
 };
 
 #endif
@@ -223,4 +232,10 @@ void Window::addLine( int x1, int y1, int x2, int y2, float thickness, Color col
 void Window::addLine( Position start, Position end, float thickness, Color color )
 {
 	addLine( start.x, start.y, end.x, end.y, thickness, color );
+}
+
+void Window::clear()
+{
+	if( m_impl )
+		m_impl->clear();
 }

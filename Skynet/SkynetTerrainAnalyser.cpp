@@ -51,7 +51,7 @@ void SkynetTerrainAnalyser::update()
 	if( isDebugging( Debug::Default ) && BWAPI::Broodwar->getKeyState( BWAPI::Key( '0' ) ) )
 		++m_reprocess_request;
 
-	checkDynamicData();
+	//checkDynamicData();
 
 	if( isDebugging( Debug::Default ) )
 	{
